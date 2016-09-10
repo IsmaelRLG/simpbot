@@ -10,7 +10,7 @@ $ git clone git://github.com/IsmaelRLG/simpbot.git
 $ cd simpbot
 # python setup.py install
 ```
-Instalación - Windows
+Instalación - Windows:
    - Por agregar :D
 
 Configuración - Linux:
@@ -22,7 +22,8 @@ Configuración - Linux:
   ```sh
   $ nano ~/.simpbot/config.py
   ```
-Configuración - Windows
+
+Configuración - Windows:
    - Por agregar :D
 
 Ejecución - Linux:
