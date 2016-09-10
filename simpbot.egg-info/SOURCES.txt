@@ -1,0 +1,17 @@
+README.md
+setup.py
+bin/simpbot
+simpbot/__init__.py
+simpbot/commands.py
+simpbot/config.py
+simpbot/envvars.py
+simpbot/functools.py
+simpbot/handlers.py
+simpbot/help_config.py
+simpbot/irc.py
+simpbot/util.py
+simpbot/workarea.py
+simpbot.egg-info/PKG-INFO
+simpbot.egg-info/SOURCES.txt
+simpbot.egg-info/dependency_links.txt
+simpbot.egg-info/top_level.txt

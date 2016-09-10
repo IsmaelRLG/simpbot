@@ -1,0 +1,19 @@
+Metadata-Version: 1.1
+Name: simpbot
+Version: 1.0
+Summary: Simple Bot (SimpBot) - IRC (Internet Relay Chat) Bot
+Home-page: https://www.kwargs.net.ve/projects/SimpBot
+Author: Ismael Lugo
+Author-email: ismaelrlgv@gmail.com
+License: MIT License
+Description: Simple Bot (SimpBot) - IRC (Internet Relay Chat) Bot
+Platform: any
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: Spanish
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Topic :: Communications :: Chat
