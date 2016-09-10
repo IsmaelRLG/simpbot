@@ -14,14 +14,16 @@ Instalación - Windows:
    - Por agregar :D
 
 Configuración - Linux:
-- Creamos la configuración
+- Creamos la configuración:
+
   ```sh
    $ simpbot --make-conf -d
   ```
-- Editamos la configuración
-  ```sh
-  $ nano ~/.simpbot/config.py
-  ```
+- Editamos la configuración:
+
+   ```sh
+   $ nano ~/.simpbot/config.py
+   ```
 
 Configuración - Windows:
    - Por agregar :D
