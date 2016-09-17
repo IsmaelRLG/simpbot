@@ -8,10 +8,12 @@
 # GIT: https://github.com/IsmaelRLG/simpbot
 
 from setuptools import setup
+import simpbot
 
 setup(
     name='simpbot',
-    author="Ismael Lugo",
+    version=simpbot.__version__,
+    author=simpbot.__author__,
     author_email="ismaelrlgv@gmail.com",
     description="Simple Bot (SimpBot) - IRC (Internet Relay Chat) Bot",
     url="https://www.kwargs.net.ve/projects/SimpBot",
