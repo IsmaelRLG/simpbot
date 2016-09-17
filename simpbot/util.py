@@ -37,6 +37,8 @@ def loadmodule(filename):
         if r_match is None:
             logging.error('¿No es Python?: %s', filename)
             return
+        if r_match.group('ext') in ('pyc', 'pyo'):
+            return
         name = r_match.group('name')
         pydata.append(open(filename, 'U'))
         sub.extend(['.' + r_match.group('ext'), 'U', 1])

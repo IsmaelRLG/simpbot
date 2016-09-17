@@ -14,4 +14,5 @@ import config
 import irc
 import handlers
 import commands
+import parser
 #lint:enable

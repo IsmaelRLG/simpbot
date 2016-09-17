@@ -203,6 +203,9 @@ class irc:
         for line in textwrap(text):
             self.send_raw("PRIVMSG %s :%s" % (target, line))
 
+    def msg(self, target, text):
+        self.notice(target, text)
+
     def verbose(self, text):
         if not config.VERBOSE:
             return
