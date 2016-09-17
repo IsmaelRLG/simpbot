@@ -59,6 +59,7 @@ def set_config():
     else:
         config = simpbot.util.loadmodule(abspath)
         if config:
+            from re import escape
             simpbot.config.NICK = config.NICK
             simpbot.config.USER = config.USER
             simpbot.config.USENS = config.USENS
@@ -71,7 +72,7 @@ def set_config():
             simpbot.config.SERVER = config.SERVER
             simpbot.config.SERVPASS = config.SERVPASS
             simpbot.config.TIMEOUT = config.TIMEOUT
-            simpbot.config.PREFIX = config.PREFIX
+            simpbot.config.PREFIX = escape(config.PREFIX)
             simpbot.config.WTIME = config.WTIME
             simpbot.config.MSGPS = config.MSGPS
             simpbot.config.ADMINS = config.ADMINS
@@ -123,7 +124,7 @@ def action():
         except OSError, err:
             err = str(err)
             if err.find("No such process") > 0:
-                print('[+]-  SimpBot detenido.')
+                print('[+]- (PID: %s) SimpBot detenido.' % pid)
                 os.remove(pidfile)
         if args.action == 'restart':
             pid_status = False
@@ -137,6 +138,7 @@ def action():
             return
 
         if not args.no_daemon:
+            print('[+]- (PID: %s) SimpBot iniciado.' % os.getpid())
             null = '/dev/null'
             simpbot.util.deamonize(null, null, null, pidfile)
 
