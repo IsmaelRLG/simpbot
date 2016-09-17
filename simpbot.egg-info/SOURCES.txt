@@ -9,6 +9,7 @@ simpbot/functools.py
 simpbot/handlers.py
 simpbot/help_config.py
 simpbot/irc.py
+simpbot/parser.py
 simpbot/util.py
 simpbot/workarea.py
 simpbot.egg-info/PKG-INFO
