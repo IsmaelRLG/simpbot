@@ -3,7 +3,7 @@
 # Script de instalación para `simpbot'.
 #
 # Autor: Ismael Lugo <ismaelrlgv@gmail.com>
-# Ultimo cambio: 10-09-2016
+# Ultimo cambio: 29-12-2016
 # URL: https://www.kwargs.net.ve/projects/simpbot
 # GIT: https://github.com/IsmaelRLG/simpbot
 
@@ -16,21 +16,28 @@ setup(
     author=simpbot.__author__,
     author_email="ismaelrlgv@gmail.com",
     description="Simple Bot (SimpBot) - IRC (Internet Relay Chat) Bot",
-    url="https://www.kwargs.net.ve/projects/SimpBot",
-    packages=['simpbot'],
+    url="https://kwargs.net.ve/projects/SimpBot",
+    packages=[
+        'simpbot',
+        'simpbot.request',
+        'simpbot.admins',
+        'simpbot.dbstore',
+        'simpbot.bottools',
+        'simpbot.moduletools',
+        'simpbot.samples',
+        'simpbot.commands',
+        'simpmods',
+        'simpmods.admin'
+        ],
     scripts=['bin/simpbot'],
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Environment :: Console",
-        "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: Spanish",
         "Operating System :: POSIX :: Linux",
-        "Operating System :: Microsoft :: Windows",
+        #"Operating System :: Microsoft :: Windows",  # Proximamente...
         "Programming Language :: Python :: 2.7",
-        "Topic :: Communications :: Chat"
+        "Topic :: Communications :: Chat :: Internet Relay Chat"
     ]
 )
-
-
-

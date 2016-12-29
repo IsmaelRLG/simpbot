@@ -3,84 +3,78 @@
 # Simple Bot (SimpBot)
 # Copyright 2016, Ismael Lugo (kwargs)
 
-import argparse
 import simpbot
 import logging
+import time
+import sys
+import os
+from signal import SIGTERM
 
-motd = """
-  ____  _  __    _______  ____   ______________
- / ___|(_)|  \  /   ___ \| __ \ / _ \___   ___/
- | |__ | ||   \/   |___||||__||| / \ |  | |
- \___ \| || |\  /|  ____/| __ || | | |  | |
- ___| || || | \/ | |     ||__||| \_/ |  | |
-/____ /|_|| |    |_|     |____/ \___/   |_|
-    Copyright 2016, Ismael Lugo (kwargs)    v%s""" % simpbot.__version__
 
-logging = logging.getLogger('SIMPBOT')
-Quit = lambda: exit('[ERROR]: Usar --debug para mas informacion.')
+logging = logging.getLogger('simpbot')
+quit = lambda: exit('[ERROR]: Usar --debug para más información.')  # lint:ok
 
-# Opcionales
-args_ = argparse.ArgumentParser()
-args_.add_argument('-d', '--debug',
-    action="store_true", dest='debug',
-    help="Inicia la depuracion")
-args_.add_argument('-dl', '--debug-level',
-    help='Inidica el nivel de debug',
-    dest='debug_level', type=int, metavar='level')
+opt = simpbot.envvargs.args
+opt.add_argument('-d', '--debug', action="store_true", dest='debug',
+    help="Inicia el debug.")
+opt.add_argument('-l', '--level', dest='level', type=int, metavar='level',
+    help='Indica el nivel de debug.')
 
-act = args_.add_argument_group("Lanzamiento de SimpBot")
-act.add_argument('-a', '--action',
-    help='Inicia, Reinicia o detiene SimpBot',
-    dest='action', type=str, metavar='(start|restart|stop)')
+act = opt.add_argument_group("Opciones de lanzamiento")
+act.add_argument('-a', '--action', type=str, metavar='(start|restart|stop)',
+    help='Inicia, reinicia ó detiene SimpBot.')
 act.add_argument('-nd', '--no-daemon',
-    help='No lanza SimpBot como demonio.',
+    help='Lanza SimpBot sin demonizar.',
     dest='no_daemon', action='store_true')
 
-cfg = args_.add_argument_group("Configuración")
-cfg.add_argument('-c', '--conf', dest="conf", type=str,
-    help="Indica el metodo a usar", metavar="ARCHIVO")
-cfg.add_argument('-mk', '--make-conf', dest="make", action='store_true',
-    help="Crea la configuración inicial en el archivo indicado")
+cfg = opt.add_argument_group("Opciones de configuración.")
+cfg.add_argument('-sc', '--server-conf', type=str, metavar="<nombre de la red>",
+    dest="sc", help="Genera un archivo de configuración del servidor.")
+cfg.add_argument('-ac', '--admin-conf',
+    dest="ac", help="Genera el archivo de configuración de administradores.")
+cfg.add_argument('-p', '--path', action='store_true',
+    help="Indica el directorio donde se generara el archivo.")
 
-args = args_.parse_args()
+try:
+    import simpmods  # lint:ok
+except ImportError:
+    pass
 
 
-def set_config():
-    if args.conf:
-        abspath = args.conf
-    else:
-        abspath = simpbot.envvars.CONFPATH
+args = opt.parse_args()
 
-    if args.make:
-        simpbot.envvars.CONFPATH = abspath
-        simpbot.help_config.save_conf()
-        logging.info('Configuracion creada en: %s', abspath)
+
+def config():
+    if not args.sc and not args.ac:
+        return
+
+    if args.path:
+        abspath = args.path
+    elif args.sc:
+        abspath = simpbot.envvars.servers.abspath
+    elif args.ac:
+        abspath = simpbot.envvars.workarea.abspath
+
+    if args.sc:
+        abspath = os.path.join(abspath, args.sc)
+        if os.path.exist(abspath):
+            logging.error('Nombre de red "%s" duplicado.', args.sc)
+            exit(0)
+        with file(abspath, 'w') as of:
+            of.write(simpbot.bottools.dummy.ascii(';'))
+            of.write(simpbot.samples.server.sample)
         exit(0)
-    else:
-        config = simpbot.util.loadmodule(abspath)
-        if config:
-            from re import escape
-            simpbot.config.NICK = config.NICK
-            simpbot.config.USER = config.USER
-            simpbot.config.USENS = config.USENS
-            simpbot.config.SASL = config.SASL
-            simpbot.config.USERNAME = config.USERNAME
-            simpbot.config.PASSWORD = config.PASSWORD
-            simpbot.config.SSL = config.SSL
-            simpbot.config.PORT = config.PORT
-            simpbot.config.NETWORK = config.NETWORK
-            simpbot.config.SERVER = config.SERVER
-            simpbot.config.SERVPASS = config.SERVPASS
-            simpbot.config.TIMEOUT = config.TIMEOUT
-            simpbot.config.PREFIX = escape(config.PREFIX)
-            simpbot.config.WTIME = config.WTIME
-            simpbot.config.MSGPS = config.MSGPS
-            simpbot.config.ADMINS = config.ADMINS
-            simpbot.config.CHANNELS = config.CHANNELS
-            simpbot.config.VERBOSE = config.VERBOSE
-            simpbot.config.VERBOSENICKS = config.VERBOSENICKS
-        else:
-            Quit()
+
+    if args.ac:
+        abspath = os.path.join(abspath, 'admins.ini')
+        if os.path.exist(abspath):
+            logging.error('Archivo "%s" existente.', abspath)
+            exit(0)
+
+        with file(abspath, 'w') as of:
+            of.write(simpbot.bottools.dummy.ascii(';'))
+            of.write(simpbot.samples.admins.sample)
+        exit(0)
 
 
 def debug():
@@ -88,29 +82,34 @@ def debug():
         level = 50
     else:
         level = 10
-    if args.debug_level:
+    if args.level:
         level = args.debug_level
-
     if args.action in ('start', 'restart'):
         if not args.no_daemon:
-            simpbot.envvars.DAEMON = True
-
-    simpbot.util.debug(level)
+            simpbot.envvars.daemon = True
+    simpbot.bottools.dummy.debug(level)
 
 
 def action():
     if not args.action in ('start', 'restart', 'stop'):
-        args_.print_usage()
+        args.print_usage()
         return
-    import os
-    import time
-    from signal import SIGTERM
+
     pidfile = '/tmp/simbot-%s.pid' % os.environ['USER']
     pid = None
     pid_status = False
     if os.path.exists(pidfile):
         pid = int(file(pidfile, 'r').read().splitlines()[0].replace('\n', ''))
-        pid_status = simpbot.util.pid_exists(pid)
+
+        import errno
+        if pid > 0:
+            try:
+                os.kill(pid, 0)
+            except OSError as err:
+                if err.errno == errno.EPERM:
+                    pid_status = True
+            else:
+                pid_status = True
 
     if args.action in ('stop', 'restart'):
         if not pid_status:
@@ -140,13 +139,52 @@ def action():
         if not args.no_daemon:
             print('[+]- (PID: %s) SimpBot iniciado.' % os.getpid())
             null = '/dev/null'
-            simpbot.util.deamonize(null, null, null, pidfile)
 
-        simpbot.envvars.irc = simpbot.irc.irc()
-        simpbot.envvars.irc.try_connect()
+            # Do first fork.
+            try:
+                pid = os.fork()
+                if pid > 0:
+                    sys.exit(0)   # Exit first parent.
+            except OSError, e:
+                sys.stderr.write("fork #1 failed: (%d) %s\n" % (e.errno, e.strerror))
+                sys.exit(1)
 
-        for module in simpbot.envvars.modules.listdir():
-            simpbot.util.loadmodule(simpbot.envvars.modules.join(module))
+            os.chdir("/")
+            os.umask(0)
+            os.setsid()
+            try:
+                pid = os.fork()
+                if pid > 0:
+                    sys.exit(0)   # Exit second parent.
+            except OSError, e:
+                sys.stderr.write("fork #2 failed: (%d) %s\n" % (e.errno, e.strerror))
+                sys.exit(1)
+            si = file(null, 'r')
+            so = file(null, 'a+')
+            se = file(null, 'a+', 0)
+            pid = str(os.getpid())
+            if pidfile:
+                file(pidfile, 'w+').write("%s\n" % pid)
+            os.dup2(si.fileno(), sys.stdin.fileno())
+            os.dup2(so.fileno(), sys.stdout.fileno())
+            os.dup2(se.fileno(), sys.stderr.fileno())
+
+        for module in simpbot.modules.path.listdir():
+            simpbot.modules.load_module(module, return_mod=False)
+        if len(simpbot.envvars.coremodules) == 0:
+            logging.error('No hay modulos disponibles!')
+            exit(0)
+
+        simpbot.admins.load_admins()
+        if len(simpbot.envvars.admins) == 0:
+            logging.error('Es necesario al menos un administrador!')
+            exit(0)
+
+        simpbot.connections.load_servers()
+        if len(simpbot.envvars.nertworks) == 0:
+            logging.error('No hay redes disponibles!')
+            exit(0)
+
         while 1:
             try:
                 time.sleep(60)
@@ -155,7 +193,7 @@ def action():
 
 
 if __name__ == '__main__':
-    print(motd)
+    print(simpbot.bottools.dummy.ascii(''))
     debug()
-    set_config()
+    config()
     action()

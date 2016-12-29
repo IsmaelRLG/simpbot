@@ -1,6 +1,7 @@
 # SimpBot
 
-SimpBot es un bot muy simple, y solo eso, hecho en python, funcional en Linux y Windows
+SimpBot es un bot muy simple, y solo eso, hecho en python, funcional en Linux y Windows.
+ADVERTENCIA: Version de desarrollo inestable.
 
 # Instalación, configuración y ejecución
 

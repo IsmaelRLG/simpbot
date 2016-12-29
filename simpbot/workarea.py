@@ -3,7 +3,8 @@
 # Copyright 2016, Ismael Lugo (kwargs)
 
 import os
-from . import functools
+import mimetypes
+import shutil
 
 
 class workarea:
@@ -30,6 +31,9 @@ class workarea:
     def file(self, filename, mode):
         return file(self.join(filename), mode)
 
+    def open(self, filename, mode):
+        return open(self.join(filename), mode)
+
     def exists(self, path):
         return os.path.exists(self.join(path))
 
@@ -43,7 +47,11 @@ class workarea:
         return os.path.isdir(self.join(path))
 
     def rm(self, path):
-        functools.rm(path)
+        path = self.join(path)
+        method = os.remove
+        if os.path.isdir(path):
+            method = shutil.rmtree
+        method(path)
 
     def join(self, *args):
         return os.path.join(self.abspath, *args)
@@ -58,10 +66,14 @@ class workarea:
         self.file(filename, 'w').close()
 
     def copy(self, src, dst):
-        functools.copy(src, dst)
+        src = self.join(src)
+        method = shutil.copy2
+        if os.path.isdir(src):
+            method = shutil.copytree
+        method(src, dst)
 
     def move(self, src, dst):
-        functools.move(src, dst)
+        shutil.move(self.join(src), dst)
 
     def new_wa(self, dirname, *args, **kwargs):
         wa = workarea(self.join(dirname), *args, **kwargs)
@@ -74,9 +86,7 @@ class workarea:
         return wa
 
     def rename(self, old, new):
-        os.rename(old, new)
+        os.rename(self.join(old), self.join(new))
 
     def mimetype(self, filename):
-        return functools.mimetype(self.join(filename))
-
-#    def if_first_commit(self, text2write):
+        return mimetypes.guess_type(self.join(filename))

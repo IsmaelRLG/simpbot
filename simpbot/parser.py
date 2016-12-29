@@ -37,7 +37,7 @@ def parse_bool(boolean):
     else:
         return 'no'
 
-none_value = '?'
+none_value = ''
 
 
 def is_none(string):
@@ -64,7 +64,7 @@ value_opt = parse_r('({n_sep}(?P<{name}>{value}))?', 'n_sep', 'name', 'value')
 #########################
 #  NOMBRES  RESERVADOS  #
 #########################
-renames = ['nickbot', 'nickname', 'network', 'channel', 'hostname', 'datetime']
+renames = []
 
 
 class ParserRegex:
@@ -90,12 +90,6 @@ class ParserRegex:
             else:
                 n_sep = ' ' * int(n_repl)
 
-            #if value != '':
-                #if '?' in end_point:
-                    #parse = value_opt(value, n_sep, name)
-                #else:
-                    #parse = value_arg(name)
-
             if end_point == '':
                 parse = uniq(name)
             elif end_point == '?':
@@ -120,9 +114,7 @@ class replace:
             'connected': parse_bool(irc.connected),
             'nickbot': irc.nickname
             }
-
-        for group_name in result.re.groupindex.keys():
-            self.mapping[group_name] = result.group(group_name)
+        self.addmatch(result)
 
     def __call__(self, string):
         return self.replace(string)
@@ -133,11 +125,22 @@ class replace:
     def __setitem__(self, item, value):
         self.set(item, value)
 
+    def __delitem__(self, item):
+        del self.mapping[item]
+
     def __iter__(self):
         return iter(self.mapping)
 
     def set(self, item, value):
         self.mapping[item] = value
 
+    def extend(self, dict):
+        for key, value in dict.items():
+            self.mapping[key] = is_none(value)
+
     def replace(self, string):
         return date(string.format(**self.mapping))
+
+    def addmatch(self, match):
+        for group_name in match.re.groupindex.keys():
+            self.mapping[group_name] = is_none(match.group(group_name))

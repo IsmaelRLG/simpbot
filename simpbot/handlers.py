@@ -5,87 +5,203 @@
 import time
 import logging
 from re import compile as regex
-from . import config
 from . import __version__
-from .irc import irc
-from .util import randphras
+from . import parser
+from .irc import client
+from .bottools import text
 logging = logging.getLogger('HANDLERS')
-irc.handlers = []
+client.handlers = []
 
+
+# Agregar handlers ;D
+########################################
+def add_handler(func, regex_, noparse=True):
+    if not noparse:
+        regex_ = parser.ParserRegex(regex_).string
+    client.handlers.append({'func': func, 'match': regex(regex_, 2).match})
+
+
+# Decorador
+########################################
+def handler(Regex):
+    Regex = parser.ParserRegex(Regex).string
+
+    def addhandler(func):
+        add_handler(func, Regex)
+        return func
+    return addhandler
+
+
+# Parseadores
+########################################
+def rpl(code, *args):
+    rpl_ = ':?(?P<machine>[^ ]+) {} (?P<me>[^ ]+) '.format(str(code).zfill(3))
+    if len(args) > 0:
+        rpl_ += ' '.join(args)
+    return rpl_
+
+
+def usr(value, *args):
+    rpl_ = ':((?P<mask>(?P<nick>.+)!(?P<user>.+)@(?P<host>[^ ]+))|'
+    rpl_ += '(?P<machine>[^ ]+)) %s ' % value
+    if len(args) > 0:
+        rpl_ += ' '.join(args)
+    return rpl_
+
+
+# Handlers
+########################################
 
 # Ping -> Pong
+@handler('PING !{server}!{server2}?')
 def pong(irc, ev):
     irc.pong(ev('server'), ev('server2') if ev('server2') else '')
-irc.handlers.append({'func': pong,
-    'match': regex('PING (?P<server>[^ ]+)( (?P<server2>[^ ]+))?', 2).match})
+
+
+# Capacidades del servidor
+@handler(rpl(5, '!{feature}+( :are supported by this server)'))
+def featurelist(irc, ev):
+    for split in ev('feature').split():
+        irc.features.load_feature(split)
 
 
 # Registro completado
+@handler(rpl(4, '!{servername} !{version} !{aum} !{acm}'))
 def registration_successful(irc, ev):
     logging.info('Registro completado')
+    irc.set_status('r')
 
-    if config.USENS is True and config.SASL is False:
-        irc.privmsg('NickServ', 'ID %s %s' % (config.USERNAME, config.PASSWORD))
+    if irc.usens and irc.sasl is False:
+        irc.privmsg('NickServ', 'ID %s %s' % irc.__nickserv)
 
-    for channel in config.CHANNELS:
-        channel = channel.split(' ', 1)
-        irc.join(*channel)
+    if irc.dbstore:
+        for channel in irc.dbstore.store_chan.keys():
+            key = irc.dbstore.store_chan[channel].key
+            if not key:
+                key = ''
+            irc.join(channel, key)
 
-    irc.verbose(time.strftime('[%Z][%d/%m/%Y](%X): Conexión exitosa.'))
-irc.handlers.append({'func': registration_successful, 'match': regex(
-    ':?(?P<machine>[^ ]+) 004 (?P<me>[^ ]+) (?P<servername>[^ ]+) '
-    '(?P<version>[^ ]+) (?P<aum>[^ ]+) (?P<acm>[^ ]+)', 2).match})
+    msg = '[%Z][%d/%m/%Y](%X): Conexión exitosa.'
+    irc.verbose('connected', time.strftime(msg))
 
 
 # Nick en uso
+@handler(rpl(433, '!{nick} :!{msg}+'))
 def err_nicknameinuse(irc, ev):
-    irc.nickname = randphras(l=7, alpha=(False, True), noinitnum=True)
+    irc.nickname = text.randphras(l=7, alpha=(False, True), noinitnum=True)
     irc.nick(irc.nickname)
-irc.handlers.append({'func': err_nicknameinuse, 'match': regex(
-    ':?(?P<machine>[^ ]+) 433 (?P<me>[^ ]+) '
-    '(?P<nick>[^ ]+) :(?P<message>.*)', 2).match})
 
 
-# Error de conexion
+# Error de conexión
+@handler('ERROR !{message}')
 def err_connection(irc, ev):
     time.sleep(4)
-    irc.try_connect()
-irc.handlers.append({'func': err_connection,
-    'match': regex('ERROR (?P<message>.*)', 2).match})
+    if irc.connection_status in 'cr':
+        if irc.request:
+            irc.request.reset()
+
+        irc.try_connect()
 
 
 # Mantiene el nick real
+@handler(usr('NICK', ':?!{new_nick}'))
 def real_nick(irc, ev):
     if ev('nick').lower() == irc.nickname.lower():
         irc.nickname = ev('new_nick')
     else:
+        if irc.request:
+            irc.request.update_nick(ev('nick'), ev('new_nick'))
         return True
-irc.handlers.append({'func': real_nick,
-    'match': regex(':((?P<nick>.+)!(?P<user>.+)@(?P<host>[^ ]+)|'
-    '(?P<machine>[^ ]+)) NICK :(?P<new_nick>.*)', 2).match})
 
 
 # Necesita de privilegios
+@handler(rpl(482, '!{channel} :!{message}+'))
 def err_chanoprivsneeded(irc, ev):
     irc.error(*ev('channel', 'message'))
-irc.handlers.append({'func': err_chanoprivsneeded, 'match': regex(
-    ':?(?P<machine>[^ ]+) 482 (?P<me>[^ ]+) '
-    '(?P<channel>[^ ]+) :(?P<message>.*)', 2).match})
 
 
 # CTCP VERSION
+@handler(usr('PRIVMSG', '!{target} :\001VERSION\001'))
 def ctcp_version(irc, ev):
-    irc.ctcp_reply(ev('nick'), 'SimpleBot v%s' % __version__)
-irc.handlers.append({'func': ctcp_version,
-    'match': regex(':((?P<nick>.+)!(?P<user>.+)@(?P<host>[^ ]+)|'
-    '(?P<machine>[^ ]+)) PRIVMSG (?P<target>[^ ]+) '
-    ':\001VERSION\001$', 2).match})
+    irc.ctcp_reply(ev('nick'), 'SimpBot v%s' % __version__)
 
 
 # CTCP PING
+@handler(usr('PRIVMSG', '!{target} :\001PING !{code}\001'))
 def ctcp_ping(irc, ev):
     irc.ctcp_reply(ev('nick'), 'PING ' + ev('code'))
-irc.handlers.append({'func': ctcp_ping,
-    'match': regex(':((?P<nick>.+)!(?P<user>.+)@(?P<host>[^ ]+)|'
-    '(?P<machine>[^ ]+)) PRIVMSG (?P<target>[^ ]+) '
-    ':\001PING (?P<code>[^ ]+)\001$', 2).match})
+
+
+# Mantiene los canales en que está el bot
+@handler(usr('JOIN', ':?!{channel}'))
+def join(irc, ev):
+    if not irc.request:
+        return True
+    nick = ev('nick')
+    channel = ev('channel')
+
+    if nick.lower() == irc.nickname.lower():
+        irc.request.set_chan(channel)
+        irc.request.who(channel)
+    else:
+        user = irc.request.get_user(nick)
+        if user is None:
+            user = irc.request.set_user(ev('user'), ev('host'), nick)
+            irc.request.request(nick, channel)
+        chan = irc.request.get_chan(channel)
+        chan.append(user)
+        return True
+
+
+# Mantiene los canales en que está el bot
+@handler(usr('PART', '!{channel}!{message}+?'))
+def part(irc, ev):
+    if not irc.request:
+        return True
+    nick = ev('nick')
+    channel = ev('channel')
+
+    if nick.lower() == irc.nickname.lower():
+        irc.request.del_chan(channel)
+    else:
+        user = irc.request.get_user(nick)
+        if user is None:
+            return  # ¿wtf?
+
+        chan = irc.request.get_chan(channel)
+        chan.remove(user)
+        return True
+
+
+# Mantiene los canales en que está el bot
+@handler(usr('QUIT', ':!{message}+'))
+def quit(irc, ev):
+    if not irc.request:
+        return True
+    nick = ev('nick')
+
+    if nick.lower() == irc.nickname.lower():
+        irc.request.reset()
+    else:
+        irc.request.del_user(nick)
+        return True
+
+
+# Mantiene los canales en que está el bot
+@handler(usr('KICK', '!{channel} !{victim} :!{message}+'))
+def kick(irc, ev):
+    if not irc.request:
+        return True
+    nick = ev('victim')
+    channel = ev('channel')
+
+    if nick.lower() == irc.nickname.lower():
+        irc.request.del_chan(channel)
+    else:
+        user = irc.request.get_user(nick)
+        if user is None:
+            return  # ¿wtf?
+
+        chan = irc.request.get_chan(channel)
+        chan.remove(user)
+        return True
