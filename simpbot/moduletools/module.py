@@ -5,7 +5,8 @@
 import logging
 from simpbot import control
 from types import ModuleType
-from handler import handler as handlermsg
+from .handler import handler as handlermsg
+from six import string_types
 logging = logging.getLogger('module')
 
 
@@ -17,7 +18,7 @@ class module(control.control):
         if isinstance(mod, ModuleType):
             self.module = mod
             self.load_meta()
-        elif isinstance(mod, basestring):
+        elif isinstance(mod, string_types):
             self.module = None
             self.name = mod
             self.version = version
@@ -93,7 +94,7 @@ class module(control.control):
             self.load_meta()
 
     def handlers_names(self):
-        return self.handlers.keys()
+        return list(self.handlers.keys())
 
     def loader(self):
         def mod_loader(name=None, regex=None, help=None, syntax=None,

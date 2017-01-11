@@ -1,0 +1,26 @@
+# Spanish translation for simpbot
+# Copyright (C) 2016, Ismael Lugo
+# This file is distributed under the same license as the simpbot
+# --------------------------------------------------------------
+# Original Translator: Ismael Lugo <ismaelrlgv@gmail.com>
+# Creation Date: 2017-01-08 20:28 (-0400)
+# Last revision date: 2017-01-08 20:28 (-0400)
+# Last Translator: Darelyn Jimenez <jdarelyn@gmail.com>
+# Language: Español (spanish)
+# --------------------------------------------------------------
+
+msgid  duplicate admin
+msgstr Administrador "%s" duplicado.
+
+msgid  admin without capabs
+msgstr Administrador "%s" sin capacidades definidas.
+
+msgid  admin added
+msgstr Administrador "%s" agregado.
+
+msgid  admin deleted
+msgstr Administrador "%s" eliminado.
+
+msgid  bad config
+msgstr Configuracion de administrador "%s" erronea
+

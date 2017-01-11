@@ -5,8 +5,8 @@
 from simpbot import bottools
 
 #lint:disable
-import server
-import admins
+from . import server
+from . import admins
 #lint:enable
 
 

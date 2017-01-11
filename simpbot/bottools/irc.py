@@ -2,8 +2,8 @@
 # Simple Bot (SimpBot)
 # Copyright 2016, Ismael Lugo (kwargs)
 
-import text
 import re
+from . import text
 from simpbot.envvars import networks
 
 

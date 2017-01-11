@@ -7,8 +7,11 @@ import logging
 from re import compile as regex
 from . import __version__
 from . import parser
+from . import localedata
 from .irc import client
 from .bottools import text
+
+i18n = localedata.get()
 logging = logging.getLogger('HANDLERS')
 client.handlers = []
 
@@ -68,21 +71,21 @@ def featurelist(irc, ev):
 # Registro completado
 @handler(rpl(4, '!{servername} !{version} !{aum} !{acm}'))
 def registration_successful(irc, ev):
-    logging.info('Registro completado')
+    logging.info(i18n['registration completed'], irc.servname)
     irc.set_status('r')
 
     if irc.usens and irc.sasl is False:
         irc.privmsg('NickServ', 'ID %s %s' % irc.__nickserv)
 
     if irc.dbstore:
-        for channel in irc.dbstore.store_chan.keys():
+        for channel in list(irc.dbstore.store_chan.keys()):
             key = irc.dbstore.store_chan[channel].key
             if not key:
                 key = ''
             irc.join(channel, key)
 
-    msg = '[%Z][%d/%m/%Y](%X): Conexión exitosa.'
-    irc.verbose('connected', time.strftime(msg))
+    locale = localedata.get(irc.default_lang)
+    irc.verbose('connected', time.strftime(locale['connection successful']))
 
 
 # Nick en uso

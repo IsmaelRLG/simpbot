@@ -1,0 +1,53 @@
+# Spanish translation for simpbot
+# Copyright (C) 2016, Ismael Lugo
+# This file is distributed under the same license as the simpbot 
+# --------------------------------------------------------------
+# Original Translator: Ismael Lugo <ismaelrlgv@gmail.com>
+# Creation Date: 2017-01-07 07:46-0400
+# Last revision date: 2017-01-07 07:46-0400
+# Last Translator: Darelyn Jimenez <jdarelyn@gmail.com>
+# Language: Spanish
+#---------------------------------------------------------------
+
+msgid  help flags
+config nostrip yes
+config addline yes
+msgstr
+El comando FLAGS permite otorgar ó eliminar privilegios en un nivel más
+específico, no generalizado. Éste admite masks y cuentas de usuario.
+
+Los flags pueden modificarse usando + para otorgar y - para eliminar
+privilegios; también modificarse indicando el nombre de la plantilla, para
+obtener más información sobre las plantillas, envíe lo siguiente:
+/msg {irc.nickname} help template
+
+Si usted es un fundador, y desea otorgar / remover privilegios de fundador
+a un segundo ó a usted mismo debera usar el comando FOUNDER, para obtener
+más información sobre este comando envie lo siguiente:
+    /msg {irc.nickname} help founder
+No se pueden conceder privilegios de fundador otorgando +F, igualmente no está
+permitido conceder los siguientes privilegios a un mask: +Ffs.
+
+Lista de privilegios:
+    +v - Habilita el uso del comando voice
+    +V - Habilita el uso del comando devoice
+    +o - Habilita el uso del comando op
+    +O - Habilita el uso del comando deop
+    +b - Habilita el uso del comando ban
+    +B - Habilita el uso del comando unban
+    +i - Habilita el uso del comando invite
+    +k - Habilita el uso del comando kick
+    +r - Habilita el uso del comando remove
+    +l - Permite ver la lista de flags
+    +t - Habilita el uso del comando topic
+    +m - Habilita el uso del comando mode
+    +s - Permite cambiar las plantillas
+    +f - Concede privilegios de administrador
+    +F - Concede privilegios de fundador
+
+Ejemplos:
+    /msg {irc.nickname} FLAGS #foo foouser OP
+    /msg {irc.nickname} FLAGS #foo foouser +Vbiklmotv
+    /msg {irc.nickname} FLAGS #foo *!*@hostname +Vbiklmotv
+    /msg {irc.nickname} FLAGS #foo nick!*@host OP
+msgend

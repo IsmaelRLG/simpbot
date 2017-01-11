@@ -3,8 +3,8 @@
 # Copyright 2016, Ismael Lugo (kwargs)
 
 #lint:disable
-import users
-import channels
-import manager
-import handlers
+from . import users
+from . import channels
+from . import manager
+from . import handlers
 #lint:enable

@@ -3,7 +3,7 @@
 # Copyright 2016, Ismael Lugo (kwargs)
 
 #lint:disable
-import commands
-import requeries
-from commands import ProccessCommands
+from . import commands
+from . import requires
+from .commands import ProccessCommands
 #lint:enable

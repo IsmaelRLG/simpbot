@@ -1,0 +1,61 @@
+# Spanish translation for simpbot
+# Copyright (C) 2016, Ismael Lugo
+# This file is distributed under the same license as the simpbot
+# --------------------------------------------------------------
+# Original Translator: Ismael Lugo <ismaelrlgv@gmail.com>
+# Creation Date: 2017-01-08 11:47 (-0400)
+# Last revision date: 2017-01-08 11:47 (-0400)
+# Last Translator: Darelyn Jimenez <jdarelyn@gmail.com>
+# Language: Español (spanish)
+# --------------------------------------------------------------
+
+msgid  not logged
+msgstr No se encuentra logueado ó registrado en NickServ
+
+msgid  without params
+msgstr {%s}; No se indicaron los parametros.
+
+msgid  invalid params
+msgstr {%s}; Parametros ó argumentos invalidos.
+
+msgid  only private
+msgstr Este comando solo debe ser ejecutado en privado.
+
+msgid  only channel
+msgstr Este comando solo debe ser ejecutado en un canal.
+
+msgid  invalid channel
+msgstr Canal %s inválido.
+
+msgid  unregistered channel
+msgstr Canal %s no registrado.
+
+msgid  channel needed
+msgstr Debe indicar un canal.
+
+msgid  registered channel
+msgstr Canal %s registrado.
+
+msgid  you are not registered
+msgstr No se encuentra registrado en el bot.
+
+msgid  invalid user
+msgstr Usuario %s inválido.
+
+msgid  user no registered
+msgstr Usuario %s no registrado en el bot.
+
+msgid  already registered
+msgstr Se encuentra registrado en el bot.
+
+msgid  permission denied
+msgstr [Permiso denegado]: No tiene los permisos necesarios para ejecutar esta acción, necesita: +%s.
+
+msgid  only admins
+msgstr [Permiso denegado]: Comando sólo para administradores.
+
+msgid  no capabs
+msgstr [Permiso denegado]: No posee los permisos suficientes para ejecutar esta acción.
+
+msgid  fail use
+msgstr Intento fallido de uso. mask: {user.mask}, cuenta del administrador: {usr.admin.user}.

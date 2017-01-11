@@ -90,7 +90,6 @@ def simpuser(irc, ev):
     '(?P<status>[%s]{0,}) :[0-9] (?P<realname>.+)')
     data = re.match(regex % re.escape(irc.features.statusmsg), ev('data'))
     if not data:
-        print 'No data'
         return
 
     user = irc.request.set_user(*data.group('user', 'host', 'nick', 'realname'))

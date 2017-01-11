@@ -6,14 +6,17 @@ import re
 import os
 import imp
 import sys as sys_
-import module
 import logging
+from . import module
 from simpbot import control
 from simpbot.envvars import modules
 from simpbot.envvars import coremodules
 from simpbot.workarea import workarea
 refile = re.compile('(?P<name>.+)\.(?P<ext>py[co]?$)', re.IGNORECASE)
 logging = logging.getLogger('coremod')
+from simpbot import localedata
+
+i18n = localedata.get()
 
 
 class coremod(control.control):
@@ -28,19 +31,19 @@ class coremod(control.control):
         super(coremod, self).__init__('global.simpbot.modules')
 
     def __iter__(self):
-        return iter(self.core.items())
+        return iter(list(self.core.items()))
 
     def find_module(self, modname):
         pydata = []
         sub = []
         abspath = self.path.join(modname)
         if not self.path.exists(modname):
-            logging.error('No existe el módulo %s', abspath)
+            logging.error(i18n['module no exists'], abspath)
             return
         elif self.path.isfile(modname):
             rmatch = refile(modname)
             if rmatch is None:
-                logging.error('¿No es Python?: %s', abspath)
+                logging.error(i18n['no python code'], abspath)
                 return
             ext = rmatch.group('ext').lower()
             nam = rmatch.group('name')
@@ -58,17 +61,17 @@ class coremod(control.control):
             initp = self.path.join(modname, '__init__.py')
             initb = self.path.join(modname, '__init__.pyc')
             if not self.path.exists(initp) or not self.path.exists(initb):
-                logging.error('¿No es Python?: %s', abspath)
+                logging.error(i18n['no python code'], abspath)
                 return
             elif self.path.isdir(initp) or self.path.isdir(initb):
-                logging.error('¿Qué hiciste? ¿Un directorio?: %s', abspath)
+                logging.error(i18n['is a directory'], abspath)
                 return
             else:
                 nam = os.path.basename(modname)
             pydata.append(None)
             sub.extend(['', '', 5])
         else:
-            logging.warning('¿Enlace simbólico?: %s', abspath)
+            logging.warning(i18n['symbolic link'], abspath)
             return
         pydata.append(modname)
         pydata.append(tuple(sub))
@@ -80,14 +83,14 @@ class coremod(control.control):
         data = self.find_module(modname)
         if data is None:
             return
-        logging.debug('Intentando cargar: %s', modname)
+        logging.debug(i18n['trying load'], modname)
         try:
             mod = imp.load_module(*data)
         except Exception as error:
-            logging.error('El módulo "%s" contiene errores: %s', data[0], error)
+            logging.error(i18n['module with errors'], data[0], error)
             return error
         else:
-            logging.info('Módulo "%s" cargado correctamente', data[0])
+            logging.info(i18n['module loaded'], data[0])
         if addmod:
             simmod = self.get_module(modname)
             simmod.load_meta(mod)

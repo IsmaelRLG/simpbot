@@ -1,0 +1,31 @@
+# Spanish translation for simpbot
+# Copyright (C) 2016, Ismael Lugo
+# This file is distributed under the same license as the simpbot
+# --------------------------------------------------------------
+# Original Translator: Ismael Lugo <ismaelrlgv@gmail.com>
+# Creation Date: 2017-01-08 16:35 (-0400)
+# Last revision date: 2017-01-08 16:35 (-0400)
+# Last Translator: Darelyn Jimenez <jdarelyn@gmail.com>
+# Language: Español (spanish)
+# --------------------------------------------------------------
+
+msgid  module no exists
+msgstr No existe el módulo %s
+
+msgid  no python code
+msgstr ¿Qué es esto? ¿No es Python?: %s
+
+msgid  is a directory
+msgstr ¿Qué es esto? ¿Un simple directorio?: %s
+
+msgid  symbolic link
+msgstr ¿Qué es esto? ¿Un enlace simbólico?: %s
+
+msgid  trying load
+msgstr Intentando cargar: %s
+
+msgid  module with errors
+msgstr El módulo "%s" contiene errores: %s
+
+msgid  module loaded
+msgstr Módulo "%s" cargado correctamente.

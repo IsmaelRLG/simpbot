@@ -2,8 +2,8 @@
 # Simple Bot (SimpBot)
 # Copyright 2016, Ismael Lugo (kwargs)
 
-import thread
-from ConfigParser import ConfigParser
+from six.moves import _thread
+from six.moves import configparser
 from . import envvars
 from .irc import client
 from .dbstore import dbstore
@@ -11,13 +11,16 @@ from .request import manager
 from .commands import ProccessCommands
 from .bottools import text
 from .bottools import dummy
+from . import localedata
+
+i18n = localedata.get()
 logging = __import__('logging').getLogger('connections')
 
 
 @text.lower
 def add(network, rchan, ruser, maxu, maxc, *args, **kwargs):
     if network in envvars.networks:
-        logging.warning('Nombre de red duplicado: %s', network)
+        logging.warning(i18n['network duplicated'], network)
         return False
     irc = client(network, *args, **kwargs)
     irc.dbstore = dbstore.dbstore(network, maxc, maxu, rchan, ruser)
@@ -56,13 +59,13 @@ def load_servers():
     for servercfg in envvars.servers.listdir():
         if not envvars.servers.isfile(servercfg):
             continue
-        conf = ConfigParser()
-        conf.read(envvars.servers.join(servercfg))
+        conf = configparser.ConfigParser(**envvars.cfg_kwargs)
+        path = envvars.servers.join(servercfg)
+        conf.read(path)
         invalid = False
         for section in sections:
             if dummy.invalid_section(conf, section, options[section]):
-                logging.error('Configuración de servidor (%s) no cumple con los'
-                'requisitos necesarios', envvars.servers.join(servercfg))
+                logging.error(i18n['bad config'], path)
                 invalid = True
                 break
         if invalid:
@@ -94,6 +97,12 @@ def load_servers():
         msgps = conf.getfloat('simpbot', 'msgps')
         timeout = conf.getint('simpbot', 'timeout')
         wtime = conf.getint('simpbot', 'wtime')
+        if conf.has_option('simpbot', 'default_lang'):
+            lang = conf.get('simpbot', 'default_lang')
+            if not localedata.simplocales.exists(lang, 'fullsupport'):
+                lang = envvars.default_lang
+        else:
+            lang = envvars.default_lang
 
         chanregister = conf.get('database', 'chanregister')
         userregister = conf.get('database', 'userregister')
@@ -113,4 +122,4 @@ def load_servers():
 
         if autoconnect:
             network = network.lower()
-            thread.start_new(envvars.networks[network].try_connect, (), {})
+            _thread.start_new(envvars.networks[network].try_connect, (), {})

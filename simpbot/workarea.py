@@ -3,8 +3,13 @@
 # Copyright 2016, Ismael Lugo (kwargs)
 
 import os
+import sys
 import mimetypes
 import shutil
+
+if sys.version_info.major == 3:
+    from six.moves import builtins
+    builtins.file = open
 
 
 class workarea:
@@ -28,11 +33,11 @@ class workarea:
                         if not self.exists(dirname):
                             self.file(dirname, 'a')
 
-    def file(self, filename, mode):
-        return file(self.join(filename), mode)
+    def file(self, filename, mode, *args, **kwargs):
+        return file(self.join(filename), mode, *args, **kwargs)
 
-    def open(self, filename, mode):
-        return open(self.join(filename), mode)
+    def open(self, filename, mode, *args, **kwargs):
+        return open(self.join(filename), mode, *args, **kwargs)
 
     def exists(self, path):
         return os.path.exists(self.join(path))

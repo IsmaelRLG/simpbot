@@ -3,7 +3,7 @@
 # Copyright 2016, Ismael Lugo (kwargs)
 
 #lint:disable
-import user
-import channel
-import dbstore
+from . import user
+from . import channel
+from . import dbstore
 #lint:enable

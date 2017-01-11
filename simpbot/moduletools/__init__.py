@@ -3,7 +3,7 @@
 # Copyright 2016, Ismael Lugo (kwargs)
 
 #lint:disable
-import handler
-import module
-import core
+from . import handler
+from . import module
+from . import core
 #lint:enable

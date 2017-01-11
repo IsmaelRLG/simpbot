@@ -6,8 +6,8 @@ import time
 from threading import Timer
 from simpbot.bottools import text
 from simpbot.bottools import dummy
-from channels import channel
-from users import user
+from .channels import channel
+from .users import user
 
 
 class manager:
@@ -55,7 +55,7 @@ class manager:
             return self.__chan_core[chan_name]
 
     def chan_list(self):
-        return self.__chan_core.keys()
+        return list(self.__chan_core.keys())
 
     def total_chans(self):
         return len(self.__chan_core)
@@ -105,7 +105,7 @@ class manager:
             return
 
         usr = self.__user_core[nick]
-        for chan in self.__chan_core.values():
+        for chan in list(self.__chan_core.values()):
             chan.remove(usr)
         del self.__user_core[nick]
         del usr
@@ -154,7 +154,7 @@ class manager:
     def reset(self):
         if (len(self.__user_core) + len(self.__chan_core)) != 0:
             self.__user_core.clear()
-            for chan in self.__chan_core.values():
+            for chan in list(self.__chan_core.values()):
                 del chan.users[:]
             self.__chan_core.clear()
 
@@ -168,7 +168,7 @@ class manager:
                 break
 
             date = time.time()
-            for usr in self.__user_core.values():
+            for usr in list(self.__user_core.values()):
                 if usr.tracked:
                     continue
                 elif (date - usr.dateinfo) > 30:

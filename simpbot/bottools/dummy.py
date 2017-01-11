@@ -3,9 +3,9 @@
 # Copyright 2016, Ismael Lugo (kwargs)
 
 import time
-import thread as Thread
-from simpbot import __version__
 from simpbot import envvars
+from simpbot import __version__
+from six.moves import _thread
 
 
 def ascii(start='#'):
@@ -57,5 +57,5 @@ def minor(dtime, secs):
 
 def thread(func):
     def start_thread(*args, **kwargs):
-        Thread.start_new(func, args, kwargs)
+        _thread.start_new(func, args, kwargs)
     return start_thread

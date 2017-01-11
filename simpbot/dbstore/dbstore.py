@@ -1,21 +1,26 @@
 # -*- coding: utf-8 -*-
 # Simple Bot (SimpBot)
 # Copyright 2016, Ismael Lugo (kwargs)
+from __future__ import unicode_literals
 
 import os
-import md5
+import sys
 import zlib
-from time import time
+import base64
+import hashlib
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle  # lint:ok
-from user import user
-from channel import channel
+from time import time
+from .user import user
+from .channel import channel
 from simpbot import envvars
 from simpbot.bottools import text
+from six.moves import cPickle
 logging = __import__('logging').getLogger('db-store')
+
+if sys.version_info.major == 3:
+    modes = 'rb'
+else:
+    modes = 'r'
 
 
 class dbstore:
@@ -24,15 +29,18 @@ class dbstore:
         self.name = network_name
         self.__filename = '%s.store' % network_name
         if envvars.dbstore.exists(self.__filename):
-            with envvars.dbstore.file(self.__filename, 'r') as store:
+            with envvars.dbstore.file(self.__filename, modes) as store:
                 read = store.read()
             if len(read) > 0:
                 try:
+                    read = base64.b64decode(read)
                     read = zlib.decompress(read)
-                    self.__store = pickle.loads(read)
-                except Exception as error:
+                    self.__store = cPickle.loads(read)
+                except NameError as error:
                     logging.error('No se pudo leer "%s": %s', self.name, error)
-            self.save()
+                    return
+            else:
+                self.__store = self.base_dict()
         else:
             self.__store = self.base_dict()
         self.max_channels = maxc
@@ -69,11 +77,11 @@ class dbstore:
     def request(self, type, account):
         if type == 'user':
             self.store_request[type][account] =\
-            (md5.new(account + text.randphras()).hexdigest(), int(time()))
+            (hashlib.md5(account + text.randphras()).hexdigest(), int(time()))
         elif type == 'chan':
             chn = account[0].lower()
             usr = account[1].lower()
-            hash = md5.new(usr + text.randphras()).hexdigest()  # lint:ok
+            hash = hashlib.md5(usr + text.randphras()).hexdigest()  # lint:ok
             self.store_request[type][chn] = (hash, usr, int(time()))
         self.save()
 
@@ -101,12 +109,12 @@ class dbstore:
 
     @text.lower
     def get_hashdrop(self, account):
-        return md5.new(account).hexdigest()
+        return hashlib.md5(account).hexdigest()
 
     @text.lower
     def del_drop(self, type, account):
         if self.has_drop(type, account):
-            del self.store_drop[type][md5.new(account).hexdigest()]
+            del self.store_drop[type][hashlib.md5(account).hexdigest()]
             self.save()
 
     @text.lower
@@ -124,7 +132,8 @@ class dbstore:
     @text.lower
     def register_chan(self, chan_name):
         if not self.has_chan(chan_name):
-            self.store_chan[chan_name] = channel(chan_name, int(time()))
+            date = int(time())
+            self.store_chan[chan_name] = channel(self.name, chan_name, date)
             self.save()
 
     @text.lower
@@ -175,17 +184,16 @@ class dbstore:
         self.save()
 
     def reset_chans(self):
-        for chan_name in list(self.store_chan.keys()):
+        for chan_name in self.store_chan.keys():
             chan = self.store_chan[chan_name]
             del self.store_chan[chan_name]
             del chan
         self.save()
 
     def admins_list(self):
-        for user in list(self.store_user.values()):
+        for user in self.store_user.values():
             if user.isadmin():
                 yield user
-                continue
 
     def total_chan(self):
         return len(self.store_chan)
@@ -200,6 +208,9 @@ class dbstore:
             return
 
         with envvars.dbstore.file(self.__filename, 'w') as store:
-            text = pickle.dumps(self.__store)
+            text = cPickle.dumps(self.__store)
             text = zlib.compress(text)
+            text = base64.b64encode(text)
+            if sys.version_info.major == 3:
+                text = text.decode()
             store.write(text)

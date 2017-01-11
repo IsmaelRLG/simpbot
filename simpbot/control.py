@@ -4,6 +4,7 @@
 
 import time
 import re
+from six import string_types
 from .envvars import ctrl
 from .envvars import networks
 from .bottools import text
@@ -25,12 +26,12 @@ class control(object):
         self.load()
 
     def add(self, network, order, type, target, date=None):
-        if not network in networks.keys():
+        if not network in list(networks.keys()):
             return
 
         if date is None:
             pass
-        elif isinstance(date, basestring):
+        elif isinstance(date, string_types):
             if date.isdigit():
                 date = int(date)
                 if time.time() >= date:
@@ -45,7 +46,7 @@ class control(object):
                 return
 
             target = (re.compile(irc.parse_mask(target)), target)
-            for targ, date2 in self.status[network][order][type].items():
+            for targ, date2 in list(self.status[network][order][type].items()):
                 if targ[0].pattern == target:
                     return
         elif type == 'chan':
@@ -67,7 +68,7 @@ class control(object):
         self.status.clear()
         for netnam in networks:
             self.status[netnam] = {'deny': {}, 'allow': {}, 'ignore': {}}
-            for order in self.status[netnam].keys():
+            for order in list(self.status[netnam].keys()):
                 for type in ('user', 'mask', 'chan'):
                     self.status[netnam][order][type] = {}
 
@@ -79,7 +80,7 @@ class control(object):
         if type == 'mask':
             if not irc.valid_mask(target):
                 return
-            for targ, date2 in self.status[network][order][type].items():
+            for targ, date2 in list(self.status[network][order][type].items()):
                 if targ[0].pattern == target:
                     del self.status[network][order][type][targ]
 
@@ -113,7 +114,7 @@ class control(object):
         if not global_name in self.status:
             self.status[global_name] = {}
 
-        if isinstance(date, basestring):
+        if isinstance(date, string_types):
             if date.isdigit():
                 date = int(date)
                 if time.time() >= date:
@@ -137,12 +138,12 @@ class control(object):
         data = ctrl.file(self.fullname, 'a')
         data.write(dummy.ascii())
 
-        for name in self.status.keys():
+        for name in list(self.status.keys()):
             # name = Network name
             if name == global_name:
                 if len(self.status[name]) == 0:
                     continue
-                for order, date in self.status[name].items():
+                for order, date in list(self.status[name].items()):
                     if date is None:
                         date = ''
                     elif time.time() >= date:
@@ -157,11 +158,11 @@ class control(object):
                 # order == allow / deny / ignore
                 ornam = order
                 order = status[order]
-                for type in order.keys():
+                for type in list(order.keys()):
                     # type == mask / user / chan
                     tnam = type
                     type = order[type]  # lint:ok
-                    for target, date in type.items():
+                    for target, date in list(type.items()):
                         if date is None:
                             date = ''
                         elif time.time() >= date:
@@ -215,7 +216,7 @@ class control(object):
         if not netw in networks:
             return
 
-        for name in self.status.keys():
+        for name in list(self.status.keys()):
             # name = Network name
             if name == global_name:
                 continue
@@ -227,11 +228,11 @@ class control(object):
                 # order == allow / deny
                 ornam = order
                 order = status[order]
-                for type in order.keys():
+                for type in list(order.keys()):
                     # type == mask / user / chan
                     tnam = type
                     type = order[type]  # lint:ok
-                    for target, date in type.items():
+                    for target, date in list(type.items()):
                         if date is not None and time.time() >= date:
                             del type[target]
                             continue

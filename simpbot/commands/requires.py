@@ -4,9 +4,13 @@
 
 
 from simpbot.bottools import irc as irctools
+from simpbot import localedata
+
 
 requerimentls = {}
+logging = __import__('logging').getLogger('requires')
 failed = True
+i18n = localedata.get()
 
 
 def get(requeriment):
@@ -34,32 +38,30 @@ def req_nickserv(vars):
     user = vars['user']
     target = vars['target']
     if user.account is None:
-        irc.error(target, 'No se encuentra logueado ó registrado en NickServ')
+        irc.error(target, localedata.get(vars['lang'])['not logged'])
         return failed
 requerimentls['requires nickserv'] = req_nickserv
 
 
 def only(vars):
     irc = vars['self'].irc
-    msg = vars['msg']
     args = vars['watchdog'][1]
     target = vars['user'].nick
     if len(args) == 0:
-        irc.verbose('error', msg % 'Only; No se indicaron los parametros.')
+        logging.error(vars['msg'] % i18n['without params'] % 'only')
         return failed
 
-    msg = 'Este comando solo debe ser ejecutado en %s.'
     if args[0] == 'private':
         if vars['privbot']:
             return
         elif len(args) == 1:
-            irc.error(target, msg % 'privado')
+            irc.error(target, localedata.get(vars['lang'])['only private'])
             return failed
     elif args[0] == 'channel':
         if not vars['privbot']:
             return
         elif len(args) == 1:
-            irc.error(target, msg % 'un canal')
+            irc.error(target, localedata.get(vars['lang'])['only channel'])
             return failed
 requerimentls['only'] = only
 
@@ -72,43 +74,44 @@ def chan_register(vars):
     channel2 = vars['watchdog'][1]
     privbot = vars['privbot']
     target = vars['target']
+    locale = localedata.get(vars['lang'])
     if privbot:
         if len(channel2) == 0:
-            irc.verbose('error', msg % 'Grupos no indicados.')
+            logging.error(msg % i18n['without params'] % 'chan_register')
             return failed
         for group in channel2:
             try:
                 channel = vars['result'].group(group)
             except (IndexError, KeyError):
-                irc.verbose('error', msg % 'Grupo "%s" erróneo.' % group)
+                logging.error(msg % i18n['invalid params'] % 'chan_register')
                 return failed
             else:
                 if channel is None:
                     continue
                 if not irctools.ischannel(channel, irc=irc):
-                    irc.error(target, 'Canal "%s" inválido.' % channel)
+                    irc.error(target, locale['invalid channel'] % channel)
                     return failed
             if dbstore.get_chan(channel) is None:
-                irc.error(target, 'Canal "%s" no registrado.' % channel)
+                irc.error(target, locale['unregistered channel'] % channel)
                 return failed
             vars['channel'] = channel
             return
-        irc.error(target, 'Debe indicar un canal.')
+        irc.error(target, locale['channel needed'])
         return failed
     elif len(channel2) > 0:
 
         try:
             channel = vars['result'].group(channel2[0])
         except (IndexError, KeyError):
-            irc.verbose('error', msg % 'Grupo "%s" erróneo.' % channel2[0])
+            irc.verbose('error', msg % i18n['invalid params'] % 'chan_register')
             return failed
 
         vars['channel'] = channel
         if dbstore.get_chan(channel) is None:
-            irc.error(vars['target'], 'Canal "%s" no registrado.' % channel)
+            irc.error(vars['target'], locale['unregistered channel'] % channel)
             return failed
     elif dbstore.get_chan(channel1) is None:
-        irc.error(vars['target'], 'Canal "%s" no registrado.' % channel1)
+        irc.error(vars['target'], locale['unregistered channel'] % channel1)
         return failed
 
 requerimentls['registered chan'] = chan_register
@@ -122,43 +125,44 @@ def unregistered_chan(vars):
     channel2 = vars['watchdog'][1]
     privbot = vars['privbot']
     target = vars['target']
+    locale = localedata.get(vars['lang'])
     if privbot:
         if len(channel2) == 0:
-            irc.verbose('error', msg % 'Grupos no indicados.')
+            logging.error(msg % i18n['without params'] % 'unregistered_chan')
             return failed
         for group in channel2:
             try:
                 channel = vars['result'].group(group)
             except (IndexError, KeyError):
-                irc.verbose('error', msg % 'Grupo "%s" erróneo.' % group)
+                logging.error(msg % i18n['invalid params'] % 'unregistered_chan')
                 return failed
             else:
                 if channel is None:
                     continue
                 if not irctools.ischannel(channel, irc=irc):
-                    irc.error(target, 'Canal "%s" inválido.' % channel)
+                    irc.error(target, locale['invalid channel'] % channel)
                     return failed
             if dbstore.get_chan(channel) is not None:
-                irc.error(target, 'Canal "%s" registrado.' % channel)
+                irc.error(target, locale['registered channel'] % channel)
                 return failed
             vars['channel'] = channel
             return
-        irc.error(target, 'Debe indicar un canal.')
+        irc.error(target, )
         return failed
     elif len(channel2) > 0:
 
         try:
             channel = vars['result'].group(channel2[0])
         except (IndexError, KeyError):
-            irc.verbose('error', msg % 'Grupo "%s" erróneo.' % channel2[0])
+            logging.error(msg % i18n['invalid params'] % 'unregistered_chan')
             return failed
 
         vars['channel'] = channel
         if dbstore.get_chan(channel) is not None:
-            irc.error(vars['target'], 'Canal "%s" registrado.' % channel)
+            irc.error(vars['target'], locale['registered channel'] % channel)
             return failed
     elif dbstore.get_chan(channel1) is not None:
-        irc.error(vars['target'], 'Canal "%s" registrado.' % channel1)
+        irc.error(vars['target'], locale['registered channel'] % channel1)
         return failed
 requerimentls['unregistered chan'] = unregistered_chan
 
@@ -169,17 +173,22 @@ def user_register(vars):
     user = vars['user']
     args = vars['watchdog'][1]
     target = user.nick
+    locale = localedata.get(vars['lang'])
     dbstore = irc.dbstore
     if len(args) == 0:
+        if user.account is None:
+            irc.error(target, locale['not logged'])
+            return failed
+
         if dbstore.get_user(user.account) is None:
-            irc.error(target, 'No se encuentra registrado en el bot.')
+            irc.error(target, locale['you are not registered'])
             return failed
         return
 
     try:
         usr = vars['result'].group(args[0])
     except (IndexError, KeyError):
-        irc.verbose('error', msg % 'Grupo "%s" erróneo.' % args[0])
+        logging.error(msg % i18n['invalid params'] % 'user_register')
         return failed
 
     if usr is None:
@@ -188,12 +197,12 @@ def user_register(vars):
         else:
             return failed
 
-    if '*' in usr or '@' in usr:
-        irc.error(target, 'Usuario "%s" inválido.' % usr)
+    if '*' in usr or '@' in usr or '!' in usr:
+        irc.error(target, locale['invalid user'] % usr)
         return failed
 
     if dbstore.get_user(usr) is None:
-        irc.error(target, 'Usuario "%s" no registrado en el bot.' % usr)
+        irc.error(target, locale['user no registered'] % usr)
 requerimentls['registered user'] = user_register
 
 
@@ -203,7 +212,7 @@ def unregistered_user(vars):
     target = user.nick
     dbstore = irc.dbstore
     if dbstore.get_user(user.account) is not None:
-        irc.error(target, 'Se encuentra registrado en el bot.')
+        irc.error(target, localedata.get(vars['lang'])['already registered'])
         return failed
     return
 requerimentls['unregistered user'] = unregistered_user
@@ -219,10 +228,10 @@ def flags(vars):
     dbstore = irc.dbstore
 
     if len(args) == 0:
-        irc.verbose('error', msg % 'No se indicaron los flags.')
+        logging.error(msg % i18n['without params'] % 'flags')
         return failed
     if not args[0].isalnum():
-        irc.verbose('error', msg % 'Flags "%s" inválido.' % args[0])
+        logging.error(msg % i18n['invalid params'] % 'flags')
         return failed
 
     chan = dbstore.get_chan(channel)
@@ -236,8 +245,8 @@ def flags(vars):
         error = True
 
     if error:
-        irc.error(target, '[Permiso denegado]: No tiene los permisos necesarios'
-        ' para ejecutar esta acción, necesita: +%s.' % args[0])
+        locale = localedata.get(vars['lang'])
+        irc.error(target, locale['permission denied'] % args[0])
         return failed
 requerimentls['flags'] = flags
 
@@ -249,21 +258,24 @@ def admin(vars):
     args = vars['watchdog'][1]
     tar = user.nick
     dbstore = irc.dbstore
+    locale = localedata.get(vars['lang'])
 
     usr = dbstore.get_user(user.account)
     if not usr.isadmin():
-        irc.error(tar, '[Permiso denegado]: Comando sólo para administradores.')
+        # this line has been commented for security reasons, please
+        # uncomment this line if you are sure of what makes
+        #irc.error(tar, locale['only admins'])
         return failed
 
     if len(args) == 0:
         return
-    print args
 
     for capab in args:
         if not usr.admin.has_capab(capab):
-            irc.error(tar, '[Permiso denegado]: No posee los permisos '
-            'suficientes para ejecutar esta acción.')
-            irc.verbose('fail use', msg % ('Intento de uso por: {}, Cuenta del '
-            'administrador: {}').format(user.mask, usr.admin.user))
+            irc.error(tar, locale['no capabs'])
+
+            _ = vars['_']
+            _['usr'] = usr
+            irc.verbose('fail use', msg % _(locale['fail use']))
             return failed
 requerimentls['admin'] = admin

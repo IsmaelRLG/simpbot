@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Simple Bot (SimpBot)
 # Copyright 2016, Ismael Lugo (kwargs)
+from __future__ import unicode_literals
 
 from simpbot import control
 from hashlib import new
@@ -42,7 +43,10 @@ class admins(control.control):
         return self.network is None
 
     def checkpass(self, password):
-        return new(self.hash_algorithm, password).hexdigest() == self.__password
+        return self.hash(password) == self.__password
+
+    def hash(self, text):
+        return new(self.hash_algorithm, text.encode('utf-8')).hexdigest()
 
     def has_maxlogin(self):
         if self.maxlogins == 0:
@@ -54,7 +58,7 @@ class admins(control.control):
         return self.logins > 0
 
     def update_password(self, new_pass):
-        self.__password = new(self.hash_algorithm, new_pass).hexdigest()
+        self.__password = self.hash(new_pass)
         self.save()
 
     def set_capab(self, capability):
@@ -79,13 +83,13 @@ class admins(control.control):
             self.conf.add_section(admin)
 
         self.conf.set(admin, 'password', self.__password)
-        self.conf.set(admin, 'timeout', self.timeout)
-        self.conf.set(admin, 'maxlogins', self.maxlogins)
+        self.conf.set(admin, 'timeout', str(self.timeout))
+        self.conf.set(admin, 'maxlogins', str(self.maxlogins))
         self.conf.set(admin, 'verbose', equal(self.verbose))
         self.conf.set(admin, 'capability', ','.join(self.capab))
         self.conf.set(admin, 'isonick', ','.join(self.ison))
         if self.logins > 0:
-            self.conf.set(admin, 'logins', self.logins)
+            self.conf.set(admin, 'logins', str(self.logins))
         if self.hash_algorithm != 'md5':
             self.conf.set(admin, 'hash_algorithm', self.hash_algorithm)
 

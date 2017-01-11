@@ -1,0 +1,34 @@
+# Spanish translation for simpbot
+# Copyright (C) 2016, Ismael Lugo
+# This file is distributed under the same license as the simpbot
+# --------------------------------------------------------------
+# Original Translator: Ismael Lugo <ismaelrlgv@gmail.com>
+# Creation Date: 2017-01-08 16:30 (-0400)
+# Last revision date: 2017-01-08 16:30 (-0400)
+# Last Translator: Darelyn Jimenez <jdarelyn@gmail.com>
+# Language: Español (spanish)
+# --------------------------------------------------------------
+
+msgid  connection timeout
+msgstr %s: Expiró el tiempo (%ss) de conexión.
+
+msgid  connection failure
+msgstr Conexión fallida. (%s:%s): %s
+
+msgid  retrying connect
+msgstr Reintentando conectar en %ss...
+
+msgid  connected
+msgstr Conexión establecida: %s (%s) puerto %s.
+
+msgid  invalid message
+msgstr se intentó enviar un tipo de dato inválido.
+
+msgid  invalid message size
+msgstr se intentó enviar un mensaje muy largo.
+
+msgid  output
+msgstr Enviado  (%s): %s
+
+msgid  input
+msgstr Recibido (%s): %s

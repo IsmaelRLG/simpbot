@@ -1,0 +1,46 @@
+# Spanish translation for simpbot
+# Copyright (C) 2016, Ismael Lugo
+# This file is distributed under the same license as the simpbot
+# --------------------------------------------------------------
+# Original Translator: Ismael Lugo <ismaelrlgv@gmail.com>
+# Creation Date: 2017-01-08 16:33 (-0400)
+# Last revision date: 2017-01-08 16:33 (-0400)
+# Last Translator: Darelyn Jimenez <jdarelyn@gmail.com>
+# Language: Español (spanish)
+# --------------------------------------------------------------
+
+msgid  sample conf
+config nostrip yes
+config addline yes
+msgstr
+;EJEMPLO: CONFIGURACIÓN DEL SERVIDOR
+
+[user]
+nick = SimpBot                ; Nombre de nick
+user = ircbot                 ; Nombre de usuario
+
+;[nickserv]
+;sasl = no                    ; Indica si se usará SASL
+;username = SimpBot           ; Usuario de NickServ
+;password = *******           ; Contraseña de Nickserv
+
+[server]
+network = Freenode            ; Nombre de la red
+address = chat.freenode.net   ; Dirección del servidor
+port = 6667                   ; Número de puerto
+password =                    ; Contraseña del servidor
+
+[simpbot]
+autoconnect = yes             ; Conectar automáticamente
+prefix = $-                   ; Prefijo de SimpBot
+wtime = 15                    ; Tiempo para reconectar
+msgps = 0.5                   ; Mensajes por segundo
+timeout = 240                 ; Tiempo fuera de la conexión
+default_lang = es             ; Lenguaje a mostrar por defecto
+
+[database]
+chanregister = request        ; Registro de canales
+userregister = allow          ; Registro de usuarios
+;maxusers = 20                ; Máximo de usuarios en base de datos
+;maxchans = 20                ; Máximo de canales en base de datos
+msgend

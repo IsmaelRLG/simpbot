@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 # Simple Bot (SimpBot)
 # Copyright 2016 Ismael Lugo (kwargs)
+from __future__ import absolute_import
+from six import string_types
 
 
 def parse_targets(mode, targets, p=4, nmode=False):
-    if isinstance(targets, basestring):
+    if isinstance(targets, string_types):
         targets = targets.split()
     targets = list(targets)
     if not nmode:

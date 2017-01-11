@@ -116,7 +116,7 @@ class replace:
             }
         self.addmatch(result)
 
-    def __call__(self, string):
+    def __call__(self, string, **tmp_kwargs):
         return self.replace(string)
 
     def __getitem__(self, item):
@@ -134,12 +134,25 @@ class replace:
     def set(self, item, value):
         self.mapping[item] = value
 
+    def remove(self, dict):
+        for key, value in dict.keys():
+            try:
+                del self.mapping[key]
+            except KeyError:
+                pass
+
     def extend(self, dict):
         for key, value in dict.items():
             self.mapping[key] = is_none(value)
 
-    def replace(self, string):
-        return date(string.format(**self.mapping))
+    def replace(self, string, **tmp_kwargs):
+        if len(tmp_kwargs) > 0:
+            self.extend(tmp_kwargs)
+            string = date(string.format(**self.mapping))
+            self.remove(tmp_kwargs)
+        else:
+            string = date(string.format(**self.mapping))
+        return string
 
     def addmatch(self, match):
         for group_name in match.re.groupindex.keys():

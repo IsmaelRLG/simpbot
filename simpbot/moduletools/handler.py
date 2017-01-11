@@ -5,15 +5,19 @@
 import re
 import types
 import traceback
-from thread import start_new
 from simpbot import control
 from simpbot import parser
+from six.moves._thread import start_new
 logging = __import__('logging').getLogger('CommandHandler')
+from simpbot import localedata
+
+i18n = localedata.get()
 
 
 class handler(control.control):
 
-    def __init__(self, func, name, regex, helpmsg, syntax, alias, need, module=None, strip=None):
+    def __init__(self, func, name, regex, helpmsg, syntax, alias, need,
+        module=None, strip=None):
         self.func = func
         self.name = name
         self.alias = alias
@@ -22,12 +26,12 @@ class handler(control.control):
 
         self.need = need
         if self.name is None:
-            self.name = func.func_name
+            self.name = func.__name__
         self.name = self.name.strip()
         self.helpmsg = helpmsg
         if self.helpmsg is None:
             if isinstance(func, types.FunctionType):
-                self.helpmsg = func.func_doc
+                self.helpmsg = func.__doc__
 
         if strip and self.helpmsg:
             newhelpmsg = []
@@ -65,9 +69,9 @@ class handler(control.control):
         try:
             self.func(irc, event, result, target, channel, _)
         except:
-            msg = 'Modulo: "{}"; Comando: "{}"; %s'
-            msg = msg.format(self.mod_name, self.name)
-            irc.verbose('error', _('{user.mask} ha producido un error.'))
+            _['handler'] = self
+            irc.verbose('error', _(i18n['error info']))
             for line in traceback.format_exc().splitlines():
-                irc.verbose('error', msg % line)
-                logging.error(msg, line)
+                _['message'] = line
+                irc.verbose('error', _(i18n['exception info']))
+                logging.error(_(i18n['exception info']))

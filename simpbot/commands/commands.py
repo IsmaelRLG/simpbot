@@ -2,14 +2,17 @@
 # Simple Bot (SimpBot)
 # Copyright 2016, Ismael Lugo (kwargs)
 
-import Queue
+
 import re
 import time
-import requeries
+from . import requires
+from six.moves import queue
 from simpbot import modules
 from simpbot import parser
+from simpbot import localedata
 from simpbot.bottools.dummy import thread
-from simpbot.bottools.irc import color
+
+i18n = localedata.get()
 logging = __import__('logging').getLogger('commands')
 
 allow = True
@@ -31,7 +34,7 @@ class ProccessCommands:
     def __init__(self, irc, timeout=60):
         self.irc = irc
         self.timeout = timeout
-        self.queue = Queue.Queue()
+        self.queue = queue.Queue()
         self.loop()
 
     @property
@@ -66,42 +69,40 @@ class ProccessCommands:
     def get(self):
         try:
             return self.queue.get(timeout=self.timeout)
-        except Queue.Empty:
+        except queue.Empty:
             return
 
     def check_generic(self, user, instance, level):
         res = instance.check(self.irc.servname, user=user.account)
 
         if res == 'allow':
-            action = allow  # Buen chico...
+            action = allow
         elif res == 'deny':
-            action = deny  # Oh oh!! Chico malo :)
+            action = deny
         elif res == 'ignore':
             action = ignore
         else:
             action = allow
 
-        # Veamos si se encuentra registrado...
         dbuser = self.dbstore.get_user(user.account)
         if dbuser is None:
             return action
         if dbuser.locked:
-            if not dbuser.isadmin:
+            if dbuser.isadmin is None:
                 return locked
             elif dbuser.admin.has_capab(self.overrest['locked']):
-                return allow  # Resulta que es administrador...
+                return allow
             else:
                 return locked
 
         elif action is True:
-            # ¿ya no hay nada que hacer?
             return allow
 
         elif action is False:
-            if not dbuser.isadmin:
+            if dbuser.isadmin is None:
                 return deny
             elif dbuser.admin.has_capab(self.overrest[level]):
-                return allow  # Resulta que es administrador...
+                return allow
             else:
                 return deny
 
@@ -113,10 +114,10 @@ class ProccessCommands:
             elif level == 'command':
                 capab = 'over-restriction:ignore module'
 
-            if not dbuser.isadmin:
+            if dbuser.isadmin is None:
                 return ignore
             elif dbuser.admin.has_capab(self.overrest[capab]):
-                return allow  # Resulta que es administrador...
+                return allow
             else:
                 return ignore
 
@@ -129,7 +130,6 @@ class ProccessCommands:
         res = inst.check(self.irc.servname, user.mask, user.account, channel)
         if res == 'allow':
             if user.account is not None:
-                # Veamos si se encuentra registrado...
                 dbuser = self.dbstore.get_user(user.account)
                 if dbuser is None:
                     return allow
@@ -137,7 +137,7 @@ class ProccessCommands:
                     if not dbuser.isadmin:
                         return locked
                     elif dbuser.admin.has_capab(self.overrest['locked']):
-                        return allow  # Resulta que es administrador...
+                        return allow
                     else:
                         return locked
                 else:
@@ -146,25 +146,20 @@ class ProccessCommands:
             if not checkaccount:
                 return allow
 
-            # ¿Quizás esté bloqueado? Pero no tiene cuenta, puede ser que...
-            # ¿su data no esté completa ó actualizada?
             self.request.request(user.nick)
             if not user.completed:
                 try:
                     self.request.user(user.nick, timeout=self.irc.timeout)
                 except ValueError:
-                    return ignore  # Timeout
+                    return ignore
 
-            # No, nada... No tiene cuenta:)
             if user.account is None:
                 return allow
 
-            # Espera... sí estoy aquí es porque sí tiene cuenta!!! :O
             return self.check_generic(user, inst, level)
 
         elif res == 'deny':
             if user.account is not None:
-                # Veamos si se encuentra registrado...
                 dbuser = self.dbstore.get_user(user.account)
                 if dbuser is None:
                     return deny
@@ -172,35 +167,30 @@ class ProccessCommands:
                     if not dbuser.isadmin:
                         return locked
                     elif dbuser.admin.has_capab(self.overrest['locked']):
-                        return allow  # Resulta que es administrador...
+                        return allow
                     else:
                         return locked
                 elif not dbuser.isadmin:
                     return deny
                 elif dbuser.admin.has_capab(self.overrest[level]):
-                    return allow  # Resulta que es administrador...
+                    return allow
                 else:
                     return deny
 
             if not checkaccount:
                 return deny
 
-            # ¿Quizás esté bloqueado? Pero no tiene cuenta, puede ser que...
-            # ¿su data no esté completa ó actualizada?
             self.request.request(user.nick)
             if not user.completed:
                 self.request.user(user.nick)
 
-            # No, nada... No tiene cuenta:)
             if user.account is None:
                 return deny
 
-            # ¿Espera? sí estoy aquí es porque sí tiene cuenta!!! :O
             return self.check_generic(user, inst, level)
 
         elif res == 'ignore':
             if user.account is not None:
-                # Veamos si se encuentra registrado...
                 dbuser = self.dbstore.get_user(user.account)
                 if dbuser is None:
                     return ignore
@@ -208,7 +198,7 @@ class ProccessCommands:
                     if not dbuser.isadmin():
                         return locked
                     elif dbuser.admin.has_capab(self.overrest['locked']):
-                        return allow  # Resulta que es administrador...
+                        return allow
                     else:
                         return locked
 
@@ -222,25 +212,37 @@ class ProccessCommands:
                 if not dbuser.isadmin():
                     return ignore
                 elif dbuser.admin.has_capab(self.overrest[capab]):
-                    return allow  # Resulta que es administrador...
+                    return allow
                 else:
                     return ignore
 
             if not checkaccount:
                 return ignore
 
-            # ¿Quizas este bloqueado? Pero no tiene cuenta, puede ser que...
-            # ¿su data no este completa ó actualizada?
             self.request.request(user.nick)
             if not user.completed:
                 self.request.user(user.nick)
 
-            # No, nada... No tiene cuenta:)
             if user.account is None:
                 return ignore
 
-            # ¿Espera? sí estoy aquí es porque sí tiene cuenta!!! :O
             return self.check_generic(user, inst, level)
+
+    def get_lang(self, user, channel):
+        if user.account is None:
+            if channel is not None and self.dbstore.has_chan(channel):
+                return self.dbstore.get_chan(channel)
+            else:
+                return self.irc.default_lang
+        else:
+            dbuser = self.dbstore.get_user(user.account)
+            if dbuser is None:
+                if channel is not None and self.dbstore.has_chan(channel):
+                    return self.dbstore.get_chan(channel)
+                else:
+                    return self.irc.default_lang
+            else:
+                return dbuser.default_lang
 
     @thread
     def process(self, match):
@@ -272,14 +274,11 @@ class ProccessCommands:
             if sre:
                 cmd = sre.group('text')
 
+        lang = self.get_lang(user, channel)
         status = self.check(user, channel, modules, 'global', True)
         if status == locked:
-            if sre:
-                msg = 'usted se encuentra ' + color('bloqueado', 'b')
-                msg += ', por lo tanto no tiene habilitado el uso del bot. '
-                msg += color('Razon de bloqueo:', 'b') + ' "%s", '
-                msg += color('Fecha:', 'b') + ' "%s", '
-                msg += color('Administrador:', 'b') + ' "%s".'
+            if sre or privbot:
+                msg = localedata.get(lang)['you are locked']
                 usr = self.dbstore.get_user(user.account)
                 dat = time.localtime(usr.status[1])
                 dat = '%s/%s/%s %s:%s:%s' % (dat.tm_year, dat.tm_mon,
@@ -287,14 +286,13 @@ class ProccessCommands:
                 msg = msg % (usr.status[0], dat, usr.status[2])
                 self.irc.error(user.nick, msg)
             return
-            pass  # Colocar "te encuentras bloqueado"
         elif status is deny or status is ignore:
             return
 
         _ = parser.replace(self.irc, match)
         _.extend(locals())
-        msg = 'Modulo: "{}"; Comando: "{}"; %s'
 
+        msg = i18n['command info']
         # Se procesan comandos sin regex...
         for handler, result in self.get_command(None, regex=False):
             msg = msg.format(handler.mod_name, handler.name)
@@ -309,10 +307,9 @@ class ProccessCommands:
                 continue
 
             for need in handler.need:
-                watchdog = requeries.get(need)
+                watchdog = requires.get(need)
                 if not watchdog:
-                    msg = msg % 'Solicitó un requerimiento inválido: "%s".'
-                    logging.error(msg % need)
+                    logging.error(msg % i18n['invalid requirements'] % need)
                     continue
 
                 if watchdog[0](locals()):
@@ -323,7 +320,7 @@ class ProccessCommands:
         if not sre and not privbot:
             return
 
-        msg = 'Modulo: "{}"; Comando: "{}"; %s'
+        msg = i18n['command info']
         # Se procesan comandos con regex...
         for handler, result in self.get_command(cmd, noregex=False, first=True):
             msg = msg.format(handler.mod_name, handler.name)
@@ -339,16 +336,14 @@ class ProccessCommands:
 
             var = locals()
             for need in handler.need:
-                watchdog = requeries.get(need)
+                watchdog = requires.get(need)
 
                 if not watchdog:
-                    msg = msg % 'Solicitó un requerimiento inválido: "%s".'
-                    logging.error(msg % need)
+                    logging.error(msg % i18n['invalid requirements'] % need)
                     continue
 
                 var['watchdog'] = watchdog
                 if watchdog[0](var):
-                    logging.debug(msg % 'No cumple con los requerimientos: ' + repr(watchdog))
                     return
 
             _.addmatch(result)

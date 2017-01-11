@@ -2,17 +2,20 @@
 # Simple Bot (SimpBot)
 # Copyright 2016, Ismael Lugo (kwargs)
 
-
 import re
+
 from simpbot import mode
+from simpbot import envvars
 from simpbot.bottools import irc
+from six import string_types
 
 
 class channel:
 
-    def __init__(self, channel, registered, flags={}):
+    def __init__(self, network, channel, date, flags={}):
+        self.network = network
         self.channel = channel
-        self.registered = registered
+        self.date = date
         self.flags = flags
         self.key = None
         self.verbose = False
@@ -22,6 +25,18 @@ class channel:
             'op': 'Vbiklmotv',
             'voice': 'Viltv',
             'clear': ''}
+        self._lang = None
+
+    @property
+    def lang(self):
+        if self._lang is None:
+            if self.network in envvars.networks:
+                return envvars.networks[self.network].default_lang
+            else:
+                # wtf? really?
+                return envvars.default_lang
+        else:
+            self._lang
 
     def __del__(self):
         self.drop()
@@ -48,7 +63,7 @@ class channel:
         self.key = key
 
     def get_flags(self, account):
-        if isinstance(account, basestring):
+        if isinstance(account, string_types):
             account = self.get_mask(account)
             if not account:
                 return
@@ -57,7 +72,7 @@ class channel:
 
     def set_flags(self, account, flags, dadd='', ddel=''):
         simpaccount = True
-        if isinstance(account, basestring):
+        if isinstance(account, string_types):
             account = self.get_mask(account)
             if account:
                 simpaccount = False
@@ -69,7 +84,6 @@ class channel:
         else:
             initflags = None
 
-        print('%s in %s' % (flags, flags.lower() in self.template.keys()))
         if flags.lower() in self.template:
             if not simpaccount:
                 for l in self.template[flags.lower()]:
@@ -130,7 +144,7 @@ class channel:
         return initflags, flags
 
     def has_flags(self, account):
-        if isinstance(account, basestring):
+        if isinstance(account, string_types):
             account = self.get_mask(account)
             if not account:
                 return
@@ -144,7 +158,7 @@ class channel:
             account.del_chan(self)
 
     def remove(self, account):
-        if isinstance(account, basestring):
+        if isinstance(account, string_types):
             account = self.get_mask(account)
             if not account:
                 return

@@ -4,6 +4,7 @@
 
 import time
 from simpbot import envvars
+from simpbot import localedata
 
 
 class user(object):
@@ -14,8 +15,8 @@ class user(object):
         self.username = user
         self.since = since
         self._admin = admin
+        self._lang = None
         self.logindate = logindate
-        self.lang = None
         self.status = status
         if self.isadmin():
             self.admin.logins.append(self)
@@ -71,6 +72,21 @@ class user(object):
     def admin(self):
         if self.isadmin():
             return envvars.admins[self._admin]
+
+    @property
+    def lang(self):
+        if self._lang is None:
+            if self.network in envvars.networks:
+                return envvars.networks[self.network].default_lang
+            else:
+                # wtf? really?
+                return envvars.default_lang
+        else:
+            self._lang
+
+    def set_lang(self, lang):
+        if localedata.simplocales.exists(lang, 'fullsupport'):
+            self._lang = lang
 
     def set_admin(self, admin, logindate):
         if admin is None:

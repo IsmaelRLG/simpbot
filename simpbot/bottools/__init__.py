@@ -3,7 +3,7 @@
 # Copyright 2016, Ismael Lugo (kwargs)
 
 #lint:disable
-import irc
-import dummy
-import text
+from . import irc
+from . import dummy
+from . import text
 #lint:enable
