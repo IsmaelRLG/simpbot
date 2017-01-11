@@ -7,7 +7,13 @@
 # URL: https://www.kwargs.net.ve/projects/simpbot
 # GIT: https://github.com/IsmaelRLG/simpbot
 
-from setuptools import setup
+try:
+    from setuptools import setup
+except ImportError:
+    print("Please install the setuptools package")
+    exit(0)
+
+from os.path import join
 import simpbot
 
 setup(
@@ -16,7 +22,7 @@ setup(
     author=simpbot.__author__,
     author_email="ismaelrlgv@gmail.com",
     description="Simple Bot (SimpBot) - IRC (Internet Relay Chat) Bot",
-    url="https://kwargs.net.ve/projects/SimpBot",
+    url="https://github.com/IsmaelRLG/simpbot",
     packages=[
         'simpbot',
         'simpbot.request',
@@ -29,15 +35,24 @@ setup(
         'simpmods',
         'simpmods.admin'
         ],
-    scripts=['bin/simpbot'],
+
+    package_data={'simpbot': ['localedata/*.dat']},
+    scripts=[
+        join('bin', 'simpbot')
+    ],
+    requires=[
+        'six'
+    ],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Console",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: Spanish",
-        "Operating System :: POSIX :: Linux",
+        "Operating System :: POSIX",
         #"Operating System :: Microsoft :: Windows",  # Proximamente...
         "Programming Language :: Python :: 2.7",
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
         "Topic :: Communications :: Chat :: Internet Relay Chat"
     ]
 )
