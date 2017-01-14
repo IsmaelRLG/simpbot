@@ -15,6 +15,30 @@ except ImportError:
 
 from os.path import join
 import simpbot
+import platform
+import sys
+
+kwargs = {}
+if platform.system() == 'Windows' and 'py2exe' in sys.argv:
+    try:
+        import py2exe  # lint:ok
+    except ImportError:
+        print('Please install py2exe')
+
+    kwargs = {
+        'console': [{
+            'script': 'nombrescript.py',
+            'description': 'Descripcion del programa.',
+            'icon_resources': [(0, join('icons', 'simpbot-48x48.png'))]
+            }],
+        'zipfile': None,
+        'options': {'py2exe': {
+            'dll_excludes': ['w9xpopen.exe'],
+            'bundle_files': 1,
+            'compressed': True,
+            'optimize': 2
+            }},
+     }
 
 setup(
     name='simpbot',
@@ -36,7 +60,7 @@ setup(
         'simpmods.admin'
         ],
 
-    package_data={'simpbot': ['localedata/*.dat']},
+    package_data={'simpbot': [join('localedata', '*.dat')]},
     scripts=[
         join('bin', 'simpbot')
     ],
@@ -49,7 +73,7 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Natural Language :: Spanish",
         "Operating System :: POSIX",
-        #"Operating System :: Microsoft :: Windows",  # Proximamente...
+        "Operating System :: Microsoft :: Windows",
         "Programming Language :: Python :: 2.7",
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',

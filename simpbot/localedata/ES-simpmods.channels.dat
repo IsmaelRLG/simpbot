@@ -22,8 +22,8 @@ obtener más información sobre las plantillas, envíe lo siguiente:
 /msg {irc.nickname} help template
 
 Si usted es un fundador, y desea otorgar / remover privilegios de fundador
-a un segundo ó a usted mismo debera usar el comando FOUNDER, para obtener
-más información sobre este comando envie lo siguiente:
+a un segundo ó a usted mismo deberá usar el comando FOUNDER, para obtener
+más información sobre este comando envíe lo siguiente:
     /msg {irc.nickname} help founder
 No se pueden conceder privilegios de fundador otorgando +F, igualmente no está
 permitido conceder los siguientes privilegios a un mask: +Ffs.

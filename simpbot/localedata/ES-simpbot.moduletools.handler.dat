@@ -3,20 +3,14 @@
 # This file is distributed under the same license as the simpbot
 # --------------------------------------------------------------
 # Original Translator: Ismael Lugo <ismaelrlgv@gmail.com>
-# Creation Date: 2017-01-08 10:40 (-0400)
-# Last revision date: 2017-01-08 10:40 (-0400)
+# Creation Date: 2017-01-08 22:47 (-0400)
+# Last revision date: 2017-01-08 23:47 (-0400)
 # Last Translator: Darelyn Jimenez <jdarelyn@gmail.com>
 # Language: Español (spanish)
 # --------------------------------------------------------------
 
-msgid  you are locked
-msgstr usted se encuentra bloqueado, por lo tanto no tiene habilitado el uso del bot. 
-       Razon de bloqueo: %s, Fecha: %s, Administrador: %s.
+msgid  exception info
+msgstr Módulo: {handler.mod_name}, Comando: {handler.name} | {message}
 
-msgid  command info
-msgstr Modulo: {}, Comando: {} | %s
-
-msgid  invalid requirements
-msgstr Solicitó un requerimiento inválido: "%s".
-
-
+msgid  error info 
+msgstr Módulo: {handler.mod_name}, Comando: {handler.name}, {user.mask} ha producido un error. 

@@ -9,6 +9,9 @@ from . import workarea
 
 logging = __import__('logging').getLogger('localedata')
 
+langsep = '-'
+ext = '.dat'  # extension name
+
 
 class Error(Exception):
     def __init__(self, string, line=None, extra=None):
@@ -58,18 +61,18 @@ class LocaleData:
         :param lang: language code
         :param package: the package name
         """
-        return self.localedata.exists('%s:%s.dat' % (lang.upper(), package))
+        return self.localedata.exists(lang.upper() + langsep + package + ext)
 
     def langs(self, package):
         """Return a list of all languages availables for a package.
 
         :param package: the package name
         """
-        package = '%s.dat' % package
+        package = package + ext
         avail = []
         for locale in self.localedata.listdir():
             try:
-                lang, pack = locale.split(':')
+                lang, pack = locale.split(langsep)
             except ValueError:
                 raise Error('Invalid locale name: %s', locale)
             if pack == package:
@@ -196,7 +199,7 @@ class LocaleData:
         if not self.exists(lang, package):
             return 0
         lang = lang.upper()
-        abspath = self.localedata.join('%s:%s.dat' % (lang, package))
+        abspath = self.localedata.join(lang.upper() + langsep + package + ext)
         with open(abspath, 'r') as fp:
             self._read(fp, lang, package, abspath)
         return 1

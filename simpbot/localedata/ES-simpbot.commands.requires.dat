@@ -16,13 +16,13 @@ msgid  without params
 msgstr {%s}; No se indicaron los parametros.
 
 msgid  invalid params
-msgstr {%s}; Parametros ó argumentos invalidos.
+msgstr {%s}; Parámetros ó argumentos inválidos.
 
 msgid  only private
-msgstr Este comando solo debe ser ejecutado en privado.
+msgstr Este comando sólo debe ser ejecutado en privado.
 
 msgid  only channel
-msgstr Este comando solo debe ser ejecutado en un canal.
+msgstr Este comando sólo debe ser ejecutado en un canal.
 
 msgid  invalid channel
 msgstr Canal %s inválido.
