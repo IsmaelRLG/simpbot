@@ -1,0 +1,38 @@
+
+msgid  motd
+msgstr SimpBot v{version} - Codigo fuente: {url}
+
+msgid  available commands
+msgstr Prefijo: {prefix}. Comandos disponibles:
+
+msgid  admins commands
+msgstr Comandos para administradores
+
+msgid  more help (private)
+msgstr Para obtener mas información sobre un comando en especifico, por favor enviar: help <comando>
+
+msgid  more help (channel)
+msgstr Para obtener mas información sobre un comando en especifico, por favor enviar: {irc.nickname}: help <comando>
+
+msgid  not help and syntax
+msgstr El comando {command} no cuenta con una ayuda definida, pero si cuenta con la siguiente sintaxis:
+
+msgid  not help and not syntax
+msgstr El comando {command} no cuenta con una ayuda ni una sintaxis definida.
+
+msgid  syntax
+msgstr Sintaxis: %s
+
+msgid  help for
+msgstr Ayuda del comando {command}
+
+msgid  end of
+msgstr Fin de la ayuda del comando {command}
+
+msgid  command not found
+msgstr No existe el comando {command}
+
+msgid  suggest
+msgstr Quizás quiso decir: %s
+
+

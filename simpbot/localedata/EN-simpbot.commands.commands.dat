@@ -1,0 +1,20 @@
+# English translation for simpbot
+# Copyright (C) 2016, Ismael Lugo
+# This file is distributed under the same license as the simpbot
+# --------------------------------------------------------------
+# Original Translator: Matiia <matiia.wiki@gmail.com>
+# Creation Date: 2017-01-15 01:35 (-0300)
+# Last revision date: 2017-01-15 01:35 (-0300)
+# Last Translator: Matiia <matiia.wiki@gmail.com>
+# Language: English
+# --------------------------------------------------------------
+
+msgid  you are locked
+msgstr you are locked, thus you can't use the bot.
+       Reason: %s, Date: %s, Admin: %s.
+ 
+msgid  command info
+msgstr Module: {}, Command: {} | %s
+ 
+msgid  invalid requirements
+msgstr you've requested a invalid requirement: "%s".

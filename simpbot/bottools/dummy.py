@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Simple Bot (SimpBot)
-# Copyright 2016, Ismael Lugo (kwargs)
+# Copyright 2016-2017, Ismael Lugo (kwargs)
 
 import time
 from simpbot import envvars
@@ -16,13 +16,14 @@ def ascii(start='#'):
     head += '{0} \___ \| || |\  /|  ____/| __ || | | |  | |\n'
     head += '{0} ___| || || | \/ | |     ||__||| \_/ |  | |\n'
     head += '{0}/____ /|_|| |    |_|     |____/ \___/   |_|\n'
-    head += '{0}    Copyright 2016, Ismael Lugo (kwargs)    v{1}\n'
+    head += '{0}    Copyright 2016-2017, Ismael Lugo (kwargs)    v{1}\n'
     return head.format(start, __version__)
 
 
-def debug(level):
-    kw = {'level': level, 'format': '%(name)s - %(levelname)s: %(message)s'}
-    if envvars.daemon is True:
+def debug(level, daemon=envvars.daemon):
+    #kw = {'level': level, 'format': '%(name)s - %(levelname)s: %(message)s'}
+    kw = {'level': level, 'format': '%(levelname)s: %(message)s'}
+    if daemon is True:
         kw['filename'] = envvars.logs.join(time.strftime('%d%m%Y.log'))
         kw['filemode'] = 'a'
     __import__('logging').basicConfig(**kw)

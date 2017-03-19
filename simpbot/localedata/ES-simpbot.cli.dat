@@ -1,0 +1,276 @@
+# Spanish translation for simpbot
+# Copyright (C) 2016, Ismael Lugo
+# This file is distributed under the same license as the simpbot
+# --------------------------------------------------------------
+# Original Translator: Ismael Lugo <ismaelrlgv@gmail.com>
+# Creation Date: 2017-01-08 20:28 (-0400)
+# Last revision date: 2017-01-08 20:28 (-0400)
+# Last Translator: Darelyn Jimenez <jdarelyn@gmail.com>
+# Language: Español (spanish)
+# --------------------------------------------------------------
+
+msgid  version help
+msgstr Muestra la versión de SimpBot
+
+msgid  debug help
+msgstr Muestra los mensajes de depuración
+
+msgid  id help
+msgstr Especifica el usuario para identificarse, incluyendo la dirección y puerto de la maquina remota. Esto puede ser especificado en el archivo de configuración.
+
+msgid  username help
+msgstr Indica el nombre de usuario del administrador a usar.
+
+msgid  <username>
+msgstr <usuario>
+
+msgid  remote host help
+msgstr Dirección equipo remoto donde se ejecuta la API.
+
+msgid  <remote host>
+msgstr <hostname:puerto>
+
+msgid  id needed
+msgstr Es necesario indicar el usuario ó contraseña para usar esta opción.
+
+msgid  invalid debug level
+msgstr Nivel de debug inválido. Disponible: 10, 20, 30, 40 y 50.
+
+msgid  invalid network name
+msgstr Nombre de red inválido.
+
+msgid  api is not running
+msgstr La API no está andando (%s:%s) ó simpbot no está corriendo.
+
+msgid  enter network
+msgstr Ingrese el nombre de la red: 
+
+msgid  passwd
+msgstr Contraseña %s@%s (%s): 
+
+msgid  options for
+msgstr Opciones para el comando %s
+
+msgid  help server list
+msgstr Muestra la lista de servidores en simpbot.
+
+msgid  <server name>
+msgstr <servidor>
+
+msgid  help edit server
+msgstr Inicia el proceso de edición del servidor indicado.
+
+msgid  help add server
+msgstr Agrega un servidor de IRC de la configuración.
+
+msgid  help remove server
+msgstr Elimina un servidor de IRC de la configuración.
+
+msgid  required login
+msgstr Opciones que requieren identificación (--username)
+
+msgid  help server status
+msgstr Muestra el estado actual de los servidores en SimpBot.
+
+msgid  help connect server
+msgstr Conecta al IRC el servidor indicado.
+
+msgid  help disconnect server
+msgstr Desconecta del IRC el servidor indicado.
+
+msgid  help reconnect server
+msgstr Reconecta al IRC el servidor indicado.
+
+msgid  invalid password
+msgstr El usuario / contraseña ó el nombre de la red son inválidos. 
+
+msgid  unknown response
+msgstr Se recibió una respuesta del servidor desconocida. O_O
+
+msgid  error
+msgstr Errores ocurridos:
+
+msgid  messages
+msgstr Notificaciones:
+
+msgid  true
+msgstr yes
+
+msgid  false
+msgstr no
+
+msgid  row name
+msgstr nombre de la red
+
+msgid  row host
+msgstr hostname
+
+msgid  row port
+msgstr puerto
+
+msgid  row pass
+msgstr contraseña
+
+msgid  row status
+msgstr estado
+
+msgid  no servers
+msgstr No hay servidores agregados.
+
+msgid  n
+msgstr Desconectado
+
+msgid  c
+msgstr Conectado
+
+msgid  r
+msgstr Conectado
+
+msgid  p
+msgstr Conexión perdida
+
+msgid  d
+msgstr Desconectado
+
+msgid  success
+msgstr Operación exitosa.
+
+msgid  failed
+msgstr Ha ocurrido un error.
+
+msgid  invalid syntax
+msgstr Sintaxis inválida, usar: hostname:puerto
+
+msgid  help lang list
+msgstr Muestra los lenguajes disponibles
+
+msgid  help edit config
+msgstr Inicia el proceso de edición de lo que se le indique.
+
+msgid  help make admins
+msgstr Genera la configuración de administradores
+
+msgid  help make conf
+msgstr Genera la configuración general de SimpBot.
+
+msgid  row langcode
+msgstr Código de lenguaje
+
+msgid  row langname
+msgstr Nombre del lenguaje
+
+msgid  help reconfigure
+msgstr Actualiza la configuración de SimpBot sin tener que reiniciarlo.
+
+msgid  admin conf already exists
+msgstr La configuración de administradores ya existe.
+
+msgid  simpbot conf already exists
+msgstr La configuración general de SimpBot ya existe.
+
+msgid  available commands
+msgstr Comandos disponibles:
+
+msgid  help start
+msgstr Ejecuta a SimpBot en segundo plano.
+
+msgid  help stop
+msgstr Finaliza a SimpBot.
+
+msgid  help restart
+msgstr Reinicia a Simpbot.
+
+msgid  help no daemon
+msgstr Inicia a SimpBot en primer plano.
+
+msgid  help info
+msgstr Muestra el estado actual de SimpBot.
+
+msgid  use linux!
+msgstr Esta opción se encuentra inhablitada. ¡Solo disponible para Linux!
+
+msgid  already running
+msgstr Ya hay un proceso activo.
+
+msgid  simpmods error
+msgstr simpmods error: %s
+
+msgid  empty admins
+msgstr No hay administradores agregados.
+
+msgid  empty networks
+msgstr No hay ninguna red añadida.
+
+msgid  already stoped
+msgstr No hay ningún proceso activo.
+
+msgid  stoped
+msgstr Se ha detenido SimpBot.
+
+msgid  started
+msgstr Se ha iniciado SimpBot.
+
+msgid  simpbot started
+msgstr SimpBot se encuentra iniciado.
+
+msgid  simpbot stoped
+msgstr SimpBot se encuentra detenido.
+
+msgid  unexpected error
+msgstr Ha ocurrido un error por lo que SimpBot debe cerrarse (ERROR: %s).
+
+msgid  help listen host
+msgstr Indica la dirección y puerto para ejecutar la API.
+
+msgid  help no api
+msgstr La API no es ejecutada al iniciar SimpBot.
+
+###################################
+# Argparser options!
+###################################
+
+msgid  usage: 
+msgstr forma de uso: 
+
+msgid  argument "-" with mode %r
+msgstr argumento "-" con modo %r
+
+msgid  can't open '%s': %s
+msgstr No se puede abrir '%s': %s
+
+msgid  cannot merge actions - two groups are named %r
+msgstr cannot merge actions - two groups are named %r
+
+msgid  invalid option string %r: 
+msgstr Opción inválida  %r: 
+
+msgid  argument %s is required
+msgstr argumento %s requerido
+
+msgid  one of the arguments %s is required
+msgstr one of the arguments %s is required
+
+msgid  too few arguments
+msgstr too few arguments
+
+msgid  positional arguments
+msgstr argumentos posicionales
+
+msgid  optional arguments
+msgstr argumentos opcionales
+
+msgid  invalid %s value: %r
+msgstr valor inválido (requiere %s): %r
+
+msgid  show this help message and exit
+msgstr Muestra este mensaje de ayuda
+
+msgid  not allowed with argument %s
+msgstr no soporta el argumento %s
+
+msgid  unrecognized arguments: %s
+msgstr argumento desconocido: %s
+
+###################################
+# End of argparser options!
+###################################

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Simple Bot (SimpBot)
-# Copyright 2016, Ismael Lugo (kwargs)
+# Copyright 2016-2017, Ismael Lugo (kwargs)
 
 import re
 from time import strftime as date
@@ -146,12 +146,25 @@ class replace:
             self.mapping[key] = is_none(value)
 
     def replace(self, string, **tmp_kwargs):
+        if 'include_time' in tmp_kwargs:
+            datetime = tmp_kwargs['incluse_time']
+            del tmp_kwargs['incluse_time']
+        else:
+            datetime = False
+
+        def sub(string):
+            if datetime:
+                string = date(string.format(**self.mapping))
+            else:
+                string = string.format(**self.mapping)
+            return string
+
         if len(tmp_kwargs) > 0:
             self.extend(tmp_kwargs)
-            string = date(string.format(**self.mapping))
+            string = sub(string)
             self.remove(tmp_kwargs)
         else:
-            string = date(string.format(**self.mapping))
+            string = sub(string)
         return string
 
     def addmatch(self, match):

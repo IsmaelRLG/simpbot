@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 # Simple Bot (SimpBot)
-# Copyright 2016, Ismael Lugo (kwargs)
-
+# Copyright 2016-2017, Ismael Lugo (kwargs)
 
 import re
 import time
 from . import requires
 from six.moves import queue
 from simpbot import modules
+from simpbot import envvars
 from simpbot import parser
 from simpbot import localedata
 from simpbot.bottools.dummy import thread
@@ -245,7 +245,10 @@ class ProccessCommands:
                 return dbuser.default_lang
 
     @thread
-    def process(self, match):
+    def process(self, match, regexonly=False):
+        self._process(match, regexonly)
+
+    def _process(self, match, regexonly=False):
         user = self.request.set_user(*match.group('user', 'host', 'nick'))
         irc = self.irc
         completeline = match.string  # lint:ok
@@ -293,29 +296,40 @@ class ProccessCommands:
         _.extend(locals())
 
         msg = i18n['command info']
-        # Se procesan comandos sin regex...
-        for handler, result in self.get_command(None, regex=False):
-            msg = msg.format(handler.mod_name, handler.name)
-            module = handler.module
-            if module is not None:
-                status = self.check(user, channel, module, 'module', False)
+        if not regexonly:
+            # Se procesan comandos sin regex...
+            for handler, result in self.get_command(None, regex=False):
+                msg = msg.format(handler.mod_name, handler.name)
+                module = handler.module
+
+                if module is not None:
+                    status = self.check(user, channel, module, 'module', False)
+                    if status is deny or status is ignore:
+                        continue
+
+                status = self.check(user, channel, handler, 'command', False)
                 if status is deny or status is ignore:
                     continue
 
-            status = self.check(user, channel, handler, 'command', False)
-            if status is deny or status is ignore:
-                continue
+                for need in handler.need:
+                    watchdog = requires.get(need)
+                    if not watchdog:
+                        logging.error(msg % i18n['invalid requirements'] % need)
+                        continue
 
-            for need in handler.need:
-                watchdog = requires.get(need)
-                if not watchdog:
-                    logging.error(msg % i18n['invalid requirements'] % need)
-                    continue
+                    if watchdog[0](locals()):
+                        return
 
-                if watchdog[0](locals()):
-                    return
-
-            handler(self.irc, match, None, target, channel, _)
+                if handler.i18n:
+                    loader = handler.i18n['loader']
+                    locale = loader.getfull(lang, handler.mod_name)
+                else:
+                    locale = None
+                handler(self.irc, match, None, target, channel, _, locale)
+                if handler.rec_form:
+                    abspath = envvars.records.join(handler.fullname)
+                    with open(abspath, 'a') as fp:
+                        fp.write(_(handler.rec_form, include_time=True) + '\n')
 
         if not sre and not privbot:
             return
@@ -347,7 +361,15 @@ class ProccessCommands:
                     return
 
             _.addmatch(result)
-            handler(self.irc, match, result, target, channel, _)
+            if handler.i18n:
+                loader = handler.i18n['loader']
+                locale = loader.getfull(lang, handler.mod_name)
+            else:
+                locale = None
+            handler(self.irc, match, result, target, channel, _, locale)
+            if handler.rec_form:
+                with open(envvars.records.join(handler.fullname), 'a') as fp:
+                    fp.write(_(handler.rec_form, include_time=True) + '\n')
 
     @thread
     def loop(self):

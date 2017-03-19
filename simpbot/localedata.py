@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Simple Bot (SimpBot)
-# Copyright 2017, Ismael Lugo (kwargs)
+# Copyright 2016-2017, Ismael Lugo (kwargs)
 
 import re
 import sys
@@ -8,6 +8,7 @@ from os import path
 from . import workarea
 
 logging = __import__('logging').getLogger('localedata')
+
 
 langsep = '-'
 ext = '.dat'  # extension name
@@ -63,6 +64,11 @@ class LocaleData:
         """
         return self.localedata.exists(lang.upper() + langsep + package + ext)
 
+    def load(self, lang, package):
+        if not self.in_cache(lang, package):
+            self.read(lang, package)
+        return self.get(lang, package)
+
     def langs(self, package):
         """Return a list of all languages availables for a package.
 
@@ -72,7 +78,7 @@ class LocaleData:
         avail = []
         for locale in self.localedata.listdir():
             try:
-                lang, pack = locale.split(langsep)
+                lang, pack = locale.split(langsep, 1)
             except ValueError:
                 raise Error('Invalid locale name: %s', locale)
             if pack == package:
@@ -188,9 +194,12 @@ class LocaleData:
                     addline = False
 
             else:
-                if not last_msgid is None:
+                if last_msgid is None:
                     continue
-                localedata[last_msgid] += line
+
+                if addline:
+                    line += '\n'
+                localedata.msgid[last_msgid] += line
         if not lang in self.cache:
             self.cache[lang] = {}
         self.cache[lang][package_name] = localedata
@@ -218,6 +227,28 @@ class LocaleData:
             del self.cache[lang][package]
             return 1
         return 0
+
+    def getfull(self, lang=None, package=None, optlang=None):
+        from . import envvars
+        if package is None:
+            package = sys._getframe(1).f_globals['__name__']
+        if lang is None:
+            lang = envvars.default_lang
+
+        if self.exists(lang, package):
+            return self.load(lang, package)
+
+        langs = self.langs(package)
+        if len(langs) == 0:
+            raise Error('Invalid package ' + package)
+        elif len(langs) == 1:
+            return self.load(langs.pop(), package)
+        elif optlang in langs:
+            return self.load(optlang, package)
+        elif envvars.default_lang in langs:
+            return self.load(envvars.default_lang, package)
+        else:
+            raise Error('Invalid lang: "%s" only support %s' % (package, lang))
 
 
 class Locale:
@@ -252,7 +283,10 @@ class Locale:
             self.abspath, msgid)
         self.msgid[msgid] = msgstr
 
-    def msgid(self, msgid, msgstr=None):
+    def __iter__(self):
+        return iter(self.msgid)
+
+    def get(self, msgid, msgstr=None):
         if msgstr is not None:
             self.__setitem__(msgid, msgstr)
         else:
@@ -266,30 +300,4 @@ class Locale:
 
 
 simplocales = LocaleData(path.join(path.dirname(__file__), 'localedata'))
-
-
-def get(lang=None, package=None):
-    from . import envvars
-    if package is None:
-        package = sys._getframe(1).f_globals['__name__']
-    if lang is None:
-        lang = envvars.default_lang
-
-    if simplocales.exists(lang, package):
-        if not simplocales.in_cache(lang, package):
-            simplocales.read(lang, package)
-        return simplocales.get(lang, package)
-
-    langs = simplocales.langs(package)
-    if len(langs) == 0:
-        raise Error('Invalid package ' + package)
-    elif len(langs) == 1:
-        if not simplocales.in_cache(lang, package):
-            simplocales.read(lang, package)
-        return simplocales.get(langs[0], package)
-    elif 'EN' in langs:
-        if not simplocales.in_cache('EN', package):
-            simplocales.read('EN', package)
-        return simplocales.get('EN', package)
-    else:
-        raise Error('Invalid lang for %s, only support %s' % (package, lang))
+get = simplocales.getfull

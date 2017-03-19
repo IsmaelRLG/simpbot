@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Simple Bot (SimpBot)
-# Copyright 2016, Ismael Lugo (kwargs)
+# Copyright 2016-2017, Ismael Lugo (kwargs)
 
 import random
 import string
@@ -35,6 +35,28 @@ def parse_args(instance, method, ignore_py3=False):
 
 lower = parse_args(string_types, str.lower)
 normalize = parse_args(text_type, lambda txt: txt.encode('utf-8'), True)
+
+
+def split(string, slen):
+    if len(string) <= slen:
+        return [string]
+    tpart = float(len(string)) / slen
+    if not tpart.is_integer():
+        tpart += 1
+    tpart = int(tpart)
+    npart = 1
+    parts = []
+    ini = 0
+    end = slen
+    while npart <= tpart:
+        if npart == tpart:
+            parts.append(string[ini:])
+        else:
+            parts.append(string[ini:end])
+            ini += slen
+            end += slen
+        npart += 1
+    return parts
 
 
 def part(string, parts, mark=''):

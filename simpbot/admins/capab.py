@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 # Simple Bot (SimpBot)
-# Copyright 2016, Ismael Lugo (kwargs)
+# Copyright 2016-2017, Ismael Lugo (kwargs)
 
 template = {
     'global': ['root'],
     'local': ['admin'],
 
-    'root': ['shutdown', 'restart', 'modules', 'over-restriction',
+    'root': ['shutdown', 'restart', 'modules', 'over-restriction', 'api',
         'over-restriction:deny global', 'control_module', 'verbose-root',
         'control_global', 'commands', 'manager-admin', 'admin', 'superuser'],
 

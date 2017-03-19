@@ -1,23 +1,24 @@
 # -*- coding: utf-8 -*-
 # Simple Bot (SimpBot)
-# Copyright 2016, Ismael Lugo (kwargs)
+# Copyright 2016-2017, Ismael Lugo (kwargs)
 
 import platform
-import argparse
 import os
 import time
 import sys
 from . import workarea as wa
 
 
+mods_path = []
 uptime = time.time()
 #channels = []
 admins = {}
 coremodules = {}
 networks = {}
 stores = {}
-args = argparse.ArgumentParser()
+parsers = {}
 default_lang = 'es'
+api_started = False
 daemon = False
 irc = None
 cfg_kwargs = {}
@@ -51,12 +52,27 @@ workarea = wa.workarea(os.path.join(HOME, '.simpbot'),
     {'files': ['admins.ini'], 'dirs': ['logs', 'modules', 'data']})
 #os.chdir(workarea.abspath)
 modules = workarea.new_wa('modules')
+mods_path.append(modules.abspath)
 servers = workarea.new_wa('servers')
 adminspath = workarea.join('admins.ini')
+simpbotcfg = workarea.join('simpbot.conf')
 logs = workarea.new_wa('logs')
 data = workarea.new_wa('data')
 dbstore = data.new_wa('dbstore')
+records = data.new_wa('records')
 ctrl = data.new_wa('commands')
 
-if workarea.exists('default_lang'):
-    default_lang = workarea.file('default_lang', 'r').read()
+
+
+
+if workarea.exists(simpbotcfg) and workarea.isfile(simpbotcfg):
+    from simpbot.simpleconf import ReadConf
+    cfg = ReadConf(workarea.join(simpbotcfg))
+    default_lang = cfg.get('DEFAULT_LANG', default_lang)
+else:
+    class cfg:
+        def get(self, opt, default=None):
+            return default
+        getint = get
+        getboolean = get
+    cfg = cfg()

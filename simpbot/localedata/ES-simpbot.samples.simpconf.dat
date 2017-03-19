@@ -1,0 +1,30 @@
+# Spanish translation for simpbot
+# Copyright (C) 2016, Ismael Lugo
+# This file is distributed under the same license as the simpbot
+# --------------------------------------------------------------
+# Original Translator: Ismael Lugo <ismaelrlgv@gmail.com>
+# Creation Date: 2017-01-08 16:33 (-0400)
+# Last revision date: 2017-01-08 16:33 (-0400)
+# Last Translator: Darelyn Jimenez <jdarelyn@gmail.com>
+# Language: Español (spanish)
+# --------------------------------------------------------------
+
+msgid  sample conf
+config nostrip yes
+config addline yes
+msgstr
+# EJEMPLO: CONFIGURACIÓN MISCELLANEA
+####################################
+
+# Configuración de API
+####################################
+LISTEN_HOST = 127.0.0.1
+LISTEN_PORT = 51397
+CONNECT_HOST = 127.0.0.1
+CONNECT_PORT = 51397
+CONNECT_USER = 
+
+# Lenguaje general de simpbot
+####################################
+DEFAULT_LANG = ES
+msgend

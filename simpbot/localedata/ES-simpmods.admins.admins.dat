@@ -1,0 +1,141 @@
+# Spanish translation for simpbot
+# Copyright (C) 2016, Ismael Lugo
+# This file is distributed under the same license as the simpbot
+# --------------------------------------------------------------
+# Original Translator: Ismael Lugo <ismaelrlgv@gmail.com>
+# Creation Date: 2017-01-08 16:33 (-0400)
+# Last revision date: 2017-01-08 16:33 (-0400)
+# Last Translator: Darelyn Jimenez <jdarelyn@gmail.com>
+# Language: Español (spanish)
+# --------------------------------------------------------------
+
+
+# Comando: Auth
+################################################################
+msgid  auth syntax
+msgstr auth <cuenta> <contraseña>
+
+msgid  auth help
+msgstr Identifica a un usuario como administrador de SimpBot.
+
+msgid  fail login
+msgstr Usuario ó contraseña inválida.
+
+msgid  verbose: fail login
+msgstr Logueo fallido: Cuenta NickServ: {user.account}, hostmask: {user.mask}, Cuenta administrador: {account}, Contraseña:  {password}
+
+msgid  ns account not allowed
+msgstr cuenta NickServ no admitida
+
+msgid  Max of sessions reached
+msgstr maximo de sesiones permitidas alcanzado
+
+msgid  login successful
+msgstr Autenticado correctamente.
+
+msgid  verbose: login successful
+msgstr Administrador autenticado: Cuenta NickServ: {user.account}, hostmask: {user.mask}, Cuenta administrador: {account}
+
+# Comando: passwd
+################################################################
+
+msgid  passwd syntax
+msgstr passwd <contraseña antigua> <contraseña nueva>
+
+msgid  paswd help
+msgstr Actualiza la contraseña de administrador.
+
+msgid  invalid new password
+msgstr Contraseña es inválida. Se recuerda que la nueva contraseña debe ser mayor a %s carácteres, ésta a su vez debe contener números, letras y al menos un carácter especial (como por ejemplo: ! $ & / . - < > +), y no puede contener espacios en blanco.
+
+msgid  update password
+msgstr Se actualizó la contraseña para {admin_name} cómo: {new_passwd}
+
+msgid  verbose: update password
+msgstr {user.mask} ({user.account}) actualizó la contraseña de {admin_name}
+
+msgid  verbose: update password
+msgstr {user.mask} ({user.account}) forzó el cambio de contraseña de {admin_name}
+
+msgid  invalid admin account
+msgstr Cuenta adminstrador {admin} inválida.
+
+msgid  forcepasswd syntax
+msgstr forcepasswd <cuenta administrador> <contraseña nueva>
+
+msgid  forcepasswd help
+msgstr Fuerza el cambio de la contraseña de un administrador.
+
+msgid  logout help
+msgstr Cierra la sesión de administrador.
+
+msgid  logout
+msgstr Se ha finalizado la sesión de administrador.
+
+msgid  verbose: logout
+msgstr {user.mask} ({user.account}) finalizó su sesión de administrador.
+
+msgid  forcelogout
+msgstr Se finalizó la sesión del administrador 
+
+msgid  verbose: forcelogout
+msgstr {user.mask} ({user.account}) forzó el cierre de la sesión del administrador {account}
+
+msgid  sessions info
+msgstr Red: {network}, Cuenta NickServ: {ns}, Desde: {since}, Expira: {expire}
+
+msgid  
+msgstr 
+
+msgid  forcelogout syntax
+msgstr forcelogout <cuenta simpbot>
+
+msgid  forcelogout help
+msgstr Fuerza el cierre de la sesión de un administrador.
+
+msgid  sessions help
+msgstr Lista todas las sesiones de administradores del bot.
+
+msgid  admin add help
+config nostrip yes
+config addline yes
+msgstr Este comando permite agregar administradores para una red en especifico, si desea
+agregar un administrador global deberá editar el archivo de configuración.
+                         
+Argumentos requeridos:
+  Cuenta........... Nombre de la cuenta de administrador.
+  Algoritmo HASH... Nombre de la función HASH a utilizar.
+                    Los algoritmos HASH disponibles son:
+                    SHA, SHA1, SHA224, SHA256, SHA384, SHA512, MD4,
+                    MD5, DSA, RIPEMD160, whirlpool. Se recomienda
+                    utilizar SHA256.
+  hash............. Clave de administrador cifrada con la función hash.
+  capacidades...... Las capacidades que poseerá el administrador, si
+                    desea añadir varias capacidades deberá separarlas por
+                    comas (,).
+msgend
+
+msgid admin add syntax
+msgstr admin add <cuenta> <algoritmo hash> <hash> <capacidades>
+
+
+\2Sintaxis\2: 
+
+En caso de querer remover un administrador debera usar:
+\2Sintaxis\2: admin del <cuenta> <red>
+
+Para editar ciertos aspectos del administrador se usa. Se deberá indicar la
+cuenta de administrador, el nombre atributo a editar seguido del valor que
+este tendrá, la sintaxis debe ser la siguiente:
+\2Sintaxis\2: admin edit <cuenta> <red> <atributo> <valor>
+Para obtener más información sobre los atributos por favor vea el archivo de
+configuración de adminitradores.
+
+Si usted desea ver la información de un administrador, con todos sus atributos
+debera seguir la siguiente sintaxis:
+\2Sintaxis\2: admin info <cuenta> <red>
+
+msgid  
+msgstr 
+
+

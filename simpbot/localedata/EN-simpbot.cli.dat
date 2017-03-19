@@ -1,0 +1,115 @@
+msgid  version help
+msgstr Print version info and exit
+
+msgid  debug help
+msgstr Show debug messages
+
+###################################
+# Argparser options!
+###################################
+
+msgid  usage: 
+msgstr usage: 
+
+msgid  unknown parser %r (choices: %s)
+msgstr unknown parser %r (choices: %s)
+
+msgid  argument "-" with mode %r
+msgstr argument "-" with mode %r
+
+msgid  can't open '%s': %s
+msgstr can't open '%s': %s
+
+msgid  cannot merge actions - two groups are named %r
+msgstr cannot merge actions - two groups are named %r
+
+msgid  'required' is an invalid argument for positionals
+msgstr 'required' is an invalid argument for positionals
+
+msgid  invalid option string %r: 
+msgstr invalid option string %r: 
+
+msgid  dest= is required for options like %r
+msgstr dest= is required for options like %r
+
+msgid  invalid conflict_resolution value: %r
+msgstr invalid conflict_resolution value: %r
+
+msgid  argument %s is required
+msgstr argument %s is required
+
+msgid  one of the arguments %s is required
+msgstr one of the arguments %s is required
+
+msgid  too few arguments
+msgstr too few arguments
+
+msgid  positional arguments
+msgstr positional arguments
+
+msgid  optional arguments
+msgstr optional arguments
+
+msgid  mutually exclusive arguments must be optional
+msgstr mutually exclusive arguments must be optional
+
+msgid  invalid %s value: %r
+msgstr invalid %s value: %r
+
+msgid  not allowed with argument %s
+msgstr not allowed with argument %s
+
+msgid  ignored explicit argument %r
+msgstr ignored explicit argument %r
+
+###################################
+# End of argparser options!
+###################################
+
+Configuration options for demos
+
+msgid  server config
+msgstr 
+
+msgid  server name
+msgstr 
+
+msgid  help add server
+msgstr 
+
+msgid  args add admin
+msgstr <account> <network> <hash algorithm> <hash> <capabilities>
+
+msgid  
+msgstr 
+
+msgid  
+msgstr 
+
+msgid  
+msgstr 
+
+msgid  
+msgstr 
+
+msgid  
+msgstr 
+
+msgid  
+msgstr 
+
+msgid  
+msgstr 
+
+msgid  
+msgstr 
+
+msgid  
+msgstr 
+
+msgid  
+msgstr 
+
+
+
+

@@ -7,6 +7,7 @@ from simpbot import bottools
 #lint:disable
 from . import server
 from . import admins
+from . import simpconf
 #lint:enable
 
 

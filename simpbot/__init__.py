@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 # Simple Bot (SimpBot)
-# Copyright 2016, Ismael Lugo (kwargs)
+# Copyright 2016-2017, Ismael Lugo (kwargs)
 
-__version__ = "1.8"
+__version__ = "17.3.17"
 __author__ = 'Ismael Lugo (kwargs)'
 
 try:
-    __import__('six')
-except:
+    import six, flask, prettytable  # lint:ok
+except ImportError as error:
     pass
 else:
     #lint:disable
+    from . import simpleconf
     from . import workarea
     from . import envvars
     from . import localedata
@@ -34,4 +35,6 @@ else:
     #lint:disable
     from . import commands
     from . import connections
+    from . import api
+    from . import cli
     #lint:enable

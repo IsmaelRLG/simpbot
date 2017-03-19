@@ -1,0 +1,53 @@
+# Spanish translation for simpbot
+# Copyright (C) 2016, Ismael Lugo
+# This file is distributed under the same license as the simpbot
+# --------------------------------------------------------------
+# Original Translator: Ismael Lugo <ismaelrlgv@gmail.com>
+# Creation Date: 2017-01-08 16:33 (-0400)
+# Last revision date: 2017-01-08 16:33 (-0400)
+# Last Translator: Darelyn Jimenez <jdarelyn@gmail.com>
+# Language: Español (spanish)
+# --------------------------------------------------------------
+
+msgid  new user
+msgstr Nuevo usuario registrado por medio del API: %s. 
+
+msgid  logged
+msgstr El usuario %s ingresó mediante la API. Hostname: %s.
+
+msgid  invalid network name
+msgstr Nombre de red inválido.
+
+msgid  already disconnected
+msgstr El servidor ya se estaba desconectado.
+
+msgid  disconnecting
+msgstr API: Desconectando... Orden enviada: %s.
+
+msgid  disconnected
+msgstr Desconectado correctamente.
+
+msgid  stoped bot
+msgstr simpbot se ha detenido.
+
+msgid  reconnecting
+msgstr API: Reiniciando conexión.
+
+msgid  bad config
+msgstr Configuración erronea ó inválida.
+
+msgid  restart simpbot
+msgstr Puede que sea necesario reiniciar simpbot para que algunos cambios sean efectuados.
+
+msgid  invalid lang
+msgstr Codigo de lenguaje inválido o no soportado: %s.
+
+msgid  already connected
+msgstr El servidor ya estaba conectado.
+
+msgid  can not connect
+msgstr No se pudo establecer una conexión con el servidor.
+
+msgid  connected
+msgstr Conexión establecida.
+

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Simple Bot (SimpBot)
-# Copyright 2016, Ismael Lugo (kwargs)
+# Copyright 2016-2017, Ismael Lugo (kwargs)
 
 import logging
 from simpbot import control
@@ -96,12 +96,13 @@ class module(control.control):
     def handlers_names(self):
         return list(self.handlers.keys())
 
-    def loader(self):
+    def loader(self, ):
         def mod_loader(name=None, regex=None, help=None, syntax=None,
-            alias=None, need=[], strip=None):
+            alias=None, need=[], strip=None, i18n=None):
             def handler(func):
-                handler = handlermsg(func, name, regex, help, syntax, alias,
-                need, self, strip)
+                handler = handlermsg(func, name, regex, help,
+                syntax, alias, need, self, strip, i18n)
+
                 self.add_handler(handler)
 
                 return handler

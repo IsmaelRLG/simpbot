@@ -18,27 +18,10 @@ import simpbot
 import platform
 import sys
 
-kwargs = {}
-if platform.system() == 'Windows' and 'py2exe' in sys.argv:
-    try:
-        import py2exe  # lint:ok
-    except ImportError:
-        print('Please install py2exe')
-
-    kwargs = {
-        'console': [{
-            'script': 'nombrescript.py',
-            'description': 'Descripcion del programa.',
-            'icon_resources': [(0, join('icons', 'simpbot-48x48.png'))]
-            }],
-        'zipfile': None,
-        'options': {'py2exe': {
-            'dll_excludes': ['w9xpopen.exe'],
-            'bundle_files': 1,
-            'compressed': True,
-            'optimize': 2
-            }},
-     }
+requires = [
+    'six>=1.7',
+    'flask',
+    'prettytable']
 
 setup(
     name='simpbot',
@@ -65,7 +48,7 @@ setup(
         join('bin', 'simpbot')
     ],
     requires=[
-        'six'
+
     ],
     classifiers=[
         "Development Status :: 4 - Beta",

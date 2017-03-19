@@ -1,0 +1,61 @@
+# English translation for simpbot
+# Copyright (C) 2016, Ismael Lugo
+# This file is distributed under the same license as the simpbot
+# --------------------------------------------------------------
+# Original Translator: Matiia <matiia.wiki@gmail.com>
+# Creation Date:  2017-01-15 02:05 (-0300)
+# Last revision date: 2017-01-15 02:05 (-0300)
+# Last Translator: Matiia <matiia.wiki@gmail.com>
+# Language: English
+# --------------------------------------------------------------
+ 
+msgid  not logged
+msgstr You aren't logged in or registered with ChanServ
+ 
+msgid  without params
+msgstr {%s}; no parameter was indicated.
+ 
+msgid  invalid params
+msgstr {%s}; Invalid parameter or argument.
+ 
+msgid  only private
+msgstr This command can only be used by private message.
+ 
+msgid  only channel
+msgstr This command can only be used in a channel.
+ 
+msgid  invalid channel
+msgstr Channel %s is not valid
+ 
+msgid  unregistered channel
+msgstr Channel %s is not registered.
+ 
+msgid  channel needed
+msgstr You must indicate a channel.
+ 
+msgid  registered channel
+msgstr Channel %s is already registered.
+ 
+msgid  you are not registered
+msgstr You aren't registered with the bot.
+ 
+msgid  invalid user
+msgstr User %s is not valid.
+ 
+msgid  user no registered
+msgstr User %s is not registered with the bot.
+ 
+msgid  already registered
+msgstr You are already registered with the bot.
+ 
+msgid  permission denied
+msgstr [Permission denied]: You don't have the needed permissions to use this command, you need +%s.
+ 
+msgid  only admins
+msgstr [Permission denied]: Admin-only command.
+ 
+msgid  no capabs
+msgstr [Permission denied]: You don't have enough permission to use this command.
+ 
+msgid  fail use
+msgstr  failed use attempt. mask: {user.mask}, admin account: {usr.admin.user}.

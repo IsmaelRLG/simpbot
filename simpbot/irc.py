@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Simple Bot (SimpBot)
-# Copyright 2016, Ismael Lugo (kwargs)
+# Copyright 2016-2017, Ismael Lugo (kwargs)
 
 import ssl
 import time
@@ -31,7 +31,9 @@ regexmsg = __import__('re').compile(
 class client:
 
     def __init__(self, netw, addr, port, nick, user, nickserv=None, sasl=None,
-        timeout=240, msgps=.5, wtime=30, servpass=None, prefix='!', lang=None):
+        timeout=240, msgps=.5, wtime=30, servpass=None, prefix='!', lang=None,
+        plaintext=False):
+
         self.connection_status = 'n'
         self.input_alive = False
         self.output_alive = False
@@ -40,12 +42,14 @@ class client:
         self.input_buffer = None
         self.output_buffer = queue.Queue()
         self.features = features.FeatureSet()
-        self.plaintext = False
+        self.plaintext = plaintext
         self.default_lang = lang
 
         self.dbstore = None
         self.request = None
         self.commands = None
+        self.autoconnect = False
+        self.conf_path = None
 
         # IRC - Default
         self.servname = netw
@@ -65,8 +69,8 @@ class client:
 
         # IRC - Extra
         self.servpass = servpass
-        self.__nickserv = nickserv
-        self.usens = bool(self.__nickserv)
+        self.nickserv = nickserv
+        self.usens = bool(self.nickserv)
         self.sasl = sasl
         self.timeout = timeout
         self.msgps = msgps
@@ -97,11 +101,12 @@ class client:
         """
         self.connection_status = modes[0]
 
-    def connect(self, servpass=None):
-        if self.connection_status in 'cr':
+    def connect(self, servpass=None, attempts=0):
+        if not self.connection_status in 'np':
             return
 
-        while self.connection_status in 'np':
+        attempt = 0
+        while attempt <= attempts:
             try:
                 self.socket = socket.socket()
                 self.socket.settimeout(self.timeout)
@@ -110,15 +115,21 @@ class client:
                     self.socket = ssl.wrap_socket(self.socket)
                 self.socket.connect((self.addr, self.port))
                 self.set_status('c')
+                break
             except Exception as error:
                 logging.error(i18n['connection failure'],
                 self.addr, self.port, str(error))
                 logging.info(i18n['retrying connect'] % self.wtime)
                 time.sleep(self.wtime)
-
+                if attempts == 1:
+                    attempt += 2
+                elif attempts > 0:
+                    attempt += 1
         else:
-            logging.info(i18n['connected'], self.addr,
-            self.socket.getpeername()[0], self.port)
+            return True
+
+        remote_addr = self.socket.getpeername()[0]
+        logging.info(i18n['connected'], self.addr, remote_addr, self.port)
 
         if servpass is not None:
             self.servpass = servpass
@@ -126,7 +137,7 @@ class client:
         if self.servpass is not None:
             self.passwd(self.servpass)
 
-        if self.__nickserv is None:
+        if self.nickserv is None:
             return
         elif self.sasl:
             # Simple Authentication and Security Layer (SASL) - RFC 4422
@@ -243,7 +254,7 @@ class client:
         else:
             self.input_alive = False
 
-    def try_connect(self):
+    def try_connect(self, attempts=0):
         if not self.lock:
             self.lock = True
         else:
@@ -259,7 +270,9 @@ class client:
                 pass
 
         #try:
-        self.connect()
+        if self.connect(attempts=attempts):
+            self.lock = False
+            return False
         #except KeyboardInterrupt:
          #   self.lock = False
          #   return
