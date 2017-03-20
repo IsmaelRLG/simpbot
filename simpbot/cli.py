@@ -556,9 +556,11 @@ class StatusParser(SimpParser):
         print(dummy.ascii(start=''))
 
         if args.debug:
-            self.debug(args.debug, not args.daemon)
+            if not args.debug in (10, 20, 30, 40, 50):
+                error(locale['invalid debug level'])
+            dummy.debug(args.debug, not args.daemon)
         else:
-            self.debug(40, not args.daemon)
+            dummy.debug(40, not args.daemon)
 
         if args.listen:
             try:

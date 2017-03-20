@@ -3,7 +3,7 @@
 # Script de instalación para `simpbot'.
 #
 # Autor: Ismael Lugo <ismaelrlgv@gmail.com>
-# Ultimo cambio: 29-12-2016
+# Ultimo cambio: 29-12-2017
 # URL: https://www.kwargs.net.ve/projects/simpbot
 # GIT: https://github.com/IsmaelRLG/simpbot
 
@@ -14,14 +14,19 @@ except ImportError:
     exit(0)
 
 from os.path import join
+from os.path import dirname as dir
 import simpbot
 import platform
-import sys
+import shutil
 
-requires = [
-    'six>=1.7',
-    'flask',
-    'prettytable']
+currentdir = dir(__file__)
+bindir = join(currentdir, 'bin')
+script = 'simpbot.py'
+if platform.system() == 'Linux':
+    shutil.move(join(bindir, script), join(bindir, 'simpbot'))
+    script = 'simpbot'
+
+requires = file(join(currentdir, 'requires.txt'), 'r').read().splitlines()
 
 setup(
     name='simpbot',
@@ -45,7 +50,7 @@ setup(
 
     package_data={'simpbot': [join('localedata', '*.dat')]},
     scripts=[
-        join('bin', 'simpbot')
+        join('bin', script)
     ],
     requires=[
 

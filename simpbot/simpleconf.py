@@ -60,11 +60,11 @@ class ReadConf:
         with open(self.abspath, 'r') as fp:
             self._read(fp)
 
-    def getboolean(self, opt):
-        val = self.__getitem__(opt).strip().lower()
-        if not val in ('yes', 'not', 'no'):
+    def getboolean(self, opt, default=None):
+        val = self.get(opt, default).strip().lower()
+        if not val in ('yes', 'not', 'no', 'True', 'False', True, False):
             raise ValueError
-        return val == 'yes'
+        return val in ('yes', 'True', True)
 
     def getint(self, opt, default=None):
         return int(self.get(opt, default))

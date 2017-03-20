@@ -95,7 +95,6 @@ class channel:
                 new_flags = []
                 if initflags:
                     new_flags = [l for l in initflags]
-                    continue
                 for sign, l, n in mode._parse_modes(flags, only='FOVbfiklmorstv'):
                     if sign == '+' and l not in new_flags:
                         if l in dadd:
