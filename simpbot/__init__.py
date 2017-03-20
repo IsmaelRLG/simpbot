@@ -6,7 +6,7 @@ __version__ = "17.3.19"
 __author__ = 'Ismael Lugo (kwargs)'
 
 try:
-    import six, flask, prettytable  # lint:ok
+    import six, flask, prettytable, httplib2  # lint:ok
 except ImportError as error:
     pass
 else:

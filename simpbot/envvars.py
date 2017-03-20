@@ -62,9 +62,6 @@ dbstore = data.new_wa('dbstore')
 records = data.new_wa('records')
 ctrl = data.new_wa('commands')
 
-
-
-
 if workarea.exists(simpbotcfg) and workarea.isfile(simpbotcfg):
     from simpbot.simpleconf import ReadConf
     cfg = ReadConf(workarea.join(simpbotcfg))

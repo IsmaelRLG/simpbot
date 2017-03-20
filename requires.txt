@@ -2,3 +2,4 @@ six>=1.7
 humanfriendly
 prettytable
 flask
+httplib2

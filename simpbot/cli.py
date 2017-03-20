@@ -407,6 +407,10 @@ class StatusParser(SimpParser):
             action='store_true',
             help=locale['help info'])
 
+        status.add_argument("-im", "--im-idiot",
+            action='store_true',
+            help=locale['help info'])
+
         gr_api = status.add_mutually_exclusive_group()
 
         gr_api.add_argument("-l", "--listen", type=str,
