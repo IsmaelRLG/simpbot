@@ -3,7 +3,7 @@
 # Script de instalación para `simpbot'.
 #
 # Autor: Ismael Lugo <ismaelrlgv@gmail.com>
-# Ultimo cambio: 29-12-2017
+# Ultimo cambio: 19-03-2017
 # URL: https://www.kwargs.net.ve/projects/simpbot
 # GIT: https://github.com/IsmaelRLG/simpbot
 
