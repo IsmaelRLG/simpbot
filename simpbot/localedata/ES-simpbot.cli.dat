@@ -186,6 +186,12 @@ msgstr Inicia a SimpBot en primer plano.
 msgid  help info
 msgstr Muestra el estado actual de SimpBot.
 
+msgid  help root
+msgstr Habilita la ejecución de SimpBot como root
+
+msgid  no root
+msgstr No se puede ejecutar SimpBot como root
+
 msgid  use linux!
 msgstr Esta opción se encuentra inhablitada. ¡Solo disponible para Linux!
 

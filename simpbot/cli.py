@@ -376,7 +376,7 @@ class ConfigParser(SimpParser):
                     error(locale['simpbot conf already exists'])
                 with open(envvars.simpbotcfg, 'w') as fp:
                     fp.write(dummy.ascii(start='#'))
-                    fp.write(samples.simpbot.sample)
+                    fp.write(samples.simpconf.sample)
         else:
             self.print_help()
 
@@ -407,9 +407,9 @@ class StatusParser(SimpParser):
             action='store_true',
             help=locale['help info'])
 
-        status.add_argument("-im", "--im-idiot",
-            action='store_true',
-            help=locale['help info'])
+        status.add_argument("--root",
+            action='store_true', dest='root',
+            help=locale['help root'])
 
         gr_api = status.add_mutually_exclusive_group()
 
@@ -582,6 +582,8 @@ class StatusParser(SimpParser):
                 return
 
         if args.start or args.restart:
+            if os.geteuid() == 0 and not args.root:
+                error('no root!')
             return self.start(args.daemon, args.no_api)
 
         if args.info:
