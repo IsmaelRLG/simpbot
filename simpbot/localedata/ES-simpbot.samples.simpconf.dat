@@ -27,4 +27,14 @@ CONNECT_USER =
 # Lenguaje general de simpbot
 ####################################
 DEFAULT_LANG = ES
+
+# Configuración de administradores
+####################################
+DEFAULT_HASH = SHA256
+DEFAULT_TIMEOUT = 2622600
+DEFAULT_MAXLOGINS = 0
+DEFAULT_VERBOSE = yes
+FAIL2BAN_BANTIME = 3600
+FAIL2BAN_FINDTIME = 10800
+FAIL2BAN_MAXRETRY = 6
 msgend
