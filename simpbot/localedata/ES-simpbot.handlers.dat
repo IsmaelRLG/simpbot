@@ -10,7 +10,7 @@
 # --------------------------------------------------------------
 
 msgid  registration completed
-msgstr Servidor %s - registro completado.
+msgstr Registro completado.
 
 msgid  connection successful
 msgstr [%z][%d/%m/%Y](%X): Conexión exitosa.

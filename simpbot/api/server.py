@@ -422,9 +422,9 @@ def start():
     if envvars.api_started:
         return
 
-    import logging
-    log = logging.getLogger('werkzeug')
-    log.setLevel(logging.ERROR)
+    import logging as logger
+    log = logger.getLogger('werkzeug')
+    log.disabled = 1
 
     try:
         envvars.api_started = True
@@ -435,8 +435,10 @@ def start():
             debug=False)
     except Exception as error:
         envvars.api_started = False
+        log.disabled = 0
         raise error
     else:
+        log.disabled = 0
         envvars.api_started = False
 
 
@@ -449,6 +451,6 @@ def stop():
         return
     shutdown()
 
-    import logging
-    log = logging.getLogger('werkzeug')
-    log.setLevel(logging.INFO)
+    import logging as logger
+    log = logger.getLogger('werkzeug')
+    log.disabled = 0

@@ -22,6 +22,7 @@ api_started = False
 daemon = False
 irc = None
 cfg_kwargs = {}
+dispatcher_logger = {}
 if sys.version_info[0:2] >= (3, 2):
     cfg_kwargs['inline_comment_prefixes'] = (';',)
 

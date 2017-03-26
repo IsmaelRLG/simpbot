@@ -71,7 +71,7 @@ def featurelist(irc, ev):
 # Registro completado
 @handler(rpl(4, '!{servername} !{version} !{aum} !{acm}'))
 def registration_successful(irc, ev):
-    logging.info(i18n['registration completed'], irc.servname)
+    irc.logger.info(i18n['registration completed'])
     irc.set_status('r')
 
     if irc.usens and irc.sasl is False:

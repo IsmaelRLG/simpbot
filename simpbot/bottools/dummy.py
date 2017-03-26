@@ -3,6 +3,7 @@
 # Copyright 2016-2017, Ismael Lugo (kwargs)
 
 import time
+import sys
 from simpbot import envvars
 from simpbot import __version__
 from six.moves import _thread
@@ -22,7 +23,13 @@ def ascii(start='#'):
 
 def debug(level, daemon=envvars.daemon):
     #kw = {'level': level, 'format': '%(name)s - %(levelname)s: %(message)s'}
-    kw = {'level': level, 'format': '%(levelname)s: %(message)s'}
+    kw = {
+        'level': level,
+        'format': '%(levelname)s: %(message)s',
+
+        # shut up excepthook!
+        'stream': sys.stdout
+    }
     if daemon is True:
         kw['filename'] = envvars.logs.join(time.strftime('%d%m%Y.log'))
         kw['filemode'] = 'a'

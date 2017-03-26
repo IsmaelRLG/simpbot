@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 # Simple Bot (SimpBot)
-# Copyright 2016, Ismael Lugo (kwargs)
+# Copyright 2016-2017, Ismael Lugo (kwargs)
 
 import re
 import types
-import traceback
 from simpbot import control
 from simpbot import parser
 from six.moves._thread import start_new
@@ -91,13 +90,11 @@ class handler(control.control):
     def function(self, irc, event, result, target, channel, _, locale):
         try:
             self.func(irc, event, result, target, channel, _, locale)
-        except:
+        except Exception as err:
             _['handler'] = self
-            irc.verbose('error', _(i18n['error info']))
-            for line in traceback.format_exc().splitlines():
-                _['message'] = line
-                irc.verbose('error', _(i18n['exception info']))
-                logging.error(_(i18n['exception info']))
+            _['message'] = repr(err)
+            irc.verbose('error', _(i18n['exception info']))
+            logging.error(_(i18n['exception info']))
 
     @staticmethod
     def strip(text, strip):

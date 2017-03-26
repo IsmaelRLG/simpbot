@@ -29,7 +29,6 @@ def add(core, path, network, rchan, ruser, maxu, maxc, *args, **kwargs):
     irc.commands = ProccessCommands(irc)
     irc.conf_path = path
     core[network] = irc
-    logging.info('agregado: ' +  network)
     return True
 
 
@@ -95,7 +94,7 @@ def load_server(abspath, core=envvars.networks, connect=True):
         password = None
 
     autoconnect = conf.getboolean('simpbot', 'autoconnect')
-    plaintext = conf.getboolean('simpbot', 'plaintext')
+    plaintext = conf.get('simpbot', 'plaintext').replace(' ', '').split(',')
     prefix = conf.get('simpbot', 'prefix')
     msgps = conf.getfloat('simpbot', 'msgps')
     timeout = conf.getint('simpbot', 'timeout')
@@ -118,9 +117,19 @@ def load_server(abspath, core=envvars.networks, connect=True):
     else:
         maxchans = 0
 
+    kwargs = {}
+    kwargs['nickserv']  = nickserv
+    kwargs['sasl']      = sasl
+    kwargs['timeout']   = timeout
+    kwargs['msgps']     = msgps
+    kwargs['wtime']     = wtime
+    kwargs['servpass']  = password
+    kwargs['prefix']    = prefix
+    kwargs['lang']      = lang
+    kwargs['plaintext'] = plaintext
+
     if not add(core, abspath, network, chanregister, userregister, maxusers,
-        maxchans, address, port, nick, user, nickserv, sasl, timeout, msgps,
-        wtime, password, prefix, plaintext):
+        maxchans, address, port, nick, user, **kwargs):
         return
 
     network = network.lower()

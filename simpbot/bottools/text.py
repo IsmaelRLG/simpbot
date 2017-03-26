@@ -4,6 +4,7 @@
 
 import random
 import string
+import logging
 from six import string_types
 from six import text_type
 from six import PY3 as python_3
@@ -104,3 +105,25 @@ def randphras(l=5, upper=True, lower=True, digit=True, punct=False, nofd=False):
             char = random.choice(eval(random.choice(names)))
         phrass += char
     return phrass
+
+
+class DispatchingFormatter:
+    """Dispatch formatter for logger and it's sub logger."""
+    def __init__(self, formatters, default_formatter):
+        self._formatters = formatters
+        self._default_formatter = default_formatter
+
+    def format(self, record):
+        # Search from record's logger up to it's parents:
+        logger = logging.getLogger(record.name)
+        while logger:
+            # Check if suitable formatter for current logger exists:
+            if logger.name in self._formatters:
+                formatter = self._formatters[logger.name]
+                break
+            else:
+                logger = logger.parent
+        else:
+            # If no formatter found, just use default:
+            formatter = self._default_formatter
+        return formatter.format(record)

@@ -23,7 +23,7 @@ if __name__ == "__main__":
         parser.process()
     except (SystemExit, KeyboardInterrupt):
         pass
-    except NameError as error:
+    except Exception as error:
         errmsg = simpbot.cli.locale['unexpected error'] % repr(error) + '\n'
         sys.stderr.write(errmsg)
         sys.stderr.flush()

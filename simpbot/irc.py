@@ -2,10 +2,10 @@
 # Simple Bot (SimpBot)
 # Copyright 2016-2017, Ismael Lugo (kwargs)
 
+import sys
 import ssl
 import time
 import logging
-import traceback
 import socket
 
 from six import binary_type
@@ -19,9 +19,10 @@ from . import features
 from . import __version__
 from .bottools import text
 from . import localedata
+from . import envvars
 
 i18n = localedata.get()
-logging = logging.getLogger('IRC')
+Logger = logging.getLogger('irc-client')
 
 regexmsg = __import__('re').compile(
     ':(?P<mask>(?P<nick>.+)!(?P<user>.+)@(?P<host>[^ ]+)) '
@@ -29,10 +30,24 @@ regexmsg = __import__('re').compile(
 
 
 class client:
+    dispatcher_added = False
+    dispatcher_dict = {}
 
     def __init__(self, netw, addr, port, nick, user, nickserv=None, sasl=None,
         timeout=240, msgps=.5, wtime=30, servpass=None, prefix='!', lang=None,
-        plaintext=False):
+        plaintext=('recv', 'send')):
+
+        self.logger = logging.getLogger(netw)
+        if 'file' in plaintext:
+            fs = '%(asctime)s %(levelname)s: %(message)s'
+            handler = logging.FileHandler(envvars.logs.join(netw).lower(), 'a')
+        else:
+            fs = '%(levelname)s: irc-client(%(name)s): %(message)s'
+            handler = logging.StreamHandler(sys.stdout)
+
+        handler.setFormatter(logging.Formatter(fs, None))
+        self.logger.addHandler(handler)
+        self.logger.propagate = 0
 
         self.connection_status = 'n'
         self.input_alive = False
@@ -117,9 +132,9 @@ class client:
                 self.set_status('c')
                 break
             except Exception as error:
-                logging.error(i18n['connection failure'],
+                self.logger.error(i18n['connection failure'],
                 self.addr, self.port, str(error))
-                logging.info(i18n['retrying connect'] % self.wtime)
+                self.logger.info(i18n['retrying connect'] % self.wtime)
                 time.sleep(self.wtime)
                 if attempts == 1:
                     attempt += 2
@@ -129,7 +144,7 @@ class client:
             return True
 
         remote_addr = self.socket.getpeername()[0]
-        logging.info(i18n['connected'], self.addr, remote_addr, self.port)
+        self.logger.info(i18n['connected'], self.addr, remote_addr, self.port)
 
         if servpass is not None:
             self.servpass = servpass
@@ -193,11 +208,11 @@ class client:
                 else:
                     message = text + '\r\n'
             else:
-                logging.warning(i18n['invalid message'])
+                self.logger.warning(i18n['invalid message'])
                 continue
 
             if len(text) > 512:
-                logging.warrning(i18n['invalid message size'])
+                self.logger.warrning(i18n['invalid message size'])
                 continue
 
             try:
@@ -207,8 +222,8 @@ class client:
                     self.set_status('p')
                     self.try_connect()
 
-            if self.plaintext:
-                logging.info(i18n['output'], self.servname, text)
+            if 'send' in self.plaintext:
+                self.logger.info(i18n['output'], self.servname, text)
             time.sleep(self.msgps)
         else:
             self.input_alive = False
@@ -219,7 +234,7 @@ class client:
             try:
                 recv = self.socket.recv(1024)
             except socket.timeout:
-                logging.error(i18n['connection timeout'],
+                self.logger.error(i18n['connection timeout'],
                 self.servname, self.timeout)
                 if self.connection_status in 'cr':
                     self.set_status('p')
@@ -243,8 +258,8 @@ class client:
                     line = str(line, 'utf-8')
                 if not line:
                     continue
-                if self.plaintext:
-                    logging.info(i18n['input'], self.servname, line)
+                if 'recv' in self.plaintext:
+                    self.logger.info(i18n['input'], self.servname, line)
                 msg = regexmsg.match(line)
                 if msg and self.commands:
                     self.commands.put(msg)
@@ -269,13 +284,9 @@ class client:
             except:
                 pass
 
-        #try:
         if self.connect(attempts=attempts):
             self.lock = False
             return False
-        #except KeyboardInterrupt:
-         #   self.lock = False
-         #   return
 
         if not self.input_alive:
             _thread.start_new(self.input, (), {})
@@ -294,9 +305,9 @@ class client:
             if SRE_Match is not None:
                 try:
                     exec_res = handler['func'](self, SRE_Match.group)
-                except:
-                    for line in traceback.format_exc().splitlines():
-                        logging.error('Handler Exception: ' + line)
+                except KeyError as err:
+                    Logger.error('Handler(%s) Exception: %s' % (
+                    handler['func'].__name__, repr(err)))
                 else:
                     if exec_res is None:
                         return

@@ -50,7 +50,9 @@ class ReadConf:
             else:
                 return data
         except KeyError:
-            if default:
+            if default is not None:
+                if default == '__null__':
+                    return None
                 return default
             else:
                 errormsg = '%s: Option not found "%s"' % (self.abspath, opt)

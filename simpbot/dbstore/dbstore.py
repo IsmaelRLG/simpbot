@@ -36,7 +36,7 @@ class dbstore:
                     read = base64.b64decode(read)
                     read = zlib.decompress(read)
                     self.__store = cPickle.loads(read)
-                except NameError as error:
+                except Exception as error:
                     logging.error('No se pudo leer "%s": %s', self.name, error)
                     return
             else:

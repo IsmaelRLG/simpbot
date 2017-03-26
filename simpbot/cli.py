@@ -22,7 +22,7 @@ table_kwargs = {
 
 
 def error(text):
-    sys.stderr.write('[!] ' + text + '\n')
+    sys.stdout.write('[!] ' + text + '\n')
     exit(0)
 
 
@@ -500,7 +500,7 @@ class StatusParser(SimpParser):
                 print('[+] (PID: %s) %s' % (pid, startmsg))
             os.dup2(si.fileno(), sys.stdin.fileno())
             os.dup2(so.fileno(), sys.stdout.fileno())
-            os.dup2(se.fileno(), sys.stderr.fileno())
+            os.dup2(se.fileno(), sys.stdout.fileno())
             os.chdir(current_path)
             envvars.daemon = True
 
@@ -509,6 +509,7 @@ class StatusParser(SimpParser):
             import simpmods  # lint:ok
         except Exception as e:
             error(locale['simpmods error'] % repr(e))
+            #exit(0)
 
         for modname in simpbot.envvars.modules.listdir():
             load_res = simpbot.modules.load_module(modname, trace=True)
@@ -522,10 +523,20 @@ class StatusParser(SimpParser):
         if len(simpbot.envvars.networks) == 0:
             error(locale['empty networks'])
 
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        host = simpbot.api.config.LISTEN_HOST
+        port = simpbot.api.config.LISTEN_PORT
+
         if not daemon:
+            if not api and sock.connect_ex((host, port)) == 0:
+                sock.close()
+                error('Address already in use: %s:%s' % (host, port))
             self.demonize(locale['started'])
 
         if not api:
+            if sock.connect_ex((host, port)) == 0:
+                sock.close()
+                error('Address already in use: %s:%s' % (host, port))
             simpbot.api.server.start()
         else:
             while 1:
