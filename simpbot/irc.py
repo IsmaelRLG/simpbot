@@ -305,7 +305,7 @@ class client:
             if SRE_Match is not None:
                 try:
                     exec_res = handler['func'](self, SRE_Match.group)
-                except KeyError as err:
+                except Exception as err:
                     Logger.error('Handler(%s) Exception: %s' % (
                     handler['func'].__name__, repr(err)))
                 else:
