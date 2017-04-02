@@ -32,20 +32,17 @@ class coremod(control.control):
 
     def load_module(self, modname, addmod=True, return_mod=True, trace=False):
         data = self.find_module(modname)
-        logging.debug(i18n['trying load'], modname)
+        #logging.debug(i18n['trying load'], modname)
         try:
             mod = imp.load_module(modname, *data)
         except Exception as error:
             logging.error(i18n['module with errors'], modname, error)
             if trace:
-                try:
-                    for line in traceback.format_exc().splitlines():
-                        logging.error('Exception: %s: %s' % (modname, line))
-                except SystemExit:
-                    pass
+                for line in traceback.format_exc().splitlines():
+                    logging.error('Exception: %s: %s' % (modname, line))
             return error
         else:
-            logging.info(i18n['module loaded'], data[0])
+            logging.info(i18n['module loaded'], modname)
         if addmod:
             simmod = self.get_module(modname)
             simmod.load_meta(mod)

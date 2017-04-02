@@ -21,6 +21,12 @@ msgid  not help and not syntax
 msgstr El comando {command} no cuenta con una ayuda ni una sintaxis definida.
 
 msgid  syntax
+msgstr help <comando>
+
+msgid  help
+msgstr Muestra una lista de los comandos disponibles y su ayuda si la tiene.
+
+msgid  syntax for
 msgstr Sintaxis: %s
 
 msgid  help for

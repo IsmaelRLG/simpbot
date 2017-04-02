@@ -28,7 +28,7 @@ msgid  invalid message size
 msgstr se intentó enviar un mensaje muy largo.
 
 msgid  output
-msgstr Enviado  (%s): %s
+msgstr Enviado:  %s
 
 msgid  input
-msgstr Recibido (%s): %s
+msgstr Recibido: %s

@@ -63,7 +63,10 @@ def channels(irc, ev):
     # Realizar chequeo de canales...
     user = irc.request.get_user(ev('nick'))
     for modes, channel in re.findall(regex, ev('channels')):
-        user.set_status(channel, 'reset', modes)
+        try:
+            user.set_status(channel, 'reset', modes)
+        except KeyError:
+            continue
     user.update()
 
 

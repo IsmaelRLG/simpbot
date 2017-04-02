@@ -6,7 +6,7 @@ import simpbot
 from simpbot.bottools.irc import color
 module = simpbot.get_module(sys=True)
 loader = module.loader()
-url_src = 'https://goo.gl'
+url_src = 'https://github.com/IsmaelRLG/simpbot'
 
 
 @loader('help', 'help!{command_name}+?',
@@ -15,8 +15,9 @@ url_src = 'https://goo.gl'
 
     i18n={
         'loader': simpbot.localedata.simplocales,
-        'syntax': 'admin add syntax',
-        'help': 'admin add help'})
+        'module': 'simpmods.help',
+        'syntax': 'syntax',
+        'help': 'help'})
 def help(irc, ev, result, target, channel, _, locale):
     user = _['user']
     if irc.dbstore.has_user(user.account):
@@ -86,24 +87,26 @@ def help(irc, ev, result, target, channel, _, locale):
     if len(handler) > 0:
         handler = handler[0]
         _['command'] = command
-        if not handler.helpmsg:
+        if not handler.has_helpmsg():
 
-            if handler.syntax:
+            if handler.has_syntax():
                 #irc.error(target, _(locale['not help and syntax']))
-                irc.notice(target, locale['syntax'] % handler.syntax)
+                irc.notice(target, locale['syntax for'] %
+                handler.get_help(locale.lang, 'syntax'))
             else:
                 irc.error(target, _(locale['not help and not syntax']))
             return
 
         irc.notice(target, motd)
         irc.notice(target, _(locale['help for']))
-        for line in handler.helpmsg.splitlines():
+        for line in handler.get_help(locale.lang, 'help').splitlines():
             try:
                 irc.notice(target, _(line))
             except:
                 irc.notice(target, line)
-        if handler.syntax:
-            irc.notice(target, locale['syntax'] % handler.syntax)
+        if handler.has_syntax():
+            irc.notice(target, locale['syntax for'] %
+            handler.get_help(locale.lang, 'help'))
         irc.notice(target, _(locale['end of']))
 
     else:

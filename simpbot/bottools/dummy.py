@@ -4,9 +4,9 @@
 
 import time
 import sys
+from six.moves import _thread
 from simpbot import envvars
 from simpbot import __version__
-from six.moves import _thread
 
 
 def ascii(start='#'):

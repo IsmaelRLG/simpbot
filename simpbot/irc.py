@@ -223,7 +223,7 @@ class client:
                     self.try_connect()
 
             if 'send' in self.plaintext:
-                self.logger.info(i18n['output'], self.servname, text)
+                self.logger.info(i18n['output'], text)
             time.sleep(self.msgps)
         else:
             self.input_alive = False
@@ -259,7 +259,7 @@ class client:
                 if not line:
                     continue
                 if 'recv' in self.plaintext:
-                    self.logger.info(i18n['input'], self.servname, line)
+                    self.logger.info(i18n['input'], line)
                 msg = regexmsg.match(line)
                 if msg and self.commands:
                     self.commands.put(msg)

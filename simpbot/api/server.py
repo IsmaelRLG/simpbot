@@ -146,7 +146,6 @@ def auth_required(requires=[], capabs=[], use_ircpipe=False):
                     elif isinstance(val, string):
                         request.json['network'] = val.lower()
                     else:
-                        print(request.json)
                         return abort(400)
                 elif keyname == 'action' and not isinstance(val, string):
                     return abort(400)
@@ -160,18 +159,15 @@ def auth_required(requires=[], capabs=[], use_ircpipe=False):
 
             if not has_admin(network, username):
                 # Colocar baneo aquí
-                print('No existe!')
                 return abort(401)
 
             admin = get_admin(network, username)
             if not admin.checkpass(password):
                 # Colocar baneo aquí
-                print('Contraseña invalida..')
                 return abort(401)
 
             if not admin.has_capab('api'):
                 # Colocar baneo aquí
-                print('Sin capacidades..')
                 return abort(401)
 
             for capab in capabs:
@@ -432,6 +428,8 @@ def start():
             host=config.LISTEN_HOST,
             port=config.LISTEN_PORT,
             threaded=True,
+            use_reloader=False,
+            use_debugger=False,
             debug=False)
     except Exception as error:
         envvars.api_started = False

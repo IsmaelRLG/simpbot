@@ -147,6 +147,6 @@ def load_servers(core=envvars.networks, connect=True):
             continue
         try:
             load_server(servercfg, core, connect)
-        except Exception as e:
+        except NameError as e:
             msg = 'Configuracion "%s" inválida (ERROR: %s).'
             logging.error(msg, servercfg, repr(e))

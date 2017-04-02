@@ -91,7 +91,7 @@ def registration_successful(irc, ev):
 # Nick en uso
 @handler(rpl(433, '!{nick} :!{msg}+'))
 def err_nicknameinuse(irc, ev):
-    irc.nickname = text.randphras(l=7, alpha=(False, True), noinitnum=True)
+    irc.nickname = text.randphras(l=7, upper=False, nofd=True)
     irc.nick(irc.nickname)
 
 

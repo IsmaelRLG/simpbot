@@ -74,7 +74,9 @@ class handler(control.control):
             self.findall = self.regex.findall
             self.scanner = self.regex.scanner
             self.search = self.regex.search
-        if self.module is None:
+        if 'module' in i18n:
+            self.mod_name = i18n['module']
+        elif self.module is None:
             self.mod_name = 'unbound-module'
         else:
             self.mod_name = self.module.name
@@ -86,6 +88,17 @@ class handler(control.control):
     def execute(self, *args, **kwargs):
         # Non thread
         self.func(*args, **kwargs)
+
+    def has_helpmsg(self):
+        if not self.i18n and not self.helpmsg:
+            return False
+        return 'help' in self.i18n or 'helpmsg' in self.i18n or self.helpmsg
+
+    def has_syntax(self):
+        return self.i18n and 'syntax' in self.i18n or self.sintax is not None
+
+    def has_alias(self):
+        return self.i18n and 'alias' in self.i18n or self.alias is not None
 
     def function(self, irc, event, result, target, channel, _, locale):
         try:
@@ -113,7 +126,7 @@ class handler(control.control):
             if meta in self.i18n:
                 return localedata.get(lang, self.mod_name)[self.i18n[meta]]
 
-        if meta == 'help':
+        if meta == 'help' or meta == 'helpmsg':
             return self.helpmsg
         elif meta == 'syntax':
             return self.syntax

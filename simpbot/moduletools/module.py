@@ -98,10 +98,10 @@ class module(control.control):
 
     def loader(self, ):
         def mod_loader(name=None, regex=None, help=None, syntax=None,
-            alias=None, need=[], strip=None, i18n=None):
+            alias=None, need=[], strip=None, i18n=None, record=None):
             def handler(func):
                 handler = handlermsg(func, name, regex, help,
-                syntax, alias, need, self, strip, i18n)
+                syntax, alias, need, self, strip, i18n, record)
 
                 self.add_handler(handler)
 

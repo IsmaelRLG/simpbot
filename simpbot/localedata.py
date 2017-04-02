@@ -25,6 +25,9 @@ class Error(Exception):
     def __str__(self):
         return self.string
 
+    def __repr__(self):
+        return '%s("%s")' % (self.__class__.__name__, self.string)
+
 
 class MsgidError(Error):
     def __init__(self, string, msgid=None, line=None, extra=None, package=None):
