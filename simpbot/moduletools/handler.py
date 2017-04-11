@@ -11,7 +11,7 @@ from six import string_types
 logging = __import__('logging').getLogger('CommandHandler')
 from simpbot import localedata
 
-i18n = localedata.get()
+_locale = localedata.get()
 
 record_formats = {
     ':user-info:': '{user.mask} ({user.account})',
@@ -40,7 +40,7 @@ class handler(control.control):
         module=None, strip=None, i18n=None, record=None):
         self.func = func
 
-        if not 'loader' in i18n:
+        if isinstance(i18n, dict) and not 'loader' in i18n:
             raise ValueError('missing locale loader')
         self.i18n = i18n
         self.name = name
@@ -74,7 +74,7 @@ class handler(control.control):
             self.findall = self.regex.findall
             self.scanner = self.regex.scanner
             self.search = self.regex.search
-        if 'module' in i18n:
+        if isinstance(i18n, dict) and 'module' in i18n:
             self.mod_name = i18n['module']
         elif self.module is None:
             self.mod_name = 'unbound-module'
@@ -95,7 +95,7 @@ class handler(control.control):
         return 'help' in self.i18n or 'helpmsg' in self.i18n or self.helpmsg
 
     def has_syntax(self):
-        return self.i18n and 'syntax' in self.i18n or self.sintax is not None
+        return self.i18n and 'syntax' in self.i18n or self.syntax is not None
 
     def has_alias(self):
         return self.i18n and 'alias' in self.i18n or self.alias is not None
@@ -106,8 +106,8 @@ class handler(control.control):
         except Exception as err:
             _['handler'] = self
             _['message'] = repr(err)
-            irc.verbose('error', _(i18n['exception info']))
-            logging.error(_(i18n['exception info']))
+            irc.verbose('error', _(_locale['exception info']))
+            logging.error(_(_locale['exception info']))
 
     @staticmethod
     def strip(text, strip):

@@ -3,7 +3,7 @@
 # Script de instalación para `simpbot'.
 #
 # Autor: Ismael Lugo <ismaelrlgv@gmail.com>
-# Ultimo cambio: 19-03-2017
+# Ultimo cambio: 11-04-2017
 # URL: https://www.kwargs.net.ve/projects/simpbot
 # GIT: https://github.com/IsmaelRLG/simpbot
 
@@ -51,8 +51,9 @@ setup(
         "Operating System :: POSIX :: Linux",
         "Operating System :: Microsoft :: Windows",
         "Programming Language :: Python :: 2.7",
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
         "Topic :: Communications :: Chat :: Internet Relay Chat"
     ]
 )

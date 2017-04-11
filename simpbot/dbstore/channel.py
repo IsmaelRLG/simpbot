@@ -26,13 +26,16 @@ class channel:
             'clear': ''}
         self._lang = None
 
+    @property
     def lang(self):
         if self._lang is None:
             if self.network in envvars.networks:
                 return envvars.networks[self.network].default_lang
-            return None.default_lang
-
-    lang = property(lang)
+            else:
+                # wtf? really?
+                return envvars.default_lang
+        else:
+            return self._lang
 
     def __del__(self):
         self.drop()
@@ -42,10 +45,13 @@ class channel:
             return None
         finded = None
         for key in self.flags.keys():
-            if isinstance(key, tuple) or key[1] == mask or key[0].match(mask):
-                mask = key
-                finded = True
-                break
+            # Buscamos compilados...
+            if isinstance(key, tuple):
+                # Se encontró uno :O
+                if key[1] == mask or key[0].match(mask):
+                    mask = key
+                    finded = True
+                    break
 
         if not finded:
             mask = (re.compile(irc.parse_mask(mask), re.IGNORECASE), mask)
@@ -58,7 +64,7 @@ class channel:
         if isinstance(account, string_types):
             account = self.get_mask(account)
             if not account:
-                return None
+                return
         if account in self.flags:
             return self.flags[account]
 
@@ -69,17 +75,18 @@ class channel:
             if account:
                 simpaccount = False
             else:
-                return None
+                return
         if account in self.flags:
             initflags = self.flags[account]
         else:
             initflags = None
+
         if flags.lower() in self.template:
             if not simpaccount:
                 for l in self.template[flags.lower()]:
                     if l not in 'Ffs':
                         continue
-                    return None
+                    return
 
             flags = [self.template[flags.lower()]]
             for l in dadd:
@@ -91,53 +98,52 @@ class channel:
                     if l in ddel and l not in flags:
                         flags += l
                         continue
-            elif '+' in flags or '-' in flags:
-                new_flags = []
-                if initflags:
-                    new_flags = [l for l in initflags]
-                for sign, l, n in mode._parse_modes(flags, only='FOVbfiklmorstv'):
-                    if sign == '+' and l not in new_flags:
-                        if l in dadd:
-                            continue
-                        elif not simpaccount and l in 'Ffs':
-                            continue
-                        new_flags.append(l)
+        elif '+' in flags or '-' in flags:
+            new_flags = []
+            if initflags:
+                new_flags = [l for l in initflags]
+            for sign, l, n in mode._parse_modes(flags, only='FOVbfiklmorstv'):
+                if sign == '+' and l not in new_flags:
+                    if l in dadd:
                         continue
-                    if sign == '-' and l in new_flags or l in ddel:
+                    elif not simpaccount and l in 'Ffs':
                         continue
-                    new_flags.remove(l)
+                    new_flags.append(l)
                     continue
+                elif sign == '-' and l in new_flags or l in ddel:
+                    continue
+                new_flags.remove(l)
 
-                new_flags.sort()
-                flags = ''.join(new_flags)
-            else:
-                return None
-            if None(flags) == 0:
-                if initflags:
-                    del self.flags[account]
-                    if simpaccount:
-                        account.del_chan(self)
+            new_flags.sort()
+            flags = ''.join(new_flags)
+        else:
+            return
 
-                flags = None
-
+        if len(flags) == 0:
+            if initflags:
+                del self.flags[account]
+                if simpaccount:
+                    account.del_chan(self)
             flags = None
+        else:
+            flags = [l for l in flags]
             flags.sort()
             flags = ''.join(flags)
             if flags != initflags:
                 self.flags[account] = flags
                 if simpaccount:
                     account.add_chan(self)
-
             else:
                 initflags = None
                 flags = None
+
         return (initflags, flags)
 
     def has_flags(self, account):
         if isinstance(account, string_types):
             account = self.get_mask(account)
             if not account:
-                return None
+                return
         return account in self.flags
 
     def drop(self):
@@ -151,7 +157,7 @@ class channel:
         if isinstance(account, string_types):
             account = self.get_mask(account)
             if not account:
-                return None
+                return
         if account in self.flags:
             del self.flags[account]
             account.del_chan(self)

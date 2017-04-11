@@ -9,17 +9,80 @@
 # Language: Spanish
 #---------------------------------------------------------------
 
+
+# COMANDO: register channel
+#---------------------------------------------------------------
+msgid  help register channel
+msgstr Registra un canal en el bot.
+
+msgid  syntax register channel
+msgstr register channel <canal>
+#---------------------------------------------------------------
+
+msgid  max channels
+msgstr NOTIFICACIÓN: Se alcanzó el límite de canales para solicitud ó registro.
+
+msgid  channel registered
+msgstr Se registró el canal {chan_name} a la cuenta del usuario {user.account}
+
+msgid  already requested
+msgstr No se pudo solicitar el registro del canal {chan_name}, debido a que ya existe una solicitud de registro por parte de {usr}
+
+msgid  channel request
+msgstr {user.nick} ({user.user@user.host}), {user.account} solicita aprobación del canal {chan_name}. Código de aprobación: {code}
+
+msgid  registration disabled
+msgstr El registro de canales se encuentra inhabilitado.
+
+msgid  you already requested this
+msgstr Ya tiene una solicitud abierta.
+
+msgid  request sent
+msgstr Solicitud del canal {chan_name} enviada.
+ 
+
+# COMANDO: drop channel
+#---------------------------------------------------------------
+msgid  help drop channel
+msgstr Elimina un canal de la base de datos del bot.
+
+msgid  syntax drop channel
+msgstr drop channel <canal>
+#----------------------------------------------------------------
+
+msgid  confirm drop
+msgstr Para evitar el uso accidental de este comando, esta operación tiene que ser confirmada. Por favor confirme respondiendo con /msg {irc.nickname} confirm drop:chan {chan_name} {code}
+
+
+# COMANDO: confirm drop
+#---------------------------------------------------------------
+msgid  help confirm drop
+msgstr Confirma la eliminación de un canal en el bot.
+
+msgid  syntax confirm drop
+msgstr confirm drop:chan <canal> <código>
+#----------------------------------------------------------------
+
+msgid  invalid code
+msgstr Código de confirmación inválido.
+
+msgid  channel dropped
+msgstr Canal {chan_name} eliminado.
+
+msgid  verbose: channel dropped
+msgstr Canal {chan_name} eliminado por {user.account}
+
+
+# COMANDO: flags
+#---------------------------------------------------------------
 msgid  help flags
 config nostrip yes
 config addline yes
 msgstr
-El comando FLAGS permite otorgar ó eliminar privilegios en un nivel más
-específico, no generalizado. Éste admite masks y cuentas de usuario.
+El comando FLAGS permite otorgar ó eliminar privilegios en un nivel más específico, no generalizado. Éste admite masks y cuentas de usuario.
 
-Los flags pueden modificarse usando + para otorgar y - para eliminar
-privilegios; también modificarse indicando el nombre de la plantilla, para
-obtener más información sobre las plantillas, envíe lo siguiente:
-/msg {irc.nickname} help template
+Los flags pueden modificarse usando + para otorgar y - para eliminar privilegios; también modificarse indicando el nombre de la plantilla, para obtener más información sobre las plantillas, envíe lo siguiente:
+    /msg {irc.nickname} help template
 
 Si usted es un fundador, y desea otorgar / remover privilegios de fundador
 a un segundo ó a usted mismo deberá usar el comando FOUNDER, para obtener
@@ -48,6 +111,99 @@ Lista de privilegios:
 Ejemplos:
     /msg {irc.nickname} FLAGS #foo foouser OP
     /msg {irc.nickname} FLAGS #foo foouser +Vbiklmotv
-    /msg {irc.nickname} FLAGS #foo *!*@hostname +Vbiklmotv
+    /msg {irc.nickname} FLAGS #foo *!*@hostname +Vbiklm-otv
     /msg {irc.nickname} FLAGS #foo nick!*@host OP
 msgend
+
+msgid  syntax flags
+msgstr flags <canal> (list | [mask | cuenta] [ {+-}flags | plantilla ])
+#---------------------------------------------------------------
+
+msgid  flags list
+msgstr Lista de FLAGS para {chan_name}
+
+msgid  invalid mask
+msgstr Usuario ó mask inválido: {target}
+
+msgid  nick column
+msgstr USUARIO
+
+msgid  flag column
+msgstr FLAGS
+
+msgid  could not be set flags
+msgstr No se pudieron establecer los flags.
+
+msgid  flags unchanged
+msgstr Flags para {target} en {chan_name} sin cambios.
+
+msgid  flags changed to
+msgstr Se modificaron los flags para %s
+
+msgid  changed by
+msgstr {user.nick} ({user.account}) modificó los flags {ch_flags}
+
+
+# COMANDO: founder
+#---------------------------------------------------------------
+msgid  help founder
+config nostrip yes
+config addline yes
+msgstr
+Este comando permite conceder ó eliminar privilegios de fundador a un usuario, no se admite el uso de masks para establecer fundadores, sólo está permitido usar cuentas de usuario registrados en el bot.
+Para conceder este privilegio deberá usarse add, en caso contrario, de querer remover el privilegio de fundador debe usarse del
+msgend
+
+msgid  syntax founder
+msgstr founder founder <#canal> [add | del] <cuenta>
+#---------------------------------------------------------------
+
+msgid  could not be set founder
+msgstr No se pudo modificar los fundadores.
+
+
+# COMANDO: template
+#---------------------------------------------------------------
+msgid help template
+config nostrip yes
+config addline yes 
+msgstr
+El comando TEMPLATE permite la definición de conjuntos de flags, ésto para
+simplificar el uso del comando FLAGS.
+
+Por defecto se incluyen las siguientes plantillas:
+    PLANTILLA  FLAGS
+    ---------  -------------------------
+    FOUNDER    +FOVbfiklmorstv
+    ADMIN      +OVbfiklmorstv
+    OP         +Vbiklmotv
+    VOICE      +Viltv
+    CLEAR      Quita todos los flags
+    ---------  -------------------------
+
+Para mostrar la lista de plantillas de algún canal, sólo debe indicarse como único parametro list.
+
+De añadir un segundo argumento, se modifica la plantilla. La modificación debe comenzar con + (para añadir) ó - (para eliminar). Sálo se podrán añadir los privilegios mencionados en FLAGS; para más información sobre los privilegios:
+    /msg {irc.nickname} help flags
+
+En caso que la plantilla le sean eliminado todos los flags y quede vacia, la plantilla como consecuencia es eliminada.
+msgend
+
+msgid  syntax template
+msgstr template <canal> [list | <plantilla> <flags>]
+#---------------------------------------------------------------
+
+msgid  template list
+msgstr Lista de plantillas para {chan_name}
+
+msgid  name column
+msgstr NOMBRE
+
+msgid  name too long
+msgstr Nombre de plantilla muy largo.
+
+msgid  template deleted
+msgstr Se eliminó la plantilla: {template}
+
+msgid  template edited
+msgstr Ahora la plantilla {template} contiene {flags}

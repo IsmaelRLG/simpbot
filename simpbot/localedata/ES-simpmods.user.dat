@@ -1,0 +1,72 @@
+# Spanish translation for simpbot
+# Copyright (C) 2016, Ismael Lugo
+# This file is distributed under the same license as the simpbot 
+# --------------------------------------------------------------
+# Original Translator: Ismael Lugo <ismaelrlgv@gmail.com>
+# Creation Date: 2017-01-07 07:46-0400
+# Last revision date: 2017-01-07 07:46-0400
+# Last Translator: Darelyn Jimenez <jdarelyn@gmail.com>
+# Language: Spanish
+#---------------------------------------------------------------
+
+# COMANDO: register
+#---------------------------------------------------------------
+msgid  help register
+msgstr Registra algún usuario en el bot.
+
+msgid  syntax register
+msgstr register user
+#---------------------------------------------------------------
+
+msgid  max users
+msgstr Se alcanzó el límite de cuentas para solicitud ó registro.
+
+msgid  user registered
+msgstr Se registró la cuenta {user.account}
+
+msgid  verbose: user registered
+msgstr Se creó la cuenta de usuario {user.account}
+
+msgid  you already requested this
+msgstr Ya tiene una solicitud abierta.
+
+msgid  user request
+msgstr {user.nick} ({user.user@user.host}) solicita aprobación de la cuenta {user.account}, código de aprobación: {code}
+
+msgid  request sent
+msgstr Solicitud de cuenta {user.account} enviada.
+
+msgid  registration disabled
+msgstr El registro de usuarios se encuentra inhabilitado.
+
+
+# COMANDO: drop
+#---------------------------------------------------------------
+msgid  help drop
+msgstr Elimina su cuenta usuario del bot.
+
+msgid  syntax drop
+msgstr drop user
+#---------------------------------------------------------------
+
+msgid  confirm drop
+msgstr Para evitar el uso accidental de este comando, esta operación tiene que ser confirmada. Por favor confirme respondiendo con /msg {irc.nickname} confirm drop:user {hash}
+
+
+# COMANDO: confirm drop
+#---------------------------------------------------------------
+msgid  help confirm drop
+msgstr Confirma la eliminación de su cuenta de usuario
+
+msgid  syntax confirm drop
+msgstr confirm drop:user <código>
+#---------------------------------------------------------------
+
+msgid  invalid code
+msgstr Código de confirmación inválido.
+
+msgid  user dropped
+msgstr Se eliminó la cuenta {user.account}
+
+msgid  verbose: user droppped
+msgstr Cuenta de usuario eliminada {user.account}

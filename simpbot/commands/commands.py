@@ -12,6 +12,7 @@ from simpbot import parser
 from simpbot import localedata
 from simpbot.bottools.dummy import thread
 
+
 i18n = localedata.get()
 logging = __import__('logging').getLogger('commands')
 
@@ -242,7 +243,7 @@ class ProccessCommands:
                 else:
                     return self.irc.default_lang
             else:
-                return dbuser.default_lang
+                return dbuser._lang
 
     @thread
     def process(self, match, regexonly=False):
