@@ -59,3 +59,10 @@ msgstr [Permiso denegado]: No posee los permisos suficientes para ejecutar esta 
 
 msgid  fail use
 msgstr Intento fallido de uso. mask: {user.mask}, cuenta del administrador: {usr.admin.user}.
+
+msgid  mode required
+msgstr Se requiere el modo +%s para completar esta operación.
+
+msgid  not on the channel
+msgstr El bot no se encuentra en %s
+

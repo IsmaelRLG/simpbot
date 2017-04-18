@@ -67,6 +67,10 @@ class handler(control.control):
 
         if regex is None or len(regex) == 0:
             self.regex = None
+        elif isinstance(regex, dict):
+            self.regex = {}
+            for k, expr in regex.items():
+                self.regex[k] = re.compile(expr)
         else:
             self.regex = parser.ParserRegex(regex).string
             self.regex = re.compile(self.regex, re.IGNORECASE)
@@ -103,7 +107,7 @@ class handler(control.control):
     def function(self, irc, event, result, target, channel, _, locale):
         try:
             self.func(irc, event, result, target, channel, _, locale)
-        except Exception as err:
+        except SystemExit as err:
             _['handler'] = self
             _['message'] = repr(err)
             irc.verbose('error', _(_locale['exception info']))

@@ -117,7 +117,7 @@ class replace:
         self.addmatch(result)
 
     def __call__(self, string, **tmp_kwargs):
-        return self.replace(string)
+        return self.replace(string, **tmp_kwargs)
 
     def __getitem__(self, item):
         return self.mapping[item]
@@ -135,7 +135,7 @@ class replace:
         self.mapping[item] = value
 
     def remove(self, dict):
-        for key, value in dict.keys():
+        for key, value in dict.items():
             try:
                 del self.mapping[key]
             except KeyError:

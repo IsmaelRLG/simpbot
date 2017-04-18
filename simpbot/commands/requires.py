@@ -70,18 +70,33 @@ def chan_register(vars):
     irc = vars['self'].irc
     msg = vars['msg']
     dbstore = irc.dbstore
-    channel1 = vars['channel']
-    channel2 = vars['watchdog'][1]
+    channel = vars['channel']
     privbot = vars['privbot']
     target = vars['target']
     locale = localedata.get(vars['lang'])
-    if privbot:
-        if len(channel2) == 0:
+    result = vars['result']
+    tgroup = {}
+    groupnames = vars['watchdog'][1]
+    non_channel = (len(groupnames) > 0 and groupnames[0] == 'non-channel')
+    for group in groupnames:
+        if not '=' in group:
+            continue
+
+        try:
+            v, group = group.split('=', 1)
+        except ValueError:
+            continue
+        tgroup[v] = group.split()
+
+    if privbot and not non_channel:
+
+        if len(groupnames) == 0:
             logging.error(msg % i18n['without params'] % 'chan_register')
             return failed
-        for group in channel2:
+
+        for group in (tgroup['private'] if 'private' in tgroup else groupnames):
             try:
-                channel = vars['result'].group(group)
+                channel = result.group(group)
             except (IndexError, KeyError):
                 logging.error(msg % i18n['invalid params'] % 'chan_register')
                 return failed
@@ -98,20 +113,32 @@ def chan_register(vars):
             return
         irc.error(target, locale['channel needed'])
         return failed
-    elif len(channel2) > 0:
-
+    elif len(groupnames) > 0:
         try:
-            channel = vars['result'].group(channel2[0])
+            if 'channel' in tgroup:
+                if tgroup['channel'][0] == 'non-channel':
+                    assert False
+                else:
+                    groupname = tgroup['channel'][0]
+            else:
+                groupname = groupnames[0]
+
+            if not non_channel:
+                channel = vars['result'].group(groupname)
+        except AssertionError:
+            pass
         except (IndexError, KeyError):
             irc.verbose('error', msg % i18n['invalid params'] % 'chan_register')
             return failed
 
         vars['channel'] = channel
         if dbstore.get_chan(channel) is None:
-            irc.error(vars['target'], locale['unregistered channel'] % channel)
+            if not non_channel:
+                irc.error(target, locale['unregistered channel'] % channel)
             return failed
-    elif dbstore.get_chan(channel1) is None:
-        irc.error(vars['target'], locale['unregistered channel'] % channel1)
+    elif dbstore.get_chan(channel) is None:
+        if not non_channel:
+            irc.error(target, locale['unregistered channel'] % channel)
         return failed
 
 requerimentls['registered chan'] = chan_register
@@ -279,3 +306,39 @@ def admin(vars):
             irc.verbose('fail use', msg % _(locale['fail use']))
             return failed
 requerimentls['admin'] = admin
+
+
+def channel_status(vars):
+    chan_name = vars['channel']
+    irc       = vars['irc']
+    target    = vars['target']
+    mode_req  = vars['watchdog'][1]
+    locale    = localedata.get(vars['lang'])
+
+    channel = irc.request.get_chan(chan_name)
+    if channel is None:
+        irc.error(target, locale['not on the channel'] % chan_name)
+        return failed
+
+    status_bot = channel.get_user(irc.nickname).get_status(chan_name)
+    print [status_bot]
+    if status_bot == '':
+        #irc.error(target, locale['mode required'] % '|+'.join(mode_req))
+        return
+
+    if not hasattr(irc.features, 'modeprefix'):
+        irc.features.modeprefix = {}
+        for char, mode in irc.features.prefix.items():
+            irc.features.modeprefix[mode] = char
+
+    prefix = irc.features.modeprefix
+    for mode in mode_req:
+        if not mode in prefix:
+            continue
+        char = prefix[mode]
+        if char in status_bot:
+            return
+
+    irc.error(target, locale['mode required'] % '|+'.join(mode_req))
+    return failed
+requerimentls['channel_status'] = channel_status

@@ -33,6 +33,10 @@ def help(irc, ev, result, target, channel, _, locale):
     if command == '':
         for simpmod in simpbot.modules.core.values():
             for name, handler in simpmod.handlers.items():
+                if handler.regex is None and not handler.has_syntax() and \
+                not handler.has_helpmsg() and not handler.has_alias():
+                    continue
+
                 next = False  # lint:ok
                 for need in handler.need:
                     if need.startswith('admin:'):
@@ -91,22 +95,22 @@ def help(irc, ev, result, target, channel, _, locale):
 
             if handler.has_syntax():
                 #irc.error(target, _(locale['not help and syntax']))
-                irc.notice(target, locale['syntax for'] %
-                handler.get_help(locale.lang, 'syntax'))
+                for syn in handler.get_help(locale.lang, 'syntax').splitlines():
+                    irc.notice(target, locale['syntax for'] % syn)
             else:
                 irc.error(target, _(locale['not help and not syntax']))
             return
 
         irc.notice(target, motd)
         irc.notice(target, _(locale['help for']))
-        for line in handler.get_help(locale.lang, 'help').splitlines():
-            try:
-                irc.notice(target, _(line))
-            except:
-                irc.notice(target, line)
+        try:
+            irc.notice(target, _(handler.get_help(locale.lang, 'help')))
+        except:
+            irc.notice(target, handler.get_help(locale.lang, 'help'))
+
         if handler.has_syntax():
-            irc.notice(target, locale['syntax for'] %
-            handler.get_help(locale.lang, 'help'))
+               for syn in handler.get_help(locale.lang, 'syntax').splitlines():
+                    irc.notice(target, locale['syntax for'] % syn)
         irc.notice(target, _(locale['end of']))
 
     else:

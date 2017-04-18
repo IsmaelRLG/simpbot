@@ -55,6 +55,7 @@ def checkpass(admin, password):
 
     i18n={
         'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.admin.admins',
         'syntax': 'auth syntax',
         'help': 'auth help'})
 def auth(irc, ev, result, target, channel, _, locale):
@@ -84,7 +85,7 @@ def auth(irc, ev, result, target, channel, _, locale):
     elif len(admin.account) > 0 and not user.username in admin.account:
         return fail_login(locale['ns account not allowed'], passwd=False)
     elif admin.has_maxlogin():
-        return fail_login(locale['Max of sessions reached'], passwd=False)
+        return fail_login(locale['max of sessions reached'], passwd=False)
 
     if user.isadmin() and user.admin.logins > 0:
         user.admin.logins -= 1
@@ -92,7 +93,7 @@ def auth(irc, ev, result, target, channel, _, locale):
     user.set_admin(str(admin), time.time())
     irc.dbstore.save()
     irc.notice(target, locale['login successful'])
-    irc.verbose('login', locale['verbose: login successful'])
+    irc.verbose('login', _(locale['verbose: login successful']))
 
 
 @loader('passwd', 'passwd !{old_passwd} !{new_passwd}+',
@@ -104,6 +105,7 @@ def auth(irc, ev, result, target, channel, _, locale):
 
     i18n={
         'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.admin.admins',
         'syntax': 'passwd syntax',
         'help': 'passwd help'})
 def update_passwd(irc, ev, result, target, channel, _, locale):
@@ -130,6 +132,7 @@ def update_passwd(irc, ev, result, target, channel, _, locale):
 
     i18n={
         'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.admin.admins',
         'syntax': 'forcepasswd syntax',
         'help': 'forcepasswd help'})
 def forcepasswd(irc, ev, result, target, channel, _, locale):
@@ -144,7 +147,7 @@ def forcepasswd(irc, ev, result, target, channel, _, locale):
         return irc.notice(target, _(locale['invalid admin account']))
 
     if not checkpass(new_passwd):
-        return irc.error(target, locale['invalid new password'])
+        return irc.error(target, _(locale['invalid new password'], n=minlen))
 
     admin.update_password(new_passwd)
     _['admin_name'] = color(str(admin), 'b')
@@ -162,6 +165,7 @@ def forcepasswd(irc, ev, result, target, channel, _, locale):
 
     i18n={
         'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.admin.admins',
         'help': 'logout help'})
 def logout(irc, ev, result, target, channel, _, locale):
     user = irc.dbstore.get_user(_['user'].account)
@@ -179,6 +183,7 @@ def logout(irc, ev, result, target, channel, _, locale):
 
     i18n={
         'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.admin.admins',
         'syntax': 'forcelogout syntax',
         'help': 'forcelogout help'})
 def forcelogout(irc, ev, result, target, channel, _, locale):
@@ -198,6 +203,7 @@ def forcelogout(irc, ev, result, target, channel, _, locale):
 
     i18n={
         'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.admin.admins',
         'help': 'sessions help'})
 def sessions(irc, ev, result, target, channel, _, locale):
     online = color('\356\210\246', 3) + ' - logged'
@@ -237,6 +243,7 @@ def sessions(irc, ev, result, target, channel, _, locale):
 
     i18n={
         'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.admin.admins',
         'syntax': 'admin add syntax',
         'help': 'admin add help'},
     record=':admins:')
@@ -263,6 +270,7 @@ def admin_add(irc, ev, result, target, channel, _, locale):
 
     i18n={
         'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.admin.admins',
         'syntax': 'admin del syntax',
         'help': 'admin del help'},
     record=':admins:')
@@ -289,6 +297,7 @@ def admin_del(irc, ev, result, target, channel, _, locale):
 
     i18n={
         'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.admin.admins',
         'syntax': 'admin del syntax',
         'help': 'admin del help'},
     record=':admins:')
@@ -321,6 +330,7 @@ def admin_info(irc, ev, result, target, channel, _, locale):
 
     i18n={
         'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.admin.admins',
         'syntax': 'admin edit syntax',
         'help': 'admin edit help'},
     record=':admins:')

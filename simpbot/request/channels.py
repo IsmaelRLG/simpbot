@@ -50,3 +50,8 @@ class channel:
                 else:
                     continue
         return result
+
+    def get_user(self, nickname):
+        for user in self.users:
+            if user.nick.lower() == nickname.lower():
+                return user

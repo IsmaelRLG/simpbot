@@ -53,7 +53,7 @@ class LocaleData:
     def __init__(self, abspath, comment_prefixes=('#',)):
         self.localedata = workarea.workarea(abspath)
         self.comment_prefixes = comment_prefixes
-        self.optregex = re.compile('(?P<option>msgid|msgstr|msgend|config) {0,}'
+        self.optregex = re.compile('(?P<option>msgid|msgstr|msgend|config) {1,}'
         '(?P<value>.*)?', re.IGNORECASE)
         self.cache = {}
 
@@ -165,7 +165,7 @@ class LocaleData:
                     elif not last_msgid is None and localedata[last_msgid] is None:
                         raise MsgidError('without msgstr', last_msgid, msgid_line, package_name)
 
-                    localedata[value] = None
+                    localedata[value] = ''
                     last_msgid = value
                     msgid_line = nline
                     strip = True
@@ -281,7 +281,7 @@ class Locale:
             raise MsgidError('Invalid MSGID: ' + msgid)
 
     def __setitem__(self, msgid, msgstr):
-        if msgid in self.msgid and self.msgid[msgid] is not None:
+        if msgid in self.msgid and not self.msgid[msgid] in (None, ''):
             logging.warning("Package: '%s' MSGID: '%s' updating MSGTR!",
             self.abspath, msgid)
         self.msgid[msgid] = msgstr

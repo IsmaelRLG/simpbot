@@ -65,6 +65,7 @@ class client:
         self.commands = None
         self.autoconnect = False
         self.conf_path = None
+        self.max_chars = 256
 
         # IRC - Default
         self.servname = netw
@@ -356,8 +357,12 @@ class client:
 
     @text.normalize
     def notice(self, target, msg):
-        for line in text.part(msg, 256):
-            self.send_raw("NOTICE %s :%s" % (target, line))
+        for line in msg.splitlines():
+            if len(line) <= self.max_chars:
+                self.send_raw("NOTICE %s :%s" % (target, line))
+            else:
+                for subline in text.part(line, self.max_chars):
+                    self.send_raw("NOTICE %s :%s" % (target, subline))
 
     @text.normalize
     def part(self, channels, message=""):
@@ -365,8 +370,12 @@ class client:
 
     @text.normalize
     def privmsg(self, target, msg):
-        for line in text.part(msg, 256):
-            self.send_raw("PRIVMSG %s :%s" % (target, line))
+        for line in msg.splitlines():
+            if len(line) <= self.max_chars:
+                self.send_raw("PRIVMSG %s :%s" % (target, line))
+            else:
+                for subline in text.part(line, self.max_chars):
+                    self.send_raw("PRIVMSG %s :%s" % (target, subline))
 
     @text.normalize
     def msg(self, target, text):

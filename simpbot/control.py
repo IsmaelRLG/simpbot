@@ -19,8 +19,9 @@ comm = re.compile('^#(.+)?')
 
 class control(object):
 
-    def __init__(self, fullname):
+    def __init__(self, fullname, filemanager=ctrl):
         self.status = {}
+        self.filemanager = filemanager
         self.fullname = fullname
         self.clear()
         self.load()
@@ -88,10 +89,10 @@ class control(object):
             del self.status[network][order][type][target]
 
     def load(self):
-        if not ctrl.exists(self.fullname):
+        if not self.filemanager.exists(self.fullname):
             return
 
-        with ctrl.file(self.fullname, 'r') as data:
+        with self.filemanager.file(self.fullname, 'r') as data:
             lines = data.readlines()
 
         for line in lines:
@@ -135,7 +136,7 @@ class control(object):
             del self.status[global_name]
 
     def save(self):
-        data = ctrl.file(self.fullname, 'a')
+        data = self.filemanager.file(self.fullname, 'a')
         data.write(dummy.ascii())
 
         for name in list(self.status.keys()):

@@ -97,11 +97,13 @@ class user:
 
     @text.lower
     def get_status(self, channame):
-        if channame in self.channels:
+        if not channame in self.channels:
             return
         return self.channels[channame]['status']
 
     def set_status(self, channame, act, status_mode):
+        if status_mode == None:
+            status_mode = ''
         channame = channame.lower()
         #status_mode = status_mode[0]
         if channame in self.channels:

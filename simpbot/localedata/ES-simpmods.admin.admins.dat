@@ -27,7 +27,7 @@ msgstr Logueo fallido: Cuenta NickServ: {user.account}, hostmask: {user.mask
 msgid  ns account not allowed
 msgstr cuenta NickServ no admitida
 
-msgid  Max of sessions reached
+msgid  max of sessions reached
 msgstr maximo de sesiones permitidas alcanzado
 
 msgid  login successful
@@ -46,7 +46,7 @@ msgid  paswd help
 msgstr Actualiza la contraseña de administrador.
 
 msgid  invalid new password
-msgstr Contraseña es inválida. Se recuerda que la nueva contraseña debe ser mayor a %s carácteres, ésta a su vez debe contener números, letras y al menos un carácter especial (como por ejemplo: ! $ & / . - < > +), y no puede contener espacios en blanco.
+msgstr Contraseña es inválida. Se recuerda que la nueva contraseña debe ser mayor a {n} carácteres, ésta a su vez debe contener números, letras y al menos un carácter especial (como por ejemplo: ! $ & / . - < > +), y no puede contener espacios en blanco.
 
 msgid  update password
 msgstr Se actualizó la contraseña para {admin_name} cómo: {new_passwd}
@@ -83,9 +83,6 @@ msgstr {user.mask} ({user.account}) forzó el cierre de la sesión del administr
 
 msgid  sessions info
 msgstr Red: {network}, Cuenta NickServ: {ns}, Desde: {since}, Expira: {expire}
-
-msgid  
-msgstr 
 
 msgid  forcelogout syntax
 msgstr forcelogout <cuenta simpbot>
@@ -134,8 +131,4 @@ configuración de adminitradores.
 Si usted desea ver la información de un administrador, con todos sus atributos
 debera seguir la siguiente sintaxis:
 \2Sintaxis\2: admin info <cuenta> <red>
-
-msgid  
-msgstr 
-
-
+msgend

@@ -1,6 +1,6 @@
 
 msgid  motd
-msgstr SimpBot v{version} - Codigo fuente: {url}
+msgstr SimpBot v{version} - Código fuente: {url}
 
 msgid  available commands
 msgstr Prefijo: {prefix}. Comandos disponibles:

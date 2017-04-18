@@ -14,29 +14,32 @@
 # set lang                              no
 # set commands                          no
 # join-msg                              no
-# kick                                  no
-# ban                                   no
-# unban                                 no
-# quiet                                 no
-# unquiet                               no
-# join                                  no
-# part                                  no
-# invite                                no
-# cmode                                 no
-# op                                    no
-# deop                                  no
-# voice                                 no
-# devoice                               no
-# say / msg                             no
+# kick                                  si
+# ban                                   si
+# unban                                 si
+# quiet                                 si
+# unquiet                               si
+# join                                  si
+# part                                  si
+# invite                                si
+# cmode                                 no ~
+# op                                    si
+# deop                                  si
+# voice                                 si
+# devoice                               si
+# say / msg                             si
 #---------- varian en la red usada-------------
 # remove                                no
-# semi-op (sop)                         no
-# dsemi-op (dsop)                       no
-# half-op (hop)                         no
+# semi-op / half-op (hop)               no
+# dsemi-op (dhop)                       no
+
+
+import re
 
 import simpbot
 from simpbot import mode
 from simpbot.bottools.irc import valid_mask
+from simpbot.bottools.irc import parse_mask
 module = simpbot.get_module(sys=True)
 loader = module.loader()
 
@@ -53,7 +56,6 @@ loader = module.loader()
         'syntax': 'syntax register channel',
         'help': 'help register channel'})
 def register(irc, ev, result, target, channel, _, locale):
-    channel = _['chan_name']
     user = _['user']
 
     def check_max():
@@ -78,7 +80,7 @@ def register(irc, ev, result, target, channel, _, locale):
         msg = _(locale['channel registered'])
         irc.verbose('new channel', msg)
         irc.notice(target, msg)
-        irc.join(channel)
+        irc.join(channel.channel)
     elif irc.dbstore.chanregister == 'request':
         if irc.dbstore.has_request('chan', (channel, user.account)):
             request = irc.dbstore.get_request('chan', channel)
@@ -91,7 +93,7 @@ def register(irc, ev, result, target, channel, _, locale):
         if not check_max():
             return
         irc.dbstore.request('chan', (channel, user.account))
-        code = irc.dbstore.get_request(channel)[0]
+        code = irc.dbstore.get_request('chan', channel)[0]
         irc.verbose('request', _(locale['channel request'], code=code))
         irc.notice(target, _(locale['request sent']))
     elif irc.dbstore.chanregister == 'deny':
@@ -133,7 +135,7 @@ def drop(irc, ev, result, target, channel, _, locale):
 def confirm(irc, ev, result, target, channel, _, locale):
     user = _['user']
     code = _['code']
-    chan = _['chan_name']
+    chan = channel
     if len(code) != 32 or not irc.dbstore.has_drop('chan', chan) or \
     irc.dbstore.get_hashdrop(_['chan_name']) != code:
         irc.error(user.nick, locale['invalid code'])
@@ -144,7 +146,7 @@ def confirm(irc, ev, result, target, channel, _, locale):
     irc.verbose('drop channel', _(locale['verbose: channel dropped']))
 
 
-@loader('flags', 'flags !{chan_name} (?P<fg_type>list|!{target} !{flags})',
+@loader('flags', 'flags!{chan_name}? (?P<fg_type>list|!{target} !{flags})',
     need=[
         'requires nickserv',
         'registered user',
@@ -157,7 +159,7 @@ def confirm(irc, ev, result, target, channel, _, locale):
         'syntax': 'syntax flags',
         'help': 'help flags'})
 def flags(irc, ev, result, target, channel, _, locale):
-    channel = irc.dbstore.get_chan(_['chan_name'])
+    channel = irc.dbstore.get_chan(channel)
     account = _['target']
     user = _['user']
 
@@ -232,7 +234,7 @@ def flags(irc, ev, result, target, channel, _, locale):
         irc.notice(target, _(locale['changed by'], ch_flags=msg))
 
 
-@loader('founder', 'founder !{chan_name} (?P<switch>add|del) !{account}',
+@loader('founder', 'founder!{chan_name}? (?P<switch>add|del) !{account}',
     need=[
         'requires nickserv',
         'registered user',
@@ -246,7 +248,7 @@ def flags(irc, ev, result, target, channel, _, locale):
         'syntax': 'syntax founder',
         'help': 'help founder'})
 def founder(irc, ev, result, target, channel, _, locale):
-    channel = irc.dbstore.get_chan(_['chan_name'])
+    channel = irc.dbstore.get_chan(channel)
     account = irc.dbstore.get_user(_['account'])
     switch = _['switch']
     if switch == 'add':
@@ -271,7 +273,7 @@ def founder(irc, ev, result, target, channel, _, locale):
         irc.notice(target, _(locale['changed by'], ch_flags=msg))
 
 
-@loader('template', 'template !{chan_name} (list|!{template} !{flags})',
+@loader('template', 'template!{chan_name}? (list|!{template} !{flags})',
     need=[
         'requires nickserv',
         'registered user',
@@ -284,7 +286,7 @@ def founder(irc, ev, result, target, channel, _, locale):
         'syntax': 'syntax template',
         'help': 'help template'})
 def template(irc, ev, result, target, channel, _, locale):
-    channel = irc.dbstore.get_chan(_['chan_name'])
+    channel = irc.dbstore.get_chan(channel)
     template_name = _['template'].lower()
     max_length = 15
     if template_name == '' and _['flags'] == '':
@@ -343,4 +345,424 @@ def template(irc, ev, result, target, channel, _, locale):
         if len(_['flags']) == 0:
             _['flags'] = '---'
         irc.notice(target, _(locale['template edited']))
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
 
+
+@loader('join', 'join !{chan_name}!{key}+?',
+    need=[
+        'requires nickserv',
+        'registered user',
+        'registered chan:chan_name',
+        'flags:f'],
+
+    i18n={
+        'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.channel',
+        'syntax': 'syntax join',
+        'help': 'help join'})
+def join(irc, ev, result, target, channel, _, locale):
+    irc.join(channel, '' if not _['key'] else _['key'])
+
+
+@loader('part',
+    regex={
+        'private': 'part !{chan_name}!{msg}+?',
+        'channel': 'part !{msg}+?'},
+
+    need=[
+        'requires nickserv',
+        'registered user',
+        'registered chan:private=chan_name,channel=non-channel',
+        'flags:f'],
+
+    i18n={
+        'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.channel',
+        'syntax': 'syntax part',
+        'help': 'help part'})
+def part(irc, ev, result, target, channel, _, locale):
+    msg = 'SimpBot v' + simpbot.__version__ if not _['msg'] else _['msg']
+    irc.part(channel, msg)
+
+
+def parse(irc, maxgroup, targets, channel, _, i18n):
+    groups = []
+    nicks = []
+
+    def append(user, group):
+        if user.nick.lower() in nicks:
+            return
+        if len(group) >= maxgroup:
+            group = []
+            groups.append(group)
+
+        nicks.append(user.nick.lower())
+        group.append(user.nick.lower())
+        return group
+
+    channel = irc.request.get_chan(channel)
+    targets = targets if isinstance(targets, list) else targets.strip().split()
+    for target in targets:
+        try:
+            group = groups.pop()
+        except IndexError:
+            group = []
+        finally:
+            groups.append(group)
+
+        if valid_mask(target):
+            mask = re.compile(parse_mask(target), re.IGNORECASE)
+            for user in channel.users:
+                if not mask.match(user.mask):
+                    continue
+                group = append(user, group)
+        elif re.match('\$a:.+', target):
+            account = target.split(':', 1)[1].lower()
+            for user in channel.users:
+                if not user.account or user.account.lower() != account:
+                    continue
+                group = append(user, group)
+        else:
+            for user in channel.users:
+                if user.nick.lower() == target.lower():
+                    append(user, group)
+                    break
+            else:
+                irc.error(_['target'], _(i18n['no such nick'], nick=target))
+    return groups
+
+
+@loader('kick',
+    regex={
+        'private': 'k(ick)? !{chan_name} !{k_target}!{msg}+?',
+        'channel': 'k(ick)? !{k_target}!{msg}+?'},
+    alias=('k', 'kick'),
+    need=[
+        'requires nickserv',
+        'registered user',
+        'registered chan:chan_name',
+        'flags:k',
+        'channel_status:o,h'],
+
+    i18n={
+        'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.channel',
+        'syntax': 'syntax kick',
+        'help': 'help kick'})
+def kick(irc, ev, result, target, channel, _, locale):
+    channel = irc.request.get_chan(channel)
+    usr = _['user']
+    _['kicker'] = usr.account if not usr.account else usr.nick
+
+    if not _['msg'] and not _['msg'].isspace():
+        msg = '%s (%s)' % (_['msg'].rstrip(), _(locale['kicked by']))
+    else:
+        msg = _(locale['kicked by'])
+
+    for gro in parse(irc, 1, _['k_target'], channel, _, locale):
+        victim = gro[0]
+        if victim == irc.nickname.lower():
+            continue
+        irc.kick(channel, victim, msg)
+
+
+@loader('op',
+    regex={'channel': '(op( (?P<targets>.*))?)$',
+        'private': 'op !{chan_name}!{targets}+?'},
+
+    need=[
+        'requires nickserv',
+        'registered user',
+        'registered chan:private=chan_name,channel=non-channel',
+        'flags:o',
+        'channel_status:o'],
+
+    i18n={
+        'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.channel',
+        'syntax': 'syntax op',
+        'help': 'help op'})
+def op(irc, ev, result, target, channel, _, locale):
+    targets = _['targets'].strip().split()
+    if len(targets) == 0:
+        targets.append(_['user'].nick)
+    for gro in parse(irc, irc.features.modes, targets, channel, _, locale):
+        irc.mode(channel, '+%s %s' % (len(gro) * 'o', ' '.join(gro)))
+
+
+@loader('deop',
+    regex={'channel': '(deop( (?P<targets>.*))?)$',
+        'private': 'deop !{chan_name}!{targets}+?'},
+
+    need=[
+        'requires nickserv',
+        'registered user',
+        'registered chan:private=chan_name,channel=non-channel',
+        'flags:O',
+        'channel_status:o'],
+
+    i18n={
+        'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.channel',
+        'syntax': 'syntax deop',
+        'help': 'help deop'})
+def deop(irc, ev, result, target, channel, _, locale):
+    targets = _['targets'].strip().split()
+    if len(targets) == 0:
+        targets.append(_['user'].nick)
+    for gro in parse(irc, irc.features.modes, targets, channel, _, locale):
+        irc.mode(channel, '-%s %s' % (len(gro) * 'o', ' '.join(gro)))
+
+
+@loader('voice',
+    regex={'channel': '(v(oice)?( (?P<targets>.*))?)$',
+        'private': 'v(oice)? !{chan_name}!{targets}+?'},
+    alias=('v', 'voice'),
+    need=[
+        'requires nickserv',
+        'registered user',
+        'registered chan:private=chan_name,channel=non-channel',
+        'flags:v',
+        'channel_status:o,h'],
+
+    i18n={
+        'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.channel',
+        'syntax': 'syntax voice',
+        'help': 'help voice'})
+def voice(irc, ev, result, target, channel, _, locale):
+    targets = _['targets'].strip().split()
+    if len(targets) == 0:
+        targets.append(_['user'].nick)
+    for gro in parse(irc, irc.features.modes, targets, channel, _, locale):
+        irc.mode(channel, '+%s %s' % (len(gro) * 'v', ' '.join(gro)))
+
+
+@loader('devoice',
+    regex={'channel': '(de?v(oice)?( (?P<targets>.*))?)$',
+        'private': 'de?v(oice)? !{chan_name}!{targets}+?'},
+    alias=('dv', 'devoice'),
+    need=[
+        'requires nickserv',
+        'registered user',
+        'registered chan:private=chan_name,channel=non-channel',
+        'flags:v',
+        'channel_status:o,h'],
+
+    i18n={
+        'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.channel',
+        'syntax': 'syntax devoice',
+        'help': 'help devoice'})
+def devoice(irc, ev, result, target, channel, _, locale):
+    targets = _['targets'].strip().split()
+    if len(targets) == 0:
+        targets.append(_['user'].nick)
+    for gro in parse(irc, irc.features.modes, targets, channel, _, locale):
+        irc.mode(channel, '-%s %s' % (len(gro) * 'v', ' '.join(gro)))
+
+
+@loader('quiet',
+    regex={'channel': 'q(uiet)? !{q_target}',
+        'private': 'q(uiet)? !{chan_name}!{q_target}?'},
+    alias=('q', 'quiet'),
+    need=[
+        'requires nickserv',
+        'registered user',
+        'registered chan:private=chan_name,channel=non-channel',
+        'flags:b',
+        'channel_status:o,h'],
+
+    i18n={
+        'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.channel',
+        'syntax': 'syntax quiet',
+        'help': 'help quiet'})
+def quiet(irc, ev, result, target, channel, _, locale):
+    channel = irc.request.get_chan(channel)
+    quiettype = '*!*@{user.host}'
+    qtarget = _['q_target']
+
+    if valid_mask(qtarget):
+        irc.mode(channel.channel, '+q ' + qtarget)
+
+    elif re.match('\$a:.+', qtarget):
+        #--------------------#
+        # Advertencia!       #
+        #--------------------#
+        # Solo para Freenode #
+        # se debe añadir la  #
+        # compatibilidad con #
+        # otros ircd         #
+        #--------------------#
+        irc.mode(channel.channel, '+q ' + qtarget)
+
+    else:
+        if not irc.request.has_user(qtarget):
+            irc.request.user(qtarget)
+        user = irc.request.get_user(qtarget)
+
+        if not user:
+            return irc.error(target, _(locale['no such nick'], nick=qtarget))
+        irc.mode(channel.channel, '+q ' + quiettype.format(user=user))
+
+
+@loader('unquiet',
+    regex={'channel': 'un?q(uiet)? !{q_target}',
+        'private': 'un?q(uiet)? !{chan_name}!{q_target}?'},
+    alias=('uq', 'unquiet'),
+    need=[
+        'requires nickserv',
+        'registered user',
+        'registered chan:private=chan_name,channel=non-channel',
+        'flags:B',
+        'channel_status:o,h'],
+
+    i18n={
+        'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.channel',
+        'syntax': 'syntax unquiet',
+        'help': 'help unquiet'})
+def unquiet(irc, ev, result, target, channel, _, locale):
+    channel = irc.request.get_chan(channel)
+    quiettype = '*!*@{user.host}'
+    qtarget = _['q_target']
+
+    if valid_mask(qtarget):
+        irc.mode(channel.channel, '-q ' + qtarget)
+
+    elif re.match('\$a:.+', qtarget):
+        #--------------------#
+        # Advertencia!       #
+        #--------------------#
+        # Solo para Freenode #
+        # se debe añadir la  #
+        # compatibilidad con #
+        # otros ircd         #
+        #--------------------#
+        irc.mode(channel.channel, '-q ' + qtarget)
+
+    else:
+        if not irc.request.has_user(qtarget):
+            irc.request.user(qtarget)
+        user = irc.request.get_user(qtarget)
+
+        if not user:
+            return irc.error(target, _(locale['no such nick'], nick=qtarget))
+        irc.mode(channel.channel, '-q ' + quiettype.format(user=user))
+
+
+@loader('ban',
+    regex={'channel': 'b(an)? !{b_target}',
+        'private': 'b(an)? !{chan_name}!{targets}?'},
+    alias=('b', 'ban'),
+    need=[
+        'requires nickserv',
+        'registered user',
+        'registered chan:private=chan_name,channel=non-channel',
+        'flags:b',
+        'channel_status:o,h'],
+
+    i18n={
+        'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.channel',
+        'syntax': 'syntax ban',
+        'help': 'help ban'})
+def ban(irc, ev, result, target, channel, _, locale):
+    channel = irc.request.get_chan(channel)
+    bantype = '*!*@{user.host}'
+    btarget = _['b_target'].strip()
+
+    usr = _['user']
+    _['kicker'] = usr.account if not usr.account else usr.nick
+    if not _['msg'] and not _['msg'].isspace():
+        msg = '%s (%s)' % (_['msg'].rstrip(), _(locale['kicked by']))
+    else:
+        msg = _(locale['kicked by'])
+
+    if valid_mask(btarget):
+        irc.mode(channel.channel, '+b ' + btarget)
+        mask = re.compile(parse_mask(btarget), re.IGNORECASE)
+        for user in channel.users:
+            if not mask.match(user.mask):
+                return
+            if user.nick.lower() == irc.nickname.lower():
+                return
+            irc.kick(channel.channel, user.nick, msg)
+
+    elif re.match('\$a:.+', btarget):
+        #--------------------#
+        # Advertencia!       #
+        #--------------------#
+        # Solo para Freenode #
+        # se debe añadir la  #
+        # compatibilidad con #
+        # otros ircd         #
+        #--------------------#
+        irc.mode(channel.channel, '+b ' + btarget)
+
+        account = btarget.split(':', 1)[1].lower()
+        for user in channel.users:
+            if not user.account or user.account.lower() != account:
+                continue
+
+            if user.nick.lower() == irc.nickname.lower():
+                continue
+            #irc.mode(channel.channel, '+b ' + bantype.format(user=user))
+            irc.kick(channel.channel, user.nick, msg)
+    else:
+        if not irc.request.has_user(btarget):
+            irc.request.user(btarget)
+        user = irc.request.get_user(btarget)
+
+        if not user:
+            return irc.error(target, _(locale['no such nick'], nick=btarget))
+
+        irc.mode(channel.channel, '+b ' + bantype.format(user=user))
+        for usr in channel.users:
+            if usr.host == user.host:
+                irc.kick(channel.channel, usr.nick, msg)
+
+
+@loader('say',
+    regex={'channel': '(say|msg) !{msg}+',
+        'private': '(say|msg) !{chan_name} !{msg}+'},
+    alias=('say', 'msg'),
+    need=[
+        'requires nickserv',
+        'registered user',
+        'registered chan:private=chan_name,channel=non-channel',
+        'flags:o'],
+
+    i18n={
+        'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.channel',
+        'syntax': 'syntax say',
+        'help': 'help say'})
+def say(irc, ev, result, target, channel, _, locale):
+    irc.privmsg(channel, _['msg'])
+
+
+@loader('invite',
+    regex={'channel': 'invite !{targets}+',
+        'private': 'invite !{chan_name}!{targets}+?'},
+    need=[
+        'requires nickserv',
+        'registered user',
+        'registered chan:private=chan_name,channel=non-channel',
+        'flags:i'],
+
+    i18n={
+        'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.channel',
+        'syntax': 'syntax invite',
+        'help': 'help invite'})
+def invite(irc, ev, result, target, channel, _, locale):
+    targets = _['targets'].strip().split()
+    if len(targets) == 0:
+        targets.append(_['user'].nick)
+    for nick in targets:
+        irc.privmsg(nick, channel)

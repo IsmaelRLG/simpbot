@@ -23,7 +23,28 @@ else:
     modes = 'r'
 
 
+def _trigger(function):
+    def trigger_wrapper(*args, **kwargs):
+        self = args[0]
+        _func = function
+        fname = function.__name__
+
+        if self.has_triggers('pre', fname):
+            for trigger in self.get_triggers('pre', fname):
+                _func, args, kwargs = trigger(_func, args, kwargs)
+
+        result = _func(*args, **kwargs)
+
+        if self.has_triggers('post', fname):
+            for trigger in self.get_triggers('post', fname):
+                result = trigger(result, args, kwargs)
+
+        return result
+    return trigger_wrapper
+
+
 class dbstore:
+    triggers = {'pre': {}, 'post': {}}
 
     def __init__(self, network_name, maxc, maxu, rchan, ruser):
         self.name = network_name
@@ -48,6 +69,42 @@ class dbstore:
         self.chanregister = rchan
         self.userregister = ruser
 
+    @classmethod
+    def has_triggers(cls, met, attr):
+        if not met in cls.triggers or not hasattr(cls, attr):
+            raise ValueError
+        return attr in cls.triggers[met]
+
+    @classmethod
+    def has_trigger(cls, met, attr, func):
+        return cls.has_triggers(met, attr) and func in cls.triggers[met][attr]
+
+    @classmethod
+    def add_trigger(cls, method, attr_name, function):
+        if cls.has_trigger(method, attr_name, function):
+            raise ValueError('Duplicate trigger: %s, %s' % (method, attr_name))
+
+        if not attr_name in cls.triggers[method]:
+            cls.triggers[method][attr_name] = []
+        cls.triggers[method][attr_name].append(function)
+
+    @classmethod
+    def del_trigger(cls, method, attr_name, function):
+        if cls.has_trigger(method, attr_name, function):
+            raise KeyError('Invalid trigger: %s,%s' % (method, attr_name))
+
+        cls.triggers[method][attr_name].append(function)
+        if len(cls.triggers[method][attr_name]) == 0:
+            del cls.triggers[method][attr_name]
+
+    @classmethod
+    def get_triggers(cls, method, attr_name):
+        if cls.has_triggers(method, attr_name):
+            return cls.triggers[method][attr_name]
+        else:
+            return
+
+    @_trigger
     def base_dict(self):
         return {'user': {}, 'chan': {}, 'task': {
                'request': {'user': {}, 'chan': {}},
@@ -74,6 +131,7 @@ class dbstore:
         return self.store_task['drop']
 
     @text.lower
+    @_trigger
     def request(self, type, account):
         if type == 'user':
             self.store_request[type][account] =\
@@ -86,21 +144,25 @@ class dbstore:
         self.save()
 
     @text.lower
+    @_trigger
     def get_request(self, type, account):
         if self.has_request(type, account):
             return self.store_request[type][account]
 
     @text.lower
+    @_trigger
     def del_request(self, type, account):
         if self.has_request(type, account):
             del self.store_request[type][account]
             self.save()
 
     @text.lower
+    @_trigger
     def has_request(self, type, account):
         return account in self.store_request[type]
 
     @text.lower
+    @_trigger
     def drop(self, type, account):
         hash = md5.new(account).hexdigest()  # lint:ok
         self.store_drop[type][hash] = int(time())
@@ -108,16 +170,19 @@ class dbstore:
         return hash
 
     @text.lower
+    @_trigger
     def get_hashdrop(self, account):
         return hashlib.md5(account).hexdigest()
 
     @text.lower
+    @_trigger
     def del_drop(self, type, account):
         if self.has_drop(type, account):
             del self.store_drop[type][hashlib.md5(account).hexdigest()]
             self.save()
 
     @text.lower
+    @_trigger
     def has_drop(self, type, account):
         hash = md5.new(account).hexdigest()  # lint:ok
         if hash in self.store_drop[type]:
@@ -130,6 +195,7 @@ class dbstore:
             return False
 
     @text.lower
+    @_trigger
     def register_chan(self, chan_name):
         if not self.has_chan(chan_name):
             date = int(time())
@@ -137,6 +203,7 @@ class dbstore:
             self.save()
 
     @text.lower
+    @_trigger
     def register_user(self, account):
         if self.has_user(account):
             return
@@ -145,11 +212,13 @@ class dbstore:
         self.save()
 
     @text.lower
+    @_trigger
     def get_chan(self, chan_name):
         if self.has_chan(chan_name):
             return self.store_chan[chan_name]
 
     @text.lower
+    @_trigger
     def get_user(self, account):
         if self.has_user(account):
             return self.store_user[account]
@@ -163,6 +232,7 @@ class dbstore:
         return account in self.store_user
 
     @text.lower
+    @_trigger
     def drop_chan(self, chan_name):
         if self.has_chan(chan_name):
             chan = self.store_chan[chan_name]
@@ -171,6 +241,7 @@ class dbstore:
             self.save()
 
     @text.lower
+    @_trigger
     def drop_user(self, account):
         if self.has_user(account):
             _account = self.store_user[account]
@@ -178,11 +249,13 @@ class dbstore:
             del _account
             self.save()
 
+    @_trigger
     def reset(self):
         self.__store.clear()
         self.__store.update(self.base_dict())
         self.save()
 
+    @_trigger
     def reset_chans(self):
         for chan_name in self.store_chan.keys():
             chan = self.store_chan[chan_name]
@@ -201,6 +274,7 @@ class dbstore:
     def total_user(self):
         return len(self.store_user)
 
+    @_trigger
     def save(self):
         if self.total_chan() == 0 and self.total_user() == 0:
             if envvars.dbstore.exists(self.__filename):

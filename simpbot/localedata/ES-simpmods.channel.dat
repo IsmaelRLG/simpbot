@@ -29,7 +29,7 @@ msgid  already requested
 msgstr No se pudo solicitar el registro del canal {chan_name}, debido a que ya existe una solicitud de registro por parte de {usr}
 
 msgid  channel request
-msgstr {user.nick} ({user.user@user.host}), {user.account} solicita aprobación del canal {chan_name}. Código de aprobación: {code}
+msgstr {user.nick} ({user.user}@{user.host}), {user.account} solicita aprobación del canal {chan_name}. Código de aprobación: {code}
 
 msgid  registration disabled
 msgstr El registro de canales se encuentra inhabilitado.
@@ -94,10 +94,10 @@ permitido conceder los siguientes privilegios a un mask: +Ffs.
 Lista de privilegios:
     +v - Habilita el uso del comando voice
     +V - Habilita el uso del comando devoice
-    +o - Habilita el uso del comando op
+    +o - Habilita el uso del comando op, say
     +O - Habilita el uso del comando deop
-    +b - Habilita el uso del comando ban
-    +B - Habilita el uso del comando unban
+    +b - Habilita el uso del comando ban, quiet
+    +B - Habilita el uso del comando unban, unquiet
     +i - Habilita el uso del comando invite
     +k - Habilita el uso del comando kick
     +r - Habilita el uso del comando remove
@@ -207,3 +207,66 @@ msgstr Se eliminó la plantilla: {template}
 
 msgid  template edited
 msgstr Ahora la plantilla {template} contiene {flags}
+
+# COMANDO: join
+#---------------------------------------------------------------
+msgid  help join
+msgstr Ingresa el bot al canal especificado
+
+msgid  syntax join
+msgstr join <canal>
+
+# COMANDO: part
+#---------------------------------------------------------------
+msgid  help part
+msgstr Retira el bot del canal especificado
+
+msgid  syntax join
+msgstr join <canal>
+
+# COMANDO: kick
+#---------------------------------------------------------------
+msgid  help kick
+msgstr Expulsa a un usuario del canal indicado
+
+msgid  syntax kick
+msgstr join <canal>
+#---------------------------------------------------------------
+
+msgid  kicked by
+msgstr expulsado por {user.
+
+msgid  no such nick
+msgstr No hay tal nick ({nick}) en el canal.
+
+# COMANDO: op
+#---------------------------------------------------------------
+msgid  syntax op
+msgstr op <blanco (opcional)>
+
+msgid  help op
+msgstr Otorga el estado de operador (+o) a el/los usuario(s) indicado(s). De no indicarse parametro alguno, se le establece el estado de operador al usuario que ejecutó el comando.
+
+# COMANDO: deop
+#---------------------------------------------------------------
+msgid  syntax deop
+msgstr deop <blanco (opcional)>
+
+msgid  help deop
+msgstr Remueve el estado de operador (-o) a el/los usuario(s) indicado(s). De no indicarse parametro alguno, se le remueve el estado de operador al usuario que ejecutó el comando.
+
+# COMANDO: voice
+#---------------------------------------------------------------
+msgid  syntax voice
+msgstr op <blanco (opcional)>
+
+msgid  help voice
+msgstr Otorga voz (+o) a el/los usuario(s) indicado(s). De no indicarse parametro alguno, se le establece la voz al usuario que ejecutó el comando.
+
+# COMANDO: devoice
+#---------------------------------------------------------------
+msgid  syntax devoice
+msgstr deop <blanco (opcional)>
+
+msgid  help devoice
+msgstr Remueve voz (+o) a el/los usuario(s) indicado(s). De no indicarse parametro alguno, se le remueve la voz al usuario que ejecutó el comando.

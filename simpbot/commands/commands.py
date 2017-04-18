@@ -47,7 +47,7 @@ class ProccessCommands:
         return self.irc.request
 
     @staticmethod
-    def get_command(text, noregex=True, regex=True, first=False):
+    def get_command(text, noregex=True, regex=True, first=False, privbot=None):
         commands = []
         for modname, module in modules.core.items():
             for hanname, handler in module.handlers.items():
@@ -55,13 +55,26 @@ class ProccessCommands:
                     if noregex:
                         commands.append((handler, None))
                     continue
-                elif regex:
-                    result = handler.match(text)
-                    if result:
-                        commands.append((handler, result))
-                        if first:
-                            return commands
+                elif not regex:
                     continue
+                elif isinstance(handler.regex, dict):
+                    if 'all' in handler.regex:
+                        result = handler.regex['all'].match(text)
+                    elif privbot is True and 'private' in handler.regex:
+                        result = handler.regex['private'].match(text)
+                    elif privbot is False and 'channel' in handler.regex:
+                        result = handler.regex['channel'].match(text)
+                    else:
+                        continue
+                else:
+                    result = handler.match(text)
+
+                if not result is None:
+                    commands.append((handler, result))
+                    if first:
+                        return commands
+                    else:
+                        continue
         return commands
 
     def put(self, item):
@@ -88,8 +101,8 @@ class ProccessCommands:
         dbuser = self.dbstore.get_user(user.account)
         if dbuser is None:
             return action
-        if dbuser.locked:
-            if dbuser.isadmin is None:
+        if dbuser.locked():
+            if not dbuser.isadmin():
                 return locked
             elif dbuser.admin.has_capab(self.overrest['locked']):
                 return allow
@@ -100,7 +113,7 @@ class ProccessCommands:
             return allow
 
         elif action is False:
-            if dbuser.isadmin is None:
+            if not dbuser.isadmin():
                 return deny
             elif dbuser.admin.has_capab(self.overrest[level]):
                 return allow
@@ -115,7 +128,7 @@ class ProccessCommands:
             elif level == 'command':
                 capab = 'over-restriction:ignore module'
 
-            if dbuser.isadmin is None:
+            if not dbuser.isadmin():
                 return ignore
             elif dbuser.admin.has_capab(self.overrest[capab]):
                 return allow
@@ -135,7 +148,7 @@ class ProccessCommands:
                 if dbuser is None:
                     return allow
                 elif dbuser.locked():
-                    if not dbuser.isadmin:
+                    if not dbuser.isadmin():
                         return locked
                     elif dbuser.admin.has_capab(self.overrest['locked']):
                         return allow
@@ -165,13 +178,13 @@ class ProccessCommands:
                 if dbuser is None:
                     return deny
                 elif dbuser.locked():
-                    if not dbuser.isadmin:
+                    if not dbuser.isadmin():
                         return locked
                     elif dbuser.admin.has_capab(self.overrest['locked']):
                         return allow
                     else:
                         return locked
-                elif not dbuser.isadmin:
+                elif not dbuser.isadmin():
                     return deny
                 elif dbuser.admin.has_capab(self.overrest[level]):
                     return allow
@@ -335,9 +348,10 @@ class ProccessCommands:
         if not sre and not privbot:
             return
 
-        msg = i18n['command info']
         # Se procesan comandos con regex...
-        for handler, result in self.get_command(cmd, noregex=False, first=True):
+        # 0 -> False
+        # 1 -> True
+        for handler, result in self.get_command(cmd, 0, 1, 1, privbot):
             msg = msg.format(handler.mod_name, handler.name)
             module = handler.module
             if module is not None:
@@ -362,6 +376,7 @@ class ProccessCommands:
                     return
 
             _.addmatch(result)
+            channel = var['channel']
             if handler.i18n:
                 loader = handler.i18n['loader']
                 locale = loader.getfull(lang, handler.mod_name)

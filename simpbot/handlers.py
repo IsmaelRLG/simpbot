@@ -75,7 +75,7 @@ def registration_successful(irc, ev):
     irc.set_status('r')
 
     if irc.usens and irc.sasl is False:
-        irc.privmsg('NickServ', 'ID %s %s' % irc.__nickserv)
+        irc.privmsg('NickServ', 'ID %s %s' % tuple(irc.nickserv))
 
     if irc.dbstore:
         for channel in list(irc.dbstore.store_chan.keys()):
