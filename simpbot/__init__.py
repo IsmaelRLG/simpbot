@@ -2,7 +2,7 @@
 # Simple Bot (SimpBot)
 # Copyright 2016-2017, Ismael Lugo (kwargs)
 
-__version__ = "17.4.20"
+__version__ = "17.4.21"
 __author__ = 'Ismael Lugo (kwargs)'
 
 try:

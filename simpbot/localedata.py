@@ -53,8 +53,8 @@ class LocaleData:
     def __init__(self, abspath, comment_prefixes=('#',)):
         self.localedata = workarea.workarea(abspath)
         self.comment_prefixes = comment_prefixes
-        self.optregex = re.compile('(?P<option>msgid|msgstr|msgend|config) {1,}'
-        '(?P<value>.*)?', re.IGNORECASE)
+        self.optregex = re.compile('(?P<option>msgid|msgstr|msgend|config)( {1,'
+        '}(?P<value>.*))?', re.IGNORECASE)
         self.cache = {}
 
     def exists(self, lang, package):
