@@ -146,11 +146,14 @@ def confirm(irc, ev, result, target, channel, _, locale):
     irc.verbose('drop channel', _(locale['verbose: channel dropped']))
 
 
-@loader('flags', 'flags!{chan_name}? (?P<fg_type>list|!{target} !{flags})',
+@loader('flags',
+    regex={
+        'private': 'flags {1,}!{chan_name} {1,}(?P<fg_type>list|!{target} {1,}!{flags})',
+        'channel': 'flags {1,}(?P<fg_type>list|!{target} {1,}!{flags})'},
     need=[
         'requires nickserv',
         'registered user',
-        'registered chan:chan_name',
+        'registered chan:private=chan_name,channel=non-channel',
         'flags:f'],
 
     i18n={
@@ -223,7 +226,7 @@ def flags(irc, ev, result, target, channel, _, locale):
 
     diff = list(diff)
     if diff[1] is None:
-        diff[1] = '-'
+        diff[1] = '---'
 
     if diff[0] is None:
         diff[0] = '---'
@@ -261,6 +264,7 @@ def founder(irc, ev, result, target, channel, _, locale):
 
     irc.dbstore.save()
     diff = list(diff)
+
     if diff[1] is None:
         diff[1] = '---'
 
@@ -351,7 +355,7 @@ def template(irc, ev, result, target, channel, _, locale):
 ###############################################################################
 
 
-@loader('join', 'join !{chan_name}!{key}+?',
+@loader('join', 'join {1,}!{chan_name}!{key}+?',
     need=[
         'requires nickserv',
         'registered user',
@@ -369,7 +373,7 @@ def join(irc, ev, result, target, channel, _, locale):
 
 @loader('part',
     regex={
-        'private': 'part !{chan_name}!{msg}+?',
+        'private': 'part {1,}!{chan_name}!{msg}+?',
         'channel': 'part !{msg}+?'},
 
     need=[
@@ -437,13 +441,13 @@ def parse(irc, maxgroup, targets, channel, _, i18n):
 
 @loader('kick',
     regex={
-        'private': 'k(ick)? !{chan_name} !{k_target}!{msg}+?',
-        'channel': 'k(ick)? !{k_target}!{msg}+?'},
+        'private': 'k(ick)? {1,}!{chan_name} {1,}!{k_target}!{msg>}+?',
+        'channel': 'k(ick)? {1,}!{k_target}!{msg}+?'},
     alias=('k', 'kick'),
     need=[
         'requires nickserv',
         'registered user',
-        'registered chan:chan_name',
+        'registered chan:private=chan_name,channel=non-channel',
         'flags:k',
         'channel_status:o,h'],
 
@@ -453,25 +457,23 @@ def parse(irc, maxgroup, targets, channel, _, i18n):
         'syntax': 'syntax kick',
         'help': 'help kick'})
 def kick(irc, ev, result, target, channel, _, locale):
-    channel = irc.request.get_chan(channel)
     usr = _['user']
-    _['kicker'] = usr.account if not usr.account else usr.nick
-
-    if not _['msg'] and not _['msg'].isspace():
+    _['kicker'] = usr.account if usr.account else usr.nick
+    if _['msg'] and not _['msg'].isspace():
         msg = '%s (%s)' % (_['msg'].rstrip(), _(locale['kicked by']))
     else:
         msg = _(locale['kicked by'])
 
-    for gro in parse(irc, 1, _['k_target'], channel, _, locale):
-        victim = gro[0]
-        if victim == irc.nickname.lower():
-            continue
-        irc.kick(channel, victim, msg)
+    for gro in parse(irc, 100, _['k_target'], channel, _, locale):
+        for victim in gro:
+            if victim == irc.nickname.lower():
+                continue
+            irc.kick(channel, victim, msg)
 
 
 @loader('op',
-    regex={'channel': '(op( (?P<targets>.*))?)$',
-        'private': 'op !{chan_name}!{targets}+?'},
+    regex={'channel': '(op( {1,}(?P<targets>.*))?)$',
+        'private': 'op {1,}(?P<chan_name>[^ ]+)( {1,}(?P<targets>.*))?'},
 
     need=[
         'requires nickserv',
@@ -494,8 +496,8 @@ def op(irc, ev, result, target, channel, _, locale):
 
 
 @loader('deop',
-    regex={'channel': '(deop( (?P<targets>.*))?)$',
-        'private': 'deop !{chan_name}!{targets}+?'},
+    regex={'channel': '(deop( {1,}(?P<targets>.*))?)$',
+        'private': 'deop {1,}(?P<chan_name>[^ ]+)( {1,}(?P<targets>.*))?'},
 
     need=[
         'requires nickserv',
@@ -518,8 +520,8 @@ def deop(irc, ev, result, target, channel, _, locale):
 
 
 @loader('voice',
-    regex={'channel': '(v(oice)?( (?P<targets>.*))?)$',
-        'private': 'v(oice)? !{chan_name}!{targets}+?'},
+    regex={'channel': '(v(oice)?( {1,}(?P<targets>.*))?)$',
+        'private': 'v(oice)? (?P<chan_name>[^ ]+)( {1,}(?P<targets>.*))?'},
     alias=('v', 'voice'),
     need=[
         'requires nickserv',
@@ -542,8 +544,8 @@ def voice(irc, ev, result, target, channel, _, locale):
 
 
 @loader('devoice',
-    regex={'channel': '(de?v(oice)?( (?P<targets>.*))?)$',
-        'private': 'de?v(oice)? !{chan_name}!{targets}+?'},
+    regex={'channel': '(de?v(oice)?( {1,}(?P<targets>.*))?)$',
+    'private': 'de?v(oice)? {1,}(?P<chan_name>[^ ]+)( {1,}(?P<targets>.*))?'},
     alias=('dv', 'devoice'),
     need=[
         'requires nickserv',
@@ -566,8 +568,8 @@ def devoice(irc, ev, result, target, channel, _, locale):
 
 
 @loader('quiet',
-    regex={'channel': 'q(uiet)? !{q_target}',
-        'private': 'q(uiet)? !{chan_name}!{q_target}?'},
+    regex={'channel': 'q(uiet)? {1,}!{q_target>}',
+        'private': 'q(uiet)? {1,}!{chan_name} {1,}!{q_target}'},
     alias=('q', 'quiet'),
     need=[
         'requires nickserv',
@@ -611,8 +613,8 @@ def quiet(irc, ev, result, target, channel, _, locale):
 
 
 @loader('unquiet',
-    regex={'channel': 'un?q(uiet)? !{q_target}',
-        'private': 'un?q(uiet)? !{chan_name}!{q_target}?'},
+    regex={'channel': 'un?q(uiet)? {1,}!{targets}',
+        'private': 'un?q(uiet)? {1,}!{chan_name} {1,}!{q_target}'},
     alias=('uq', 'unquiet'),
     need=[
         'requires nickserv',
@@ -656,8 +658,8 @@ def unquiet(irc, ev, result, target, channel, _, locale):
 
 
 @loader('ban',
-    regex={'channel': 'b(an)? !{b_target}',
-        'private': 'b(an)? !{chan_name}!{targets}?'},
+    regex={'channel': 'b(an)? {1,}!{b_target}!{msg}+?',
+        'private': 'b(an)? {1,}!{chan_name} {1,}!{b_target}!{msg}+?'},
     alias=('b', 'ban'),
     need=[
         'requires nickserv',
@@ -677,21 +679,14 @@ def ban(irc, ev, result, target, channel, _, locale):
     btarget = _['b_target'].strip()
 
     usr = _['user']
-    _['kicker'] = usr.account if not usr.account else usr.nick
-    if not _['msg'] and not _['msg'].isspace():
+    _['kicker'] = usr.account if usr.account else usr.nick
+    if _['msg'] and not _['msg'].isspace():
         msg = '%s (%s)' % (_['msg'].rstrip(), _(locale['kicked by']))
     else:
         msg = _(locale['kicked by'])
 
     if valid_mask(btarget):
-        irc.mode(channel.channel, '+b ' + btarget)
-        mask = re.compile(parse_mask(btarget), re.IGNORECASE)
-        for user in channel.users:
-            if not mask.match(user.mask):
-                return
-            if user.nick.lower() == irc.nickname.lower():
-                return
-            irc.kick(channel.channel, user.nick, msg)
+        irc.mode(channel.channel_name, '+b ' + btarget)
 
     elif re.match('\$a:.+', btarget):
         #--------------------#
@@ -702,17 +697,13 @@ def ban(irc, ev, result, target, channel, _, locale):
         # compatibilidad con #
         # otros ircd         #
         #--------------------#
-        irc.mode(channel.channel, '+b ' + btarget)
+        irc.mode(channel.channel_name, '+b ' + btarget)
 
-        account = btarget.split(':', 1)[1].lower()
-        for user in channel.users:
-            if not user.account or user.account.lower() != account:
-                continue
-
-            if user.nick.lower() == irc.nickname.lower():
-                continue
-            #irc.mode(channel.channel, '+b ' + bantype.format(user=user))
-            irc.kick(channel.channel, user.nick, msg)
+        for gro in parse(irc, 100, _['k_target'], channel, _, locale):
+            for victim in gro:
+                if victim == irc.nickname.lower():
+                    continue
+                irc.kick(channel, victim, msg)
     else:
         if not irc.request.has_user(btarget):
             irc.request.user(btarget)
@@ -721,15 +712,15 @@ def ban(irc, ev, result, target, channel, _, locale):
         if not user:
             return irc.error(target, _(locale['no such nick'], nick=btarget))
 
-        irc.mode(channel.channel, '+b ' + bantype.format(user=user))
+        irc.mode(channel.channel_name, '+b ' + bantype.format(user=user))
         for usr in channel.users:
             if usr.host == user.host:
-                irc.kick(channel.channel, usr.nick, msg)
+                irc.kick(channel.channel_name, usr.nick, msg)
 
 
 @loader('say',
     regex={'channel': '(say|msg) !{msg}+',
-        'private': '(say|msg) !{chan_name} !{msg}+'},
+        'private': '(say|msg) {1,}!{chan_name} !{msg}+'},
     alias=('say', 'msg'),
     need=[
         'requires nickserv',

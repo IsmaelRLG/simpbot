@@ -59,7 +59,7 @@ def help(irc, ev, result, target, channel, _, locale):
             irc.notice(target, ' ')
             irc.notice(target, '---- %s ----' % locale['admins commands'])
             irc.notice(target, ', '.join(admcmd))
-        irc.notice(target, ' ')
+        #irc.notice(target, ' ')
         if _['privbot']:
             msg = _(locale['more help (private)'])
         else:

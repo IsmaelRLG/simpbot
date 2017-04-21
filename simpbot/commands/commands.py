@@ -245,14 +245,14 @@ class ProccessCommands:
     def get_lang(self, user, channel):
         if user.account is None:
             if channel is not None and self.dbstore.has_chan(channel):
-                return self.dbstore.get_chan(channel)
+                return self.dbstore.get_chan(channel)._lang
             else:
                 return self.irc.default_lang
         else:
             dbuser = self.dbstore.get_user(user.account)
             if dbuser is None:
                 if channel is not None and self.dbstore.has_chan(channel):
-                    return self.dbstore.get_chan(channel)
+                    return self.dbstore.get_chan(channel)._lang
                 else:
                     return self.irc.default_lang
             else:

@@ -321,10 +321,9 @@ def channel_status(vars):
         return failed
 
     status_bot = channel.get_user(irc.nickname).get_status(chan_name)
-    print [status_bot]
     if status_bot == '':
-        #irc.error(target, locale['mode required'] % '|+'.join(mode_req))
-        return
+        irc.error(target, locale['mode required'] % '|+'.join(mode_req))
+        return failed
 
     if not hasattr(irc.features, 'modeprefix'):
         irc.features.modeprefix = {}

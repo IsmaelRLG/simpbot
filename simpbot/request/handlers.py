@@ -2,8 +2,9 @@
 # Simple Bot (SimpBot)
 # Copyright 2016-2017, Ismael Lugo (kwargs)
 
+from simpbot import mode
 from simpbot.bottools import irc as irctool
-from simpbot.handlers import rpl
+from simpbot.handlers import rpl, usr
 from simpbot.handlers import handler
 import re
 
@@ -132,6 +133,42 @@ def extuser(irc, ev):
 
 @handler(rpl(401, '!{target} :No such nick/channel'))
 def nosuch(irc, ev):
-    user = irc.request.set_user(ev('target'), None, None)
+    user = irc.request.set_user(None, None, ev('target'))
     if user.host:
         user.reset()
+
+
+################################# mode ######################################
+
+
+# MODE
+@handler(usr('MODE', '!{target} !{modes}+'))
+def channel_status_mode(irc, ev):
+    channel = ev('target')
+    if channel.lower() == irc.nickname.lower():
+        return True  # user mode...
+    else:
+        channel = irc.request.get_chan(channel)
+        if channel is None:  # wtf
+            return True
+
+    if not hasattr(irc.features, 'modeprefix'):
+        irc.features.modeprefix = {}
+        for char, cmode in irc.features.prefix.items():
+            irc.features.modeprefix[cmode] = char
+
+    status_mode = irc.features.modeprefix.keys()
+    for sign, cmode, target in mode.parse_channel_modes(ev('modes')):
+        if target is None or not cmode in status_mode:
+            continue
+        user = channel.get_user(target)
+        if user is None:  # wtf
+            continue
+
+        cmode = irc.features.modeprefix[cmode]
+        if sign == '+':
+            user.set_status(channel.channel_name, 'insert', cmode)
+        else:
+            user.set_status(channel.channel_name, 'remove', cmode)
+        user.update()
+    return True

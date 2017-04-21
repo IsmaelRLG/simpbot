@@ -23,13 +23,13 @@ msgid  max channels
 msgstr NOTIFICACIÓN: Se alcanzó el límite de canales para solicitud ó registro.
 
 msgid  channel registered
-msgstr Se registró el canal {chan_name} a la cuenta del usuario {user.account}
+msgstr Se registró el canal {channel} a la cuenta del usuario {user.account}
 
 msgid  already requested
-msgstr No se pudo solicitar el registro del canal {chan_name}, debido a que ya existe una solicitud de registro por parte de {usr}
+msgstr No se pudo solicitar el registro del canal {channel}, debido a que ya existe una solicitud de registro por parte de {usr}
 
 msgid  channel request
-msgstr {user.nick} ({user.user}@{user.host}), {user.account} solicita aprobación del canal {chan_name}. Código de aprobación: {code}
+msgstr {user.nick} ({user.user}@{user.host}), {user.account} solicita aprobación del canal {channel}. Código de aprobación: {code}
 
 msgid  registration disabled
 msgstr El registro de canales se encuentra inhabilitado.
@@ -38,7 +38,7 @@ msgid  you already requested this
 msgstr Ya tiene una solicitud abierta.
 
 msgid  request sent
-msgstr Solicitud del canal {chan_name} enviada.
+msgstr Solicitud del canal {channel} enviada.
  
 
 # COMANDO: drop channel
@@ -51,7 +51,7 @@ msgstr drop channel <canal>
 #----------------------------------------------------------------
 
 msgid  confirm drop
-msgstr Para evitar el uso accidental de este comando, esta operación tiene que ser confirmada. Por favor confirme respondiendo con /msg {irc.nickname} confirm drop:chan {chan_name} {code}
+msgstr Para evitar el uso accidental de este comando, esta operación tiene que ser confirmada. Por favor confirme respondiendo con /msg {irc.nickname} confirm drop:chan {channel} {code}
 
 
 # COMANDO: confirm drop
@@ -67,10 +67,10 @@ msgid  invalid code
 msgstr Código de confirmación inválido.
 
 msgid  channel dropped
-msgstr Canal {chan_name} eliminado.
+msgstr Canal {channel} eliminado.
 
 msgid  verbose: channel dropped
-msgstr Canal {chan_name} eliminado por {user.account}
+msgstr Canal {channel} eliminado por {user.account}
 
 
 # COMANDO: flags
@@ -120,7 +120,7 @@ msgstr flags <canal> (list | [mask | cuenta] [ {+-}flags | plantilla ])
 #---------------------------------------------------------------
 
 msgid  flags list
-msgstr Lista de FLAGS para {chan_name}
+msgstr Lista de FLAGS para {channel}
 
 msgid  invalid mask
 msgstr Usuario ó mask inválido: {target}
@@ -135,7 +135,7 @@ msgid  could not be set flags
 msgstr No se pudieron establecer los flags.
 
 msgid  flags unchanged
-msgstr Flags para {target} en {chan_name} sin cambios.
+msgstr Flags para {target} en {channel} sin cambios.
 
 msgid  flags changed to
 msgstr Se modificaron los flags para %s
@@ -194,7 +194,7 @@ msgstr template <canal> [list | <plantilla> <flags>]
 #---------------------------------------------------------------
 
 msgid  template list
-msgstr Lista de plantillas para {chan_name}
+msgstr Lista de plantillas para {channel}
 
 msgid  name column
 msgstr NOMBRE
@@ -234,7 +234,7 @@ msgstr join <canal>
 #---------------------------------------------------------------
 
 msgid  kicked by
-msgstr expulsado por {user.
+msgstr expulsado por {kicker}
 
 msgid  no such nick
 msgstr No hay tal nick ({nick}) en el canal.

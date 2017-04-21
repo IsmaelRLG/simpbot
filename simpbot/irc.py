@@ -35,10 +35,17 @@ class client:
 
     def __init__(self, netw, addr, port, nick, user, nickserv=None, sasl=None,
         timeout=240, msgps=.5, wtime=30, servpass=None, prefix='!', lang=None,
-        plaintext=('recv', 'send')):
+        plaintext={
+            'recv': ['msg', 'jpqk', 'mode'],
+            'send': ['msg', 'jpqk', 'mode']}):
+
+        # msg            PRIVMSG, NOTICE
+        # jpqk           JOIN, PART, QUIT, KICK
+        # mode           CHANNEL AND USER MODES
+        # plane          plain text
 
         self.logger = logging.getLogger(netw)
-        if 'file' in plaintext:
+        if envvars.daemon is True:
             fs = '%(asctime)s %(levelname)s: %(message)s'
             handler = logging.FileHandler(envvars.logs.join(netw).lower(), 'a')
         else:
@@ -162,6 +169,14 @@ class client:
             self.send_raw('AUTHENTICATE PLAIN')
             self.send_raw('AUTHENTICATE ' + pw.encode('base64'))
 
+    def check_plaintext(self, pos, opt):
+        if pos in self.plaintext:
+            if 'all' in self.plaintext[pos]:
+                return False
+            return opt in self.plaintext[pos]
+        else:
+            return False
+
     @property
     def connected(self):
         return self.connection_status == 'c' or self.connection_status == 'r'
@@ -223,7 +238,7 @@ class client:
                     self.set_status('p')
                     self.try_connect()
 
-            if 'send' in self.plaintext:
+            if 'send' in self.plaintext and 'all' in self.plaintext['send']:
                 self.logger.info(i18n['output'], text)
             time.sleep(self.msgps)
         else:
@@ -259,14 +274,13 @@ class client:
                     line = str(line, 'utf-8')
                 if not line:
                     continue
-                if 'recv' in self.plaintext:
+                if 'recv' in self.plaintext and 'all' in self.plaintext['recv']:
                     self.logger.info(i18n['input'], line)
                 msg = regexmsg.match(line)
+                self.proccess_handlers(line)
                 if msg and self.commands:
                     self.commands.put(msg)
                     continue
-
-                self.proccess_handlers(line)
         else:
             self.input_alive = False
 
@@ -357,11 +371,16 @@ class client:
 
     @text.normalize
     def notice(self, target, msg):
+        form = '%s  -> <%s> %s'
         for line in msg.splitlines():
             if len(line) <= self.max_chars:
+                if self.check_plaintext('send', 'msg'):
+                    self.logger.info(form % (self.nickname, target, line))
                 self.send_raw("NOTICE %s :%s" % (target, line))
             else:
                 for subline in text.part(line, self.max_chars):
+                    if self.check_plaintext('send', 'msg'):
+                        self.logger.info(form % (self.nickname, target, subline))
                     self.send_raw("NOTICE %s :%s" % (target, subline))
 
     @text.normalize
@@ -370,11 +389,16 @@ class client:
 
     @text.normalize
     def privmsg(self, target, msg):
+        form = '%s  -> <%s> %s'
         for line in msg.splitlines():
             if len(line) <= self.max_chars:
+                if self.check_plaintext('send', 'msg'):
+                    self.logger.info(form % (self.nickname, target, line))
                 self.send_raw("PRIVMSG %s :%s" % (target, line))
             else:
                 for subline in text.part(line, self.max_chars):
+                    if self.check_plaintext('send', 'msg'):
+                        self.logger.info(form % (self.nickname, target, subline))
                     self.send_raw("PRIVMSG %s :%s" % (target, subline))
 
     @text.normalize

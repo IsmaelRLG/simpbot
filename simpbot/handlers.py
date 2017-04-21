@@ -109,6 +109,9 @@ def err_connection(irc, ev):
 # Mantiene el nick real
 @handler(usr('NICK', ':?!{new_nick}'))
 def real_nick(irc, ev):
+    if irc.check_plaintext('recv', 'jpqkn'):
+        irc.logger.info('* nick %s -> %s' % (ev('nick'), ev('new_nick')))
+
     if ev('nick').lower() == irc.nickname.lower():
         irc.nickname = ev('new_nick')
     else:
@@ -129,6 +132,14 @@ def ctcp_version(irc, ev):
     irc.ctcp_reply(ev('nick'), 'SimpBot v%s' % __version__)
 
 
+# Debug: PRIVMSG
+@handler(usr('(PRIVMSG|NOTICE)', '!{target} :!{msg}+'))
+def debug_msg(irc, ev):
+    if irc.check_plaintext('recv', 'msg') and not ev('nick') is None:
+        irc.logger.info('%s  <%s> %s' % (ev('target'), ev('nick'), ev('msg')))
+    return True
+
+
 # CTCP PING
 @handler(usr('PRIVMSG', '!{target} :\001PING !{code}\001'))
 def ctcp_ping(irc, ev):
@@ -140,8 +151,13 @@ def ctcp_ping(irc, ev):
 def join(irc, ev):
     if not irc.request:
         return True
+
     nick = ev('nick')
+    host = '%s@%s' % (ev('user'), ev('host'))
     channel = ev('channel')
+
+    if irc.check_plaintext('recv', 'jpqkn'):
+        irc.logger.info('%s  * join %s (%s)' % (channel, nick, host))
 
     if nick.lower() == irc.nickname.lower():
         irc.request.set_chan(channel)
@@ -162,7 +178,12 @@ def part(irc, ev):
     if not irc.request:
         return True
     nick = ev('nick')
+    host = '%s@%s' % (ev('user'), ev('host'))
     channel = ev('channel')
+    reason = ': (%s)' % ev('message') if ev('message') else ''
+
+    if irc.check_plaintext('recv', 'jpqkn'):
+        irc.logger.info('%s  * part %s (%s)%s' % (channel, nick, host, reason))
 
     if nick.lower() == irc.nickname.lower():
         irc.request.del_chan(channel)
@@ -182,6 +203,11 @@ def quit(irc, ev):
     if not irc.request:
         return True
     nick = ev('nick')
+    host = '(%s@%s)' % (ev('user'), ev('host'))
+    reason = ': %s' % ev('message') if ev('message') else ''
+
+    if irc.check_plaintext('recv', 'jpqkn'):
+        irc.logger.info('quit {n} {h}{r}'.format(n=nick, h=host, r=reason))
 
     if nick.lower() == irc.nickname.lower():
         irc.request.reset()
@@ -195,8 +221,13 @@ def quit(irc, ev):
 def kick(irc, ev):
     if not irc.request:
         return True
+    k = ev('nick')
     nick = ev('victim')
     channel = ev('channel')
+    reason = ': ' + ev('message') if ev('message') else ''
+
+    if irc.check_plaintext('recv', 'jpqkn'):
+        irc.logger.info('%s * %s kiked by %s%s' % (channel, nick, k, reason))
 
     if nick.lower() == irc.nickname.lower():
         irc.request.del_chan(channel)

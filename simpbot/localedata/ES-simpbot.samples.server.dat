@@ -37,7 +37,8 @@ wtime = 15                    ; Tiempo para reconectar
 msgps = 0.5                   ; Mensajes por segundo
 timeout = 240                 ; Tiempo fuera de la conexión
 default_lang = es             ; Lenguaje a mostrar por defecto
-plaintext = recv,send,file    ; Muestra en texto plano los mensajes recibidos
+                              ; Muestra en texto plano los mensajes recibidos
+plaintext = recv(msg,jpqkn,mode,all) send(msg,jpqkn,mode)
 
 [database]
 chanregister = request        ; Registro de canales

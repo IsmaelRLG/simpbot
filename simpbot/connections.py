@@ -2,6 +2,7 @@
 # Simple Bot (SimpBot)
 # Copyright 2016-2017, Ismael Lugo (kwargs)
 
+from re import compile
 from os import path
 from six.moves import _thread
 from six.moves import configparser
@@ -14,7 +15,9 @@ from .bottools import text
 from .bottools import dummy
 from . import localedata
 
+
 i18n = localedata.get()
+regex = compile('^(recv|send)\((.+)\)')
 logging = __import__('logging').getLogger('connections')
 
 
@@ -94,7 +97,14 @@ def load_server(abspath, core=envvars.networks, connect=True):
         password = None
 
     autoconnect = conf.getboolean('simpbot', 'autoconnect')
-    plaintext = conf.get('simpbot', 'plaintext').replace(' ', '').split(',')
+    plaintext = {}
+    for opt in conf.get('simpbot', 'plaintext').split():
+        result = regex.findall(opt)
+        if len(result) == 0:
+            continue
+
+        plaintext[result[0][0]] = result[0][1].split(',')
+
     prefix = conf.get('simpbot', 'prefix')
     msgps = conf.getfloat('simpbot', 'msgps')
     timeout = conf.getint('simpbot', 'timeout')

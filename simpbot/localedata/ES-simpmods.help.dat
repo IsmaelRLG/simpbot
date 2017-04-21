@@ -9,10 +9,10 @@ msgid  admins commands
 msgstr Comandos para administradores
 
 msgid  more help (private)
-msgstr Para obtener mas información sobre un comando en especifico, por favor enviar: help <comando>
+msgstr Para obtener más información sobre un comando en especifico, por favor enviar: help <comando>
 
 msgid  more help (channel)
-msgstr Para obtener mas información sobre un comando en especifico, por favor enviar: {irc.nickname}: help <comando>
+msgstr Para obtener más información sobre un comando en especifico, por favor enviar: {irc.nickname}: help <comando>
 
 msgid  not help and syntax
 msgstr El comando {command} no cuenta con una ayuda definida, pero si cuenta con la siguiente sintaxis:

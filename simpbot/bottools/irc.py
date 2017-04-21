@@ -2,22 +2,59 @@
 # Simple Bot (SimpBot)
 # Copyright 2016-2017, Ismael Lugo (kwargs)
 
-import re
+import re, string
 from . import text
 from simpbot.envvars import networks
+
+_alphanum = frozenset(string.ascii_letters + string.digits)
+mask_regex = re.compile('(.+)!(.+)@(.+)')
+
+
+def escape(pattern, no_parse=''):
+    "Escape all non-alphanumeric characters in pattern."
+    s = list(pattern)
+    alphanum = _alphanum
+    for i, c in enumerate(pattern):
+        if c not in alphanum and c not in no_parse:
+            if c == "\000":
+                s[i] = "\\000"
+            else:
+                s[i] = "\\" + c
+    return pattern[:0].join(s)
 
 
 def parse_mask(mask):
     text.randphras()
     if '*' in mask:
-        rand = text.randphras(6)
-        mask = re.escape(mask.replace('*', rand))
-        mask = mask.replace(rand, '.+')
+        rand = '*'
+        mask = escape(mask, '*!@')
+        _mask = mask_regex.match(mask)
+        if _mask is None:
+            return mask
+        res = []
+
+        for gr in _mask.group(1, 2, 3):
+            if gr.count(rand) == 0:
+                pass
+            else:
+                if gr.startswith(rand):
+                    if gr.count(rand) == 1:
+                        gr = gr.replace(rand, '(.+)', 1)
+                    else:
+                        gr = gr.replace(rand, '(.+)?', 1)
+                if gr.endswith(rand):
+                    gr = gr[::-1].replace(rand[::-1], '(.+)?'[::-1], 1)[::-1]
+
+                if gr.count(rand) > 0:
+                    gr = gr.replace(rand, '(.+)')
+            res.append(gr)
+        print [':|', '%s!%s@%s' % tuple(res)]
+        return '%s!%s@%s' % tuple(res)
     return mask
 
 
 def valid_mask(mask):
-    return re.match('.+\!.+\@.+', mask) is not None
+    return mask_regex.match(mask) is not None
 
 
 def ischannel(channel, network=None, irc=None):
