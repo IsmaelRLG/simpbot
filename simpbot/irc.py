@@ -165,7 +165,7 @@ class client:
         elif self.sasl:
             # Simple Authentication and Security Layer (SASL) - RFC 4422
             # Copyright (C) The Internet Society (2006).
-            pw = '{0}\0{0}\0{1}'.format(self.sasl[0], self.sasl[1])
+            pw = '{0}\0{0}\0{1}'.format(self.nickserv[0], self.nickserv[1])
             self.send_raw('AUTHENTICATE PLAIN')
             self.send_raw('AUTHENTICATE ' + pw.encode('base64'))
 

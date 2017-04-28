@@ -164,7 +164,7 @@ class dbstore:
     @text.lower
     @_trigger
     def drop(self, type, account):
-        hash = md5.new(account).hexdigest()  # lint:ok
+        hash = hashlib.md5(account).hexdigest()  # lint:ok
         self.store_drop[type][hash] = int(time())
         self.save()
         return hash

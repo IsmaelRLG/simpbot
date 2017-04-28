@@ -230,7 +230,7 @@ msgid  help kick
 msgstr Expulsa a un usuario del canal indicado
 
 msgid  syntax kick
-msgstr join <canal>
+msgstr kick <canal (opcional)> <blanco> <mensaje (opcional)>
 #---------------------------------------------------------------
 
 msgid  kicked by
@@ -242,7 +242,7 @@ msgstr No hay tal nick ({nick}) en el canal.
 # COMANDO: op
 #---------------------------------------------------------------
 msgid  syntax op
-msgstr op <blanco (opcional)>
+msgstr op <canal (opcional)> <blanco (opcional)>
 
 msgid  help op
 msgstr Otorga el estado de operador (+o) a el/los usuario(s) indicado(s). De no indicarse parametro alguno, se le establece el estado de operador al usuario que ejecutó el comando.
@@ -250,7 +250,7 @@ msgstr Otorga el estado de operador (+o) a el/los usuario(s) indicado(s). De n
 # COMANDO: deop
 #---------------------------------------------------------------
 msgid  syntax deop
-msgstr deop <blanco (opcional)>
+msgstr deop <canal (opcional)> <blanco (opcional)>
 
 msgid  help deop
 msgstr Remueve el estado de operador (-o) a el/los usuario(s) indicado(s). De no indicarse parametro alguno, se le remueve el estado de operador al usuario que ejecutó el comando.
@@ -258,7 +258,7 @@ msgstr Remueve el estado de operador (-o) a el/los usuario(s) indicado(s). De 
 # COMANDO: voice
 #---------------------------------------------------------------
 msgid  syntax voice
-msgstr op <blanco (opcional)>
+msgstr voice <canal (opcional)> <blanco (opcional)>
 
 msgid  help voice
 msgstr Otorga voz (+o) a el/los usuario(s) indicado(s). De no indicarse parametro alguno, se le establece la voz al usuario que ejecutó el comando.
@@ -266,7 +266,47 @@ msgstr Otorga voz (+o) a el/los usuario(s) indicado(s). De no indicarse parame
 # COMANDO: devoice
 #---------------------------------------------------------------
 msgid  syntax devoice
-msgstr deop <blanco (opcional)>
+msgstr devoice <canal (opcional)> <blanco (opcional)>
 
 msgid  help devoice
 msgstr Remueve voz (+o) a el/los usuario(s) indicado(s). De no indicarse parametro alguno, se le remueve la voz al usuario que ejecutó el comando.
+
+# COMANDO: quiet
+#---------------------------------------------------------------
+msgid  syntax quiet
+msgstr quiet <canal (opcional)> <blanco>
+
+msgid  help quiet
+msgstr Silencia al blanco/usuario indicado
+
+# COMANDO: unquiet
+#---------------------------------------------------------------
+msgid  syntax unquiet
+msgstr unquiet <canal (opcional)> <blanco>
+
+msgid  help unquiet
+msgstr Remueve el silencio del blanco/usuario indicado
+
+# COMANDO: ban
+#---------------------------------------------------------------
+msgid  syntax ban
+msgstr ban <canal (opcional)> <blanco> <mensaje (opcional)>
+
+msgid  help ban
+msgstr Banea y expulsa (si se encuentrase allí) al blanco/usuario indicado
+
+# COMANDO: say
+#---------------------------------------------------------------
+msgid  syntax say
+msgstr say <canal (opcional)> <mensaje>
+
+msgid  help say
+msgstr Envia un mensaje al canal indicado.
+
+# COMANDO: invite
+#---------------------------------------------------------------
+msgid  syntax invite
+msgstr invite <canal (opcional)> <usuario>
+
+msgid  help invite
+msgstr Invita un usuario a un canal.

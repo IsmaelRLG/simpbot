@@ -568,7 +568,7 @@ def devoice(irc, ev, result, target, channel, _, locale):
 
 
 @loader('quiet',
-    regex={'channel': 'q(uiet)? {1,}!{q_target>}',
+    regex={'channel': 'q(uiet)? {1,}!{q_target}',
         'private': 'q(uiet)? {1,}!{chan_name} {1,}!{q_target}'},
     alias=('q', 'quiet'),
     need=[
@@ -613,7 +613,7 @@ def quiet(irc, ev, result, target, channel, _, locale):
 
 
 @loader('unquiet',
-    regex={'channel': 'un?q(uiet)? {1,}!{targets}',
+    regex={'channel': 'un?q(uiet)? {1,}!{q_target}',
         'private': 'un?q(uiet)? {1,}!{chan_name} {1,}!{q_target}'},
     alias=('uq', 'unquiet'),
     need=[

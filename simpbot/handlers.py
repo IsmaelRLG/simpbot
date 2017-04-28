@@ -129,7 +129,7 @@ def err_chanoprivsneeded(irc, ev):
 # CTCP VERSION
 @handler(usr('PRIVMSG', '!{target} :\001VERSION\001'))
 def ctcp_version(irc, ev):
-    irc.ctcp_reply(ev('nick'), 'SimpBot v%s' % __version__)
+    irc.ctcp_reply(ev('nick'), 'VERSION SimpBot v%s' % __version__)
 
 
 # Debug: PRIVMSG
