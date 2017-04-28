@@ -23,7 +23,7 @@ table_kwargs = {
 
 def error(text):
     sys.stdout.write('[!] ' + text + '\n')
-    exit(0)
+    exit(1)
 
 
 class SimpParser(argparse.ArgumentParser):
