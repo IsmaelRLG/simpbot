@@ -12,4 +12,4 @@ install:
 script:
   - simpbot conf -m -a
   - simpbot server -a localhost
-  - simpbot --start --no-daemon -d 10
+  - simpbot status --start --no-daemon -d 10
