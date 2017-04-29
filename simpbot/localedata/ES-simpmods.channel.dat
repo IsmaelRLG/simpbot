@@ -54,6 +54,23 @@ msgid  confirm drop
 msgstr Para evitar el uso accidental de este comando, esta operación tiene que ser confirmada. Por favor confirme respondiendo con /msg {irc.nickname} confirm drop:chan {channel} {code}
 
 
+# COMANDO: lang channel
+#---------------------------------------------------------------
+msgid  help lang channel
+msgstr Establece el idioma que se muestra por defecto en un canal.
+
+msgid  syntax lang channel
+msgstr lang channel <canal (opcional)> <código de lenguaje>
+#----------------------------------------------------------------
+
+msgid  invalid lang
+config nostrip yes
+config addline yes
+msgstr
+Lenguaje inválido: {lang}
+Para ver la lista de lenguajes disponibles enviar /msg {irc.nickname} show langs
+msgend
+
 # COMANDO: confirm drop
 #---------------------------------------------------------------
 msgid  help confirm drop

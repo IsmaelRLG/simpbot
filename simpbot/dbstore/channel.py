@@ -21,7 +21,7 @@ class channel:
         self.template = {
             'founder': 'FOVbfiklmorstv',
             'admin': 'OVbfiklmorstv',
-            'op': 'Vbiklmotv',
+            'op': 'OVbiklmotv',
             'voice': 'Viltv',
             'clear': ''}
         self._lang = None
@@ -36,6 +36,9 @@ class channel:
                 return envvars.default_lang
         else:
             return self._lang
+
+    def set_lang(self, lang):
+        self._lang = lang
 
     def __del__(self):
         self.drop()

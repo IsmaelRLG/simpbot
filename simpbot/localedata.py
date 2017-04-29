@@ -67,6 +67,9 @@ class LocaleData:
         """
         return self.localedata.exists(lang.upper() + langsep + package + ext)
 
+    def fullsupport(self):
+        return self.langs('fullsupport')
+
     def load(self, lang, package):
         if not self.in_cache(lang, package):
             self.read(lang, package)

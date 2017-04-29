@@ -11,7 +11,7 @@
 # flags                                 si
 # founder                               si
 # template                              si
-# set lang                              no
+# set lang                              si
 # set commands                          no
 # join-msg                              no
 # kick                                  si
@@ -98,6 +98,28 @@ def register(irc, ev, result, target, channel, _, locale):
         irc.notice(target, _(locale['request sent']))
     elif irc.dbstore.chanregister == 'deny':
         irc.error(target, locale['registration disabled'])
+
+
+@loader('lang channel', 'lang channel!{chan_name} !{lang}',
+    regex={'private': 'lang channel!{chan_name}? !{lang}',
+        'channel': 'lang channel !{lang}'},
+    need=[
+        'requires nickserv',
+        'registered user',
+        'registered chan:private=chan_name,channel=non-channel',
+        'flags:F'],
+
+    i18n={
+        'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.channel',
+        'syntax': 'syntax lang channel',
+        'help': 'help lang channel'})
+def lang_channel(irc, ev, result, target, channel, _, locale):
+    lang = _['lang'].upper()
+    if not lang in simpbot.localedata.simplocales.fullsupport():
+        return irc.error(target, _(locale['invalid lang']))
+    irc.dbstore.get_chan(channel).set_lang(lang)
+    irc.dbstore.save()
 
 
 @loader('drop channel', 'drop channel !{chan_name}',
@@ -699,7 +721,7 @@ def ban(irc, ev, result, target, channel, _, locale):
         #--------------------#
         irc.mode(channel.channel_name, '+b ' + btarget)
 
-        for gro in parse(irc, 100, _['k_target'], channel, _, locale):
+        for gro in parse(irc, 100, _['b_target'], channel, _, locale):
             for victim in gro:
                 if victim == irc.nickname.lower():
                     continue

@@ -15,10 +15,11 @@ from simpbot.localedata import get as get_locale
 from simpbot.admins import get_admin, has_admin
 from six import string_types as string
 from six.moves import _thread
-from types import NoneType
+#from types import NoneType
 from . import config
 
 import time, threading
+NoneType = type(None)
 logging = __import__('logging').getLogger('api')
 i18n = get_locale(package='simpbot.commands.commands')
 locale = get_locale()
