@@ -100,7 +100,7 @@ def register(irc, ev, result, target, channel, _, locale):
         irc.error(target, locale['registration disabled'])
 
 
-@loader('lang channel', 'lang channel!{chan_name} !{lang}',
+@loader('lang channel',
     regex={'private': 'lang channel!{chan_name}? !{lang}',
         'channel': 'lang channel !{lang}'},
     need=[
