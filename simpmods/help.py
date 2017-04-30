@@ -111,6 +111,13 @@ def help(irc, ev, result, target, channel, _, locale):
         if handler.has_syntax():
                for syn in handler.get_help(locale.lang, 'syntax').splitlines():
                     irc.notice(target, locale['syntax for'] % syn)
+
+        req_flags = []
+        for n in handler.neeed:
+            if n.startswith('flags:'):
+                req_flags.append(n.split(':')[1])
+        if len(req_flags) > 0:
+            irc.notice(target, locale['required flags'] % ''.join(req_flags))
         irc.notice(target, _(locale['end of']))
 
     else:

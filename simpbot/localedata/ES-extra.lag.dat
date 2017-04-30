@@ -1,0 +1,8 @@
+msgid  help lag
+msgstr Muestra el tiempo de retardo en la recepción/envio de mensajes.
+
+msgid  syntax lag
+msgstr lag <nick (opcional)>
+
+msgid  no such nick
+msgstr No hay tal nick ({nick}) en el canal.

@@ -28,6 +28,7 @@
 # voice                                 si
 # devoice                               si
 # say / msg                             si
+# topic                                 no
 #---------- varian en la red usada-------------
 # remove                                no
 # semi-op / half-op (hop)               no
@@ -611,7 +612,7 @@ def quiet(irc, ev, result, target, channel, _, locale):
     qtarget = _['q_target']
 
     if valid_mask(qtarget):
-        irc.mode(channel.channel, '+q ' + qtarget)
+        irc.mode(channel.channel_name, '+q ' + qtarget)
 
     elif re.match('\$a:.+', qtarget):
         #--------------------#
@@ -622,7 +623,7 @@ def quiet(irc, ev, result, target, channel, _, locale):
         # compatibilidad con #
         # otros ircd         #
         #--------------------#
-        irc.mode(channel.channel, '+q ' + qtarget)
+        irc.mode(channel.channel_name, '+q ' + qtarget)
 
     else:
         if not irc.request.has_user(qtarget):
@@ -631,7 +632,7 @@ def quiet(irc, ev, result, target, channel, _, locale):
 
         if not user:
             return irc.error(target, _(locale['no such nick'], nick=qtarget))
-        irc.mode(channel.channel, '+q ' + quiettype.format(user=user))
+        irc.mode(channel.channel_name, '+q ' + quiettype.format(user=user))
 
 
 @loader('unquiet',
@@ -656,7 +657,7 @@ def unquiet(irc, ev, result, target, channel, _, locale):
     qtarget = _['q_target']
 
     if valid_mask(qtarget):
-        irc.mode(channel.channel, '-q ' + qtarget)
+        irc.mode(channel.channel_name, '-q ' + qtarget)
 
     elif re.match('\$a:.+', qtarget):
         #--------------------#
@@ -667,7 +668,7 @@ def unquiet(irc, ev, result, target, channel, _, locale):
         # compatibilidad con #
         # otros ircd         #
         #--------------------#
-        irc.mode(channel.channel, '-q ' + qtarget)
+        irc.mode(channel.channel_name, '-q ' + qtarget)
 
     else:
         if not irc.request.has_user(qtarget):
@@ -676,7 +677,7 @@ def unquiet(irc, ev, result, target, channel, _, locale):
 
         if not user:
             return irc.error(target, _(locale['no such nick'], nick=qtarget))
-        irc.mode(channel.channel, '-q ' + quiettype.format(user=user))
+        irc.mode(channel.channel_name, '-q ' + quiettype.format(user=user))
 
 
 @loader('ban',
@@ -740,6 +741,51 @@ def ban(irc, ev, result, target, channel, _, locale):
                 irc.kick(channel.channel_name, usr.nick, msg)
 
 
+@loader('unban',
+    regex={'channel': 'un?b(an)? {1,}!{b_target}',
+        'private': 'un?b(an)? {1,}!{chan_name} {1,}!{b_target}'},
+    alias=('ub', 'unban'),
+    need=[
+        'requires nickserv',
+        'registered user',
+        'registered chan:private=chan_name,channel=non-channel',
+        'flags:B',
+        'channel_status:o,h'],
+
+    i18n={
+        'loader': simpbot.localedata.simplocales,
+        'module': 'simpmods.channel',
+        'syntax': 'syntax unban',
+        'help': 'help unban'})
+def unban(irc, ev, result, target, channel, _, locale):
+    channel = irc.request.get_chan(channel)
+    bantype = '*!*@{user.host}'
+    btarget = _['b_target']
+
+    if valid_mask(btarget):
+        irc.mode(channel.channel_name, '-b ' + btarget)
+
+    elif re.match('\$a:.+', btarget):
+        #--------------------#
+        # Advertencia!       #
+        #--------------------#
+        # Solo para Freenode #
+        # se debe añadir la  #
+        # compatibilidad con #
+        # otros ircd         #
+        #--------------------#
+        irc.mode(channel.channel_name, '-b ' + btarget)
+
+    else:
+        if not irc.request.has_user(btarget):
+            irc.request.user(btarget)
+        user = irc.request.get_user(btarget)
+
+        if not user:
+            return irc.error(target, _(locale['no such nick'], nick=btarget))
+        irc.mode(channel.channel_name, '-b ' + bantype.format(user=user))
+
+
 @loader('say',
     regex={'channel': '(say|msg) !{msg}+',
         'private': '(say|msg) {1,}!{chan_name} !{msg}+'},
@@ -778,4 +824,4 @@ def invite(irc, ev, result, target, channel, _, locale):
     if len(targets) == 0:
         targets.append(_['user'].nick)
     for nick in targets:
-        irc.privmsg(nick, channel)
+        irc.invite(nick, channel)

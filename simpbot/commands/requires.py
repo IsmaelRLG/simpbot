@@ -56,13 +56,13 @@ def only(vars):
             return
         elif len(args) == 1:
             irc.error(target, localedata.get(vars['lang'])['only private'])
-            return failed
+        return failed
     elif args[0] == 'channel':
         if not vars['privbot']:
             return
         elif len(args) == 1:
             irc.error(target, localedata.get(vars['lang'])['only channel'])
-            return failed
+        return failed
 requerimentls['only'] = only
 
 

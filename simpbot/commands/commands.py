@@ -325,6 +325,7 @@ class ProccessCommands:
                 if status is deny or status is ignore:
                     continue
 
+                stop = False
                 for need in handler.need:
                     watchdog = requires.get(need)
                     if not watchdog:
@@ -332,7 +333,10 @@ class ProccessCommands:
                         continue
 
                     if watchdog[0](locals()):
-                        return
+                        stop = True
+                        break
+                if stop:
+                    continue
 
                 if handler.i18n:
                     loader = handler.i18n['loader']
@@ -348,6 +352,7 @@ class ProccessCommands:
         if not sre and not privbot:
             return
 
+        print(':D')
         # Se procesan comandos con regex...
         # 0 -> False
         # 1 -> True

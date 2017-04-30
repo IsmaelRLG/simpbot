@@ -41,4 +41,5 @@ msgstr No existe el comando {command}
 msgid  suggest
 msgstr Quizás quiso decir: %s
 
-
+msgid  required flags
+msgstr Flags requeridos: +%s

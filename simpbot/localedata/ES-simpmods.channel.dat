@@ -68,7 +68,7 @@ config nostrip yes
 config addline yes
 msgstr
 Lenguaje inválido: {lang}
-Para ver la lista de lenguajes disponibles enviar /msg {irc.nickname} show langs
+Para ver la lista de lenguajes disponibles enviar /msg {irc.nickname} show langs
 msgend
 
 # COMANDO: confirm drop
@@ -310,7 +310,17 @@ msgid  syntax ban
 msgstr ban <canal (opcional)> <blanco> <mensaje (opcional)>
 
 msgid  help ban
-msgstr Banea y expulsa (si se encuentrase allí) al blanco/usuario indicado
+msgstr Banea y expulsa (si se encontrase en el canal) al blanco/usuario indicado
+
+
+# COMANDO: unban
+#---------------------------------------------------------------
+msgid  syntax unban
+msgstr unban <canal (opcional)> <blanco>
+
+msgid  help unban
+msgstr Remueve el baneo a lo que le sea indicado.
+
 
 # COMANDO: say
 #---------------------------------------------------------------

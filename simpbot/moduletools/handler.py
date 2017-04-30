@@ -70,7 +70,7 @@ class handler(control.control):
         elif isinstance(regex, dict):
             self.regex = {}
             for k, expr in regex.items():
-                self.regex[k] = re.compile(parser.ParserRegex(expr).string)
+                self.regex[k] = re.compile(parser.ParserRegex(expr).string, 2)
         else:
             self.regex = parser.ParserRegex(regex).string
             self.regex = re.compile(self.regex, re.IGNORECASE)
