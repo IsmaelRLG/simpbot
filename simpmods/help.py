@@ -3,6 +3,7 @@
 # Copyright 2016-2017, Ismael Lugo (kwargs)
 
 import simpbot
+from six import string_types
 from simpbot.bottools.irc import color
 module = simpbot.get_module(sys=True)
 loader = module.loader()
@@ -39,6 +40,8 @@ def help(irc, ev, result, target, channel, _, locale):
 
                 next = False  # lint:ok
                 for need in handler.need:
+                    if not isinstance(need, string_types):
+                        continue
                     if need.startswith('admin:'):
                         admcmd.append(name)
                         next = True  # lint:ok
@@ -74,6 +77,8 @@ def help(irc, ev, result, target, channel, _, locale):
             need_admin = False
             name = name.lower()
             for need in CommandHandler.need:
+                if not isinstance(need, string_types):
+                    continue
                 if need.startswith('admin:'):
                     need_admin = True
                     break
@@ -113,7 +118,9 @@ def help(irc, ev, result, target, channel, _, locale):
                     irc.notice(target, locale['syntax for'] % syn)
 
         req_flags = []
-        for n in handler.neeed:
+        for n in handler.need:
+            if not isinstance(n, string_types):
+                continue
             if n.startswith('flags:'):
                 req_flags.append(n.split(':')[1])
         if len(req_flags) > 0:

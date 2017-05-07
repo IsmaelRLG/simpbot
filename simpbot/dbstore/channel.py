@@ -19,9 +19,9 @@ class channel:
         self.key = None
         self.verbose = False
         self.template = {
-            'founder': 'FOVbfiklmorstv',
-            'admin': 'OVbfiklmorstv',
-            'op': 'OVbiklmotv',
+            'founder': 'BFOVbfiklmorstv',
+            'admin': 'BOVbfiklmorstv',
+            'op': 'BOVbiklmotv',
             'voice': 'Viltv',
             'clear': ''}
         self._lang = None
@@ -105,7 +105,7 @@ class channel:
             new_flags = []
             if initflags:
                 new_flags = [l for l in initflags]
-            for sign, l, n in mode._parse_modes(flags, only='FOVbfiklmorstv'):
+            for sign, l, n in mode._parse_modes(flags, only='BFOVbfiklmorstv'):
                 if sign == '+' and l not in new_flags:
                     if l in dadd:
                         continue

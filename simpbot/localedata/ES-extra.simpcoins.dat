@@ -1,0 +1,56 @@
+msgid  unregistered
+msgstr Para poder usar este comando debe aperturar una cuenta bancaria en {irc.nickname}, para ello por favor envie: /msg {irc.nickname} simpcoins create
+
+msgid  unregistered user
+msgstr Cuenta de usuario inválida: {usr.username}
+
+msgid  balance
+msgstr Balance de {usr.username}. Saldo total: {usr.coins} SimpCoins, Completado del próximo punto: {c}%, Suerte: {p}, Nivel: {usr.chances}, Próximo nivel: {usr.lines}/{usr.levelup}
+
+msgid  null
+msgstr ninguna
+
+msgid  low
+msgstr baja
+
+msgid  normal
+msgstr normal
+
+msgid  good
+msgstr buena
+
+msgid  hight
+msgstr alta
+
+msgid  excellent
+msgstr excelente
+
+msgid  missing arguments
+msgstr Faltan argumentos
+
+msgid  invalid amount
+msgstr El monto ingresado es inválido.
+
+msgid  you can not autotransfer
+msgstr No puedes autotransferirte SimpCoins.
+
+msgid  insufficient balance
+msgstr Saldo insuficiente.
+
+msgid  coins transferred
+msgstr {f.username} transfirió {a} SimpCoins a {t.username} 
+
+msgid  already account created
+msgstr Ya posee una cuenta aperturada.
+
+msgid  account created
+msgstr Se creó la cuenta {user.account}. 
+
+msgid  usage
+msgstr Forma de uso: simpcoins <create|balance|transfer|record> [cuenta] [monto]
+
+msgid  syntax simp
+msgstr simpcoins <create|balance|transfer|record> [cuenta] [monto]
+
+msgid  help simp
+msgstr Moneda electronica de SimpBot, denominada en SimpCoins.

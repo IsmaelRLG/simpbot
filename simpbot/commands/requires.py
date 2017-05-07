@@ -37,7 +37,8 @@ def req_nickserv(vars):
     irc = vars['self'].irc
     user = vars['user']
     target = vars['target']
-    if user.account is None:
+    args = vars['watchdog'][1]
+    if user.account is None and not 'ninja' in args:
         irc.error(target, localedata.get(vars['lang'])['not logged'])
         return failed
 requerimentls['requires nickserv'] = req_nickserv
@@ -202,13 +203,15 @@ def user_register(vars):
     target = user.nick
     locale = localedata.get(vars['lang'])
     dbstore = irc.dbstore
-    if len(args) == 0:
+    if len(args) == 0 or args[0] == 'ninja':
         if user.account is None:
-            irc.error(target, locale['not logged'])
+            if not 'ninja' in args:
+                irc.error(target, locale['not logged'])
             return failed
 
         if dbstore.get_user(user.account) is None:
-            irc.error(target, locale['you are not registered'])
+            if not 'ninja' in args:
+                irc.error(target, locale['you are not registered'])
             return failed
         return
 

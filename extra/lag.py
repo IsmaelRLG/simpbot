@@ -59,7 +59,7 @@ class lag_handler:
         if not self.has(puke):
             return
         else:
-            print crt - self.lagreq[puke][0], 2
+
             return (round(crt - self.lagreq[puke][0], 2), self.lagreq[puke][1])
 
     def set(self, nick, host, target):
@@ -79,7 +79,7 @@ lag_handler = lag_handler((60 * 15), (60 * 15 + 2), 200)
 def lag_ping(irc, ev, result, target, channel, _, locale):
     if _['nickname'] and not _['nickname'].isspace():
         nick = _['nickname'].strip()
-        if not irc.request.has_user():
+        if not irc.request.has_user(nick):
             try: irc.request.user(nick)
             except ValueError: return
         user = irc.request.get_user(nick)

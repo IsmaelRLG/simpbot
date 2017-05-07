@@ -48,7 +48,7 @@ def parse_mask(mask):
                 if gr.count(rand) > 0:
                     gr = gr.replace(rand, '(.+)')
             res.append(gr)
-        print [':|', '%s!%s@%s' % tuple(res)]
+
         return '%s!%s@%s' % tuple(res)
     return mask
 
@@ -93,7 +93,7 @@ colors = {
     }
 
 
-def color(text, color__, bgcolor=None):
+def color(text, color__, bgcolor=None, bold=False):
     if isinstance(color__, int):
         color__ = str(color__).zfill(2)
     if len(color__) > 1 and color__.startswith('b'):
@@ -103,6 +103,8 @@ def color(text, color__, bgcolor=None):
         bgcolor = ''
     elif isinstance(bgcolor, int):
         bgcolor = str(bgcolor).zfill(2)
+    if bold is True:
+        text = color(text, 'b')
     color__ = colors[color__] if color__ in colors else ''
     bgcolor = colors[bgcolor].replace('\3', '') if bgcolor in colors else ''
     if not text.startswith(color__):
@@ -112,5 +114,3 @@ def color(text, color__, bgcolor=None):
     if color__.startswith('\2') and not text.endswith('\2'):
         text += '\2'
     return text
-
-

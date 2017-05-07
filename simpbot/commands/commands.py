@@ -352,7 +352,6 @@ class ProccessCommands:
         if not sre and not privbot:
             return
 
-        print(':D')
         # Se procesan comandos con regex...
         # 0 -> False
         # 1 -> True

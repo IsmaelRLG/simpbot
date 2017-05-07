@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 # Script de instalación para `simpbot'.
 #
-# Autor: Ismael Lugo <ismaelrlgv@gmail.com>
-# Ultimo cambio: 11-04-2017
-# URL: https://www.kwargs.net.ve/projects/simpbot
+# Author: Ismael Lugo <ismaelrlgv@gmail.com>
+# Last change: 07-05-2017
 # GIT: https://github.com/IsmaelRLG/simpbot
 
 try:
@@ -13,12 +12,14 @@ except ImportError:
     print("Please install the setuptools package")
     exit(0)
 
+from os import walk
 from os.path import join, exists
 from os.path import dirname as dir
 import simpbot
 import platform
 import shutil
 
+requirements_file = 'requirements.txt'
 currentdir = dir(__file__)
 bindir = join(currentdir, 'bin')
 script = 'simpbot.py'
@@ -27,7 +28,18 @@ if platform.system() == 'Linux':
         shutil.move(join(bindir, script), join(bindir, 'simpbot'))
     script = 'simpbot'
 
-requires = file(join(currentdir, 'requires.txt'), 'r').read().splitlines()
+requires = file(join(currentdir, requirements_file), 'r').read().splitlines()
+
+# searching plugins requirements...
+for path, dirnames, filenames in walk(join(currentdir, 'simpmods')):
+    if requirements_file in filenames:
+        for req in file(join(path, requirements_file), 'r').read().splitlines():
+
+            if req in requires:
+                continue
+            else:
+                requires.append(req)
+
 
 setup(
     name='simpbot',
@@ -36,14 +48,12 @@ setup(
     author_email="ismaelrlgv@gmail.com",
     description="Simple Bot (SimpBot) - IRC (Internet Relay Chat) Bot",
     url="https://github.com/IsmaelRLG/simpbot",
-    packages=find_packages(),
+    packages=find_packages(exclude=['extra']),
     package_data={'simpbot': [join('localedata', '*.dat')]},
     scripts=[
         join('bin', script)
     ],
-    requires=[
-
-    ],
+    install_requires=requires,
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Console",
