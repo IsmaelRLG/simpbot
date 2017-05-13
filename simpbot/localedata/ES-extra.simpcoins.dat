@@ -2,10 +2,10 @@ msgid  unregistered
 msgstr Para poder usar este comando debe aperturar una cuenta bancaria en {irc.nickname}, para ello por favor envie: /msg {irc.nickname} simpcoins create
 
 msgid  unregistered user
-msgstr Cuenta de usuario inválida: {usr.username}
+msgstr Cuenta de usuario inválida: {usr}
 
 msgid  balance
-msgstr Balance de {usr.username}. Saldo total: {usr.coins} SimpCoins, Completado del próximo punto: {c}%, Suerte: {p}, Nivel: {usr.chances}, Próximo nivel: {usr.lines}/{usr.levelup}
+msgstr Balance de {usr.username}. Saldo total: {a} SimpCoins, Completado del próximo punto: {c}%, Suerte: {p}, Nivel: {usr.chances}, Próximo nivel: {usr.lines}/{usr.levelup}
 
 msgid  null
 msgstr ninguna
@@ -38,7 +38,7 @@ msgid  insufficient balance
 msgstr Saldo insuficiente.
 
 msgid  coins transferred
-msgstr {f.username} transfirió {a} SimpCoins a {t.username} 
+msgstr {f.username} transfirió {a} SimpCoins a {t.username}. Código de transferencia: {c}
 
 msgid  already account created
 msgstr Ya posee una cuenta aperturada.
@@ -47,10 +47,85 @@ msgid  account created
 msgstr Se creó la cuenta {user.account}. 
 
 msgid  usage
-msgstr Forma de uso: simpcoins <create|balance|transfer|record> [cuenta] [monto]
+msgstr Forma de uso: simpcoins <create|balance|transfer|history|check> [cuenta|página] [monto]
 
 msgid  syntax simp
-msgstr simpcoins <create|balance|transfer|record> [cuenta] [monto]
+msgstr simpcoins <create|balance|transfer|history|check> [cuenta|página] [monto]
 
 msgid  help simp
 msgstr Moneda electronica de SimpBot, denominada en SimpCoins.
+
+msgid  invalid page
+msgstr Número de página inválido.
+
+msgid  id column
+msgstr id
+
+msgid  sender column
+msgstr emisor
+
+msgid  receiver column
+msgstr destinatario
+
+msgid  amount column
+msgstr monto
+
+msgid  column date
+msgstr fecha
+
+msgid  showing pages
+msgstr Mostrando paginas {p}/{P}
+
+msgid  only managers
+msgstr Comando exclusivo para gerentes de Simp Bank.
+
+msgid  invalid id
+msgstr Número de transferencia inválido.
+
+msgid  column username
+msgstr Nombre de usuario
+
+msgid  column balance
+msgstr Saldo total
+
+msgid  invalid switch
+msgstr Sólo se admite on|off
+
+msgid  already switched
+msgstr Ya se encuentra en el estado indicado.
+
+msgid  cheat switched off
+msgstr Trampa desactivada para {usr.username}
+
+msgid  cheat switched on
+msgstr Trampa activada para {usr.username}
+
+msgid  account reset
+msgstr Se reseteó la cuenta {usr.username}
+
+msgid  lock switched on
+msgstr Se bloqueó la cuenta bancaria de {usr.username}
+
+msgid  lock switched off
+msgstr Se desbloqueó la cuenta bancaria de {usr.username}
+
+msgid  help sbm
+msgstr Simp Bank Manager (sbm). Comando exclusivo para gerentes de Simp Bank que permite gestionar todo lo referente a los SimpCoins.
+
+msgid  syntax sbm
+msgstr sbm <comando> [argumentos]
+
+msgid  help set-sbm
+msgstr Establece al usuario indicado como gerente de Simp Bank. 
+
+msgid  syntax set-sbm
+msgstr set-sbm <cuenta> <on|off>
+
+msgid  manager switched
+msgstr Se estableció el estado de gerente al usuario {usr.username} como: {switch}
+
+msgid  nothing to show
+msgstr No hay nada que mostrar.
+
+msgid  column lastseen
+msgstr visto por ultima vez
