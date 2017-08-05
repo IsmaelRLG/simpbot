@@ -1,7 +1,7 @@
 SimpBot
 =======
 
-.. image:: http://perch.kwargs.net.ve/misc/mit_license-68x51.png
+.. image:: http://kwargs.net.ve/misc/mit_license-68x51.png
    :target: https://www.gnu.org/licenses/gpl-3.0.en.html
 
 .. image:: https://www.python.org/static/community_logos/python-powered-w-140x56.png
