@@ -4,6 +4,7 @@
 
 import os
 import re
+import logging
 
 from . import capab
 from . import admins
@@ -19,7 +20,7 @@ __general_conf = configparser.ConfigParser(**envvars.cfg_kwargs)
 __general_conf.read(envvars.adminspath)
 regex_local = re.compile('local ([^ ]+) ([^ ]+)')
 regex_global = re.compile('global ([^ ]+)')
-logging = __import__('logging').getLogger('admins')
+logging = logging.getLogger('simpbot')
 
 # <conf>
 default_hash = envvars.cfg.get('DEFAULT_HASH', 'sha256')

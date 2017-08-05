@@ -7,7 +7,7 @@ from simpbot import control
 from types import ModuleType
 from .handler import handler as handlermsg
 from six import string_types
-logging = logging.getLogger('module')
+logging = logging.getLogger('simpbot')
 
 
 class module(control.control):

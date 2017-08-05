@@ -4,6 +4,7 @@
 
 import re
 import time
+import logging
 from . import requires
 from six.moves import queue
 from simpbot import modules
@@ -14,7 +15,7 @@ from simpbot.bottools.dummy import thread
 
 
 i18n = localedata.get()
-logging = __import__('logging').getLogger('commands')
+logging = logging.getLogger('simpbot')
 
 allow = True
 deny = False
@@ -280,7 +281,7 @@ class ProccessCommands:
             channel = sendin
             target = channel
 
-        regex = '^({}([:;, ] ?)|[{}])(?P<text>.*)'
+        regex = '^({0}([:;, ] ?)|[{1}])(?P<text>.*)'
         regex = regex.format(re.escape(irc.nickname), re.escape(irc.prefix))
         cmd = message
 

@@ -23,16 +23,16 @@ def parse_targets(mode, targets, p=4, nmode=False):
     rounds = int(rounds)
     targets.reverse()
     for i in range(rounds):
-        targ = []
+        t = []
         for n in range(p):
             try:
-                targ.append(targets.pop())
+                t.append(targets.pop())
             except IndexError:
                 break
         if nmode:
-            parse.append(' '.join(targ))
+            parse.append(' '.join(t))
         else:
-            parse.append('{}{} {}'.format(mm, len(targ) * mode, ' '.join(targ)))
+            parse.append('{0}{1} {2}'.format(mm, len(t) * mode, ' '.join(t)))
     return parse
 
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Simple Bot (SimpBot)
 # Copyright 2016-2017, Ismael Lugo (kwargs)
+from __future__ import unicode_literals
 
 import re
 from time import strftime as date

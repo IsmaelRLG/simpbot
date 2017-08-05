@@ -14,7 +14,7 @@ msgstr you are locked, thus you can't use the bot.
        Reason: %s, Date: %s, Admin: %s.
  
 msgid  command info
-msgstr Module: {}, Command: {} | %s
+msgstr Module: {0}, Command: {1} | %s
  
 msgid  invalid requirements
 msgstr you've requested a invalid requirement: "%s".

@@ -137,7 +137,7 @@ def lang_channel(irc, ev, result, target, channel, _, locale):
         'help': 'help drop channel'})
 def drop(irc, ev, result, target, channel, _, locale):
     if irc.dbstore.has_drop('chan', _['chan_name']):
-        _['code'] = irc.dbstore.get_hashdrop(_['chan_name'])
+        _['code'] = irc.dbstore.get_hash(_['chan_name'])
     else:
         _['code'] = irc.dbstore.drop('chan', _['chan_name'])
     irc.notice(_['user'].nick, _(locale['confirm drop']))
@@ -160,7 +160,7 @@ def confirm(irc, ev, result, target, channel, _, locale):
     code = _['code']
     chan = channel
     if len(code) != 32 or not irc.dbstore.has_drop('chan', chan) or \
-    irc.dbstore.get_hashdrop(_['chan_name']) != code:
+    irc.dbstore.get_hash(_['chan_name']) != code:
         irc.error(user.nick, locale['invalid code'])
         return
     irc.dbstore.del_drop('chan', chan)

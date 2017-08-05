@@ -152,7 +152,7 @@ class control(object):
                         continue
                     else:
                         date = ' %s' % date
-                    data.write('global {}{}\n'.format(order, date))
+                    data.write('global {0}{1}\n'.format(order, date))
 
             status = self.status[name]
             for order in ('allow', 'deny', 'ignore'):  # Primero los permitidos
@@ -173,7 +173,7 @@ class control(object):
                             date = ' %s' % date
                         if tnam == 'mask':
                             target = target[1]
-                        data.write('{} {} {}:{}{}\n'.format(
+                        data.write('{0} {1} {2}:{3}{4}\n'.format(
                             name, ornam, tnam, target, date))
 
     @text.lower

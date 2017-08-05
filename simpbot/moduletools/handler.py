@@ -4,14 +4,15 @@
 
 import re
 import types
+import logging
 from simpbot import control
 from simpbot import parser
 from six.moves._thread import start_new
 from six import string_types
-logging = __import__('logging').getLogger('CommandHandler')
+logging = logging.getLogger('CommandHandler')
 from simpbot import localedata
 
-_locale = localedata.get()
+_locale = localedata.get(package='simpbot.moduletools.handler')
 
 record_formats = {
     ':user-info:': '{user.mask} ({user.account})',
@@ -107,7 +108,7 @@ class handler(control.control):
     def function(self, irc, event, result, target, channel, _, locale):
         try:
             self.func(irc, event, result, target, channel, _, locale)
-        except Exception as err:
+        except SystemExit as err:
             _['handler'] = self
             _['message'] = repr(err)
             irc.verbose('error', _(_locale['exception info']))

@@ -2,21 +2,19 @@
 # Simple Bot (SimpBot)
 # Copyright 2016-2017, Ismael Lugo (kwargs)
 
-
+import logging
 from simpbot.bottools import irc as irctools
 from simpbot import localedata
 
 
 requerimentls = {}
-logging = __import__('logging').getLogger('requires')
+logging = logging.getLogger('simpbot')
 failed = True
 i18n = localedata.get()
 
 
 def get(requeriment):
-    """
-    get('admin:simple')
-    """
+    """get('admin:simple')"""
     args = []
     if isinstance(requeriment, tuple) or isinstance(requeriment, list):
         return requeriment

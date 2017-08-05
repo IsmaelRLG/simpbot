@@ -2,7 +2,7 @@
 # Simple Bot (SimpBot)
 # Copyright 2016-2017, Ismael Lugo (kwargs)
 
-__version__ = "17.5.7"
+__version__ = "17.7.30-24"
 __author__ = 'Ismael Lugo (kwargs)'
 
 try:
@@ -18,6 +18,7 @@ else:
     from . import bottools
     from . import features
     from . import parser
+    from . import schedule
     from . import mode
     from . import buffer
     from . import irc

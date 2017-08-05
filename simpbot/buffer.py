@@ -15,7 +15,7 @@ import re
 import logging
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('simpbot')
 
 
 class LineBuffer(object):

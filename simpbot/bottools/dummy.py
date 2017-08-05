@@ -4,6 +4,7 @@
 
 import time
 import sys
+
 from six.moves import _thread
 from simpbot import envvars
 from simpbot import __version__
@@ -33,7 +34,8 @@ def debug(level, daemon=envvars.daemon):
     if daemon is True:
         kw['filename'] = envvars.logs.join(time.strftime('%d%m%Y.log'))
         kw['filemode'] = 'a'
-    __import__('logging').basicConfig(**kw)
+    import logging
+    logging.basicConfig(**kw)
 
 
 def invalid_section(conf, section, options):
@@ -67,3 +69,12 @@ def thread(func):
     def start_thread(*args, **kwargs):
         _thread.start_new(func, args, kwargs)
     return start_thread
+
+
+_getattr = getattr
+def getattr(obj, attr):
+    if '.' in attr:
+        a, b = attr.split('.', 1)
+        obj = _getattr(obj, a)
+        return getattr(obj, b)
+    return _getattr(obj, attr)

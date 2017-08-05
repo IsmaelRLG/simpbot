@@ -231,6 +231,39 @@ msgstr Indica la dirección y puerto para ejecutar la API.
 msgid  help no api
 msgstr La API no es ejecutada al iniciar SimpBot.
 
+msgid  api started
+msgstr Se inició la API
+
+msgid  api stopped
+msgstr [-] La API no se ha iniciado
+
+msgid  help system info
+msgstr Muestra la información del sistema
+
+msgid  help servers test
+msgstr Prueba la configuración de los servidores
+
+msgid  help admins test
+msgstr Prueba la configuración y el funcionamiento de los administradores
+
+msgid  help conf test
+msgstr Prueba la configuración interna de SimpBot
+
+msgid  help connections test
+msgstr Prueba el funcionamiento del cliente de IRC
+
+msgid  help langs test
+msgstr Muestra los idiomas soportados por SimpBot
+
+msgid  help test all
+msgstr Ejecuta todos los parametros de pruebas
+
+msgid  connection successful
+msgstr [%z][%d/%m/%Y](%X): Conexión exitosa.
+
+msgid  server tested
+msgstr Servidores configurados correctamente
+
 ###################################
 # Argparser options!
 ###################################

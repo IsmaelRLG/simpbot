@@ -12,7 +12,7 @@ from .irc import client
 from .bottools import text
 
 i18n = localedata.get()
-logging = logging.getLogger('HANDLERS')
+logging = logging.getLogger('simpbot')
 client.handlers = []
 
 
@@ -38,7 +38,7 @@ def handler(Regex):
 # Parseadores
 ########################################
 def rpl(code, *args):
-    rpl_ = ':?(?P<machine>[^ ]+) {} (?P<me>[^ ]+) '.format(str(code).zfill(3))
+    rpl_ = ':?(?P<machine>[^ ]+) {0} (?P<me>[^ ]+) '.format(str(code).zfill(3))
     if len(args) > 0:
         rpl_ += ' '.join(args)
     return rpl_
@@ -86,6 +86,7 @@ def registration_successful(irc, ev):
 
     locale = localedata.get(irc.default_lang)
     irc.verbose('connected', time.strftime(locale['connection successful']))
+    return True
 
 
 # Nick en uso

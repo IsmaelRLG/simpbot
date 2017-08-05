@@ -2,16 +2,17 @@
 # Simple Bot (SimpBot)
 # Copyright 2016-2017, Ismael Lugo (kwargs)
 
-
-import argparse, socket, os, platform, json, sys, simpbot, time
+import argparse, socket, os, platform, json, sys, simpbot, time, datetime, re
 from . import envvars, localedata, connections, samples, api
 from .bottools import dummy, text
 from getpass import getpass
 from prettytable import PrettyTable
 from six.moves import input
+from six.moves import _thread
 
+refile = re.compile('(?P<name>.+)\.(?P<ext>py[co]?$)', re.IGNORECASE)
 parsers = envvars.parsers
-locale = localedata.get()
+locale = localedata.get(package='simpbot.cli')
 table_kwargs = {
     #'vertical_char':   ' ',
     #'junction_char':   ' ',
@@ -19,11 +20,17 @@ table_kwargs = {
     'border':           False,
     'print_empty':      False,
     'header_style':     'upper'}
+testing = False
 
 
-def error(text):
+def error(text, e=True):
     sys.stdout.write('[!] ' + text + '\n')
-    exit(1)
+    if e:
+        exit(1)
+
+
+def echo(text):
+    print('[+]  ' + text)
 
 
 class SimpParser(argparse.ArgumentParser):
@@ -36,6 +43,10 @@ class SimpParser(argparse.ArgumentParser):
         self.add_argument("-d", "--debug",
             help=locale['debug help'],
             type=int, metavar='level')
+
+        self.add_argument("--root",
+            action='store_true', dest='root',
+            help=locale['help root'])
 
         self.user = api.config.DEFAULT_USER
         self.host = api.config.CONNECT_HOST
@@ -83,18 +94,25 @@ class SimpParser(argparse.ArgumentParser):
                     break
         except KeyboardInterrupt:
             print('\n')
-            exit(0)
+            exit(1)
 
         if network == '':
             network = None
 
         return api.client.request(host, port, network, user, password)
 
+    def check_root(self, root):
+        if os.geteuid() == 0 and root:
+            error('no root!')
+
 
 class ServerParser(SimpParser):
 
     def __init__(self, *args, **kwargs):
         super(ServerParser, self).__init__(*args, **kwargs)
+        if testing:
+            return
+
         self.add_argument("-u", "--username", type=str,
             help=locale['username help'],
             metavar=locale['<username>'])
@@ -202,7 +220,7 @@ class ServerParser(SimpParser):
 
         servers = self.get_servers()
         if len(servers) == 0:
-            print(locale['no servers'])
+            error(locale['no servers'], False)
             return
 
         tablecfg = PrettyTable(basicrows, **table_kwargs)
@@ -254,14 +272,16 @@ class ServerParser(SimpParser):
             try:
                 host, port = args.remote_host.split(':')
                 if not port.isdigit() or int(port) == 0:
-                    raise ValueError
+                    raise ValueError('Invalid port number: ' + port)
             except ValueError:
                 error(locale['invalid syntax'])
             else:
                 self.host, self.port = host, int(port)
 
         if args.debug:
-            self.debug(args.debug)
+            if not args.debug in (10, 20, 30, 40, 50):
+                error(locale['invalid debug level'])
+            dummy.debug(args.debug)
         else:
             self.debug(40)
 
@@ -289,6 +309,9 @@ class ConfigParser(SimpParser):
 
     def __init__(self, *args, **kwargs):
         super(ConfigParser, self).__init__(*args, **kwargs)
+        if testing:
+            return
+
         self.add_argument("-u", "--username", type=str,
             help=locale['username help'],
             metavar=locale['<username>'])
@@ -336,9 +359,12 @@ class ConfigParser(SimpParser):
         #print(dummy.ascii(start=''))
 
         if args.debug:
-            self.debug(args.debug)
+            if not args.debug in (10, 20, 30, 40, 50):
+                error(locale['invalid debug level'])
+            dummy.debug(args.debug)
         else:
             self.debug(40)
+        self.check_root(args.root)
 
         if args.langs:
             return self.langs()
@@ -350,7 +376,7 @@ class ConfigParser(SimpParser):
             try:
                 host, port = args.listen.split(':')
                 if not port.isdigit() or int(port) == 0:
-                    raise ValueError
+                    raise ValueError('Invalid port number: ' + port)
             except ValueError:
                 error(locale['invalid syntax'])
             else:
@@ -385,6 +411,8 @@ class StatusParser(SimpParser):
 
     def __init__(self, *args, **kwargs):
         super(StatusParser, self).__init__(*args, **kwargs)
+        if testing:
+            return
 
         status = self.add_argument_group(locale['options for'] % 'status')
         status.add_argument("-s", "--start",
@@ -406,10 +434,6 @@ class StatusParser(SimpParser):
         status.add_argument("-i", "--info",
             action='store_true',
             help=locale['help info'])
-
-        status.add_argument("--root",
-            action='store_true', dest='root',
-            help=locale['help root'])
 
         gr_api = status.add_mutually_exclusive_group()
 
@@ -497,7 +521,7 @@ class StatusParser(SimpParser):
             with open(self.pid_path, 'w+') as pidfile:
                 pidfile.write(str(pid))
             if startmsg:
-                print('[+] (PID: %s) %s' % (pid, startmsg))
+                echo('(PID: %s) %s' % (pid, startmsg))
             os.dup2(si.fileno(), sys.stdin.fileno())
             os.dup2(so.fileno(), sys.stdout.fileno())
             os.dup2(se.fileno(), sys.stdout.fileno())
@@ -509,34 +533,40 @@ class StatusParser(SimpParser):
             import simpmods  # lint:ok
         except Exception as e:
             error(locale['simpmods error'] % repr(e))
-            #exit(0)
 
-        for modname in simpbot.envvars.modules.listdir():
+        for modname in envvars.modules.listdir():
+            if os.path.isfile(modname):
+                try:
+                    modname = refile.match(modname).group('name')
+                except:
+                    continue
+            elif os.path.islink(modname):
+                continue
+
             load_res = simpbot.modules.load_module(modname, trace=True)
             if isinstance(load_res, Exception):
-                exit(0)
+                exit(1)
 
         simpbot.admins.load_admins()
         simpbot.connections.load_servers()
-        if len(simpbot.envvars.admins) == 0:
+        if len(envvars.admins) == 0:
             error(locale['empty admins'])
-        if len(simpbot.envvars.networks) == 0:
+        if len(envvars.networks) == 0:
             error(locale['empty networks'])
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         host = simpbot.api.config.LISTEN_HOST
         port = simpbot.api.config.LISTEN_PORT
 
-        if not daemon:
-            if not api and sock.connect_ex((host, port)) == 0:
-                sock.close()
-                error('Address already in use: %s:%s' % (host, port))
-            self.demonize(locale['started'])
-
-        if not api:
+        if not daemon and not api:
             if sock.connect_ex((host, port)) == 0:
                 sock.close()
                 error('Address already in use: %s:%s' % (host, port))
+
+        if not daemon:
+            self.demonize(locale['started'])
+
+        if not api:
             simpbot.api.server.start()
         else:
             while 1:
@@ -563,7 +593,7 @@ class StatusParser(SimpParser):
             except OSError, err:
                 err = str(err)
                 if err.find("No such process") > 0:
-                    print('[+] (PID: %s) %s' % (pid, locale['stoped']))
+                    echo('(PID: %s) %s' % (pid, locale['stoped']))
                     os.remove(pid_path)
 
     def process(self):
@@ -581,7 +611,7 @@ class StatusParser(SimpParser):
             try:
                 host, port = args.listen.split(':')
                 if not port.isdigit() or int(port) == 0:
-                    raise ValueError
+                    raise ValueError('Invalid port number: ' + port)
             except ValueError:
                 error(locale['invalid syntax'])
             else:
@@ -593,25 +623,239 @@ class StatusParser(SimpParser):
                 return
 
         if args.start or args.restart:
-            if os.geteuid() == 0 and not args.root:
-                error('no root!')
+            self.check_root(args.root)
             return self.start(args.daemon, args.no_api)
 
         if args.info:
             if self.check_pid(self.pid_path):
                 with open(self.pid_path, 'r') as fp:
                     pid = int(fp.read())
-                print('[+] (PID: %s) %s' % (pid, locale['simpbot started']))
+                echo('(PID: %s) %s' % (pid, locale['simpbot started']))
             else:
-                print('[+] ' + locale['simpbot stoped'])
+                echo(locale['simpbot stoped'])
             return
         self.print_help()
+
+
+class TestParser(ConfigParser, ServerParser, StatusParser):
+
+    def __init__(self, *args, **kwargs):
+        global testing
+        testing = True
+
+        super(TestParser, self).__init__(*args, **kwargs)
+
+        test = self.add_argument_group(locale['options for'] % 'test')
+        test.add_argument("--system-info",
+            help=locale['help system info'],
+            action="store_true")
+
+        test.add_argument("--servers",
+            help=locale['help servers test'],
+            action="store_true")
+
+        test.add_argument("--admins",
+            help=locale['help admins test'],
+            action='store_true')
+
+        test.add_argument("--config",
+            action='store_true',
+            help=locale['help conf test'])
+
+        test.add_argument("--connection",
+            action='store_true',
+            help=locale['help connections test'])
+
+        test.add_argument("--langs",
+            action='store_true',
+            help=locale['help langs test'])
+
+        test.add_argument("--test-all",
+            action='store_true',
+            help=locale['help test all'])
+        testing = False
+
+    def process(self):
+        args = self.parse_args()
+        n = 0
+        #print(dummy.ascii(start=''))
+
+        if args.debug:
+            if not args.debug in (10, 20, 30, 40, 50):
+                error(locale['invalid debug level'])
+            dummy.debug(args.debug)
+        else:
+            dummy.debug(40)
+        self.check_root(args.root)
+        if args.system_info or args.test_all:
+            n += 1
+            echo('Python: ' + platform.python_version())
+            if platform.system() == 'Linux':
+                osver = ("%s %s" % (platform.dist()[0], platform.dist()[1]))
+            elif platform.system() == 'Windows':
+                osver = ("%s %s" % (platform.system(), platform.release()))
+            else:
+                osver = 'Unknown'
+            echo('OS: %s %s' % (osver, platform.architecture()))
+            echo('SimpBot v%s' % simpbot.__version__)
+
+        if args.langs or args.test_all:
+            n += 1
+            self.langs()
+
+        temp_admin = False
+        if args.admins or args.test_all:
+            n += 1
+            if not os.path.exists(envvars.adminspath):
+                with open(envvars.adminspath, 'w') as fp:
+                    fp.write(dummy.ascii(start=';'))
+                    fp.write(samples.admins.sample)
+                temp_admin = True
+
+        temp_conf = False
+
+        if args.config or args.test_all:
+            n += 1
+            if not os.path.exists(envvars.simpbotcfg):
+                with open(envvars.simpbotcfg, 'w') as fp:
+                    fp.write(dummy.ascii(start='#'))
+                    fp.write(samples.simpconf.sample)
+                temp_conf = True
+
+        if args.servers or args.connection or args.test_all:
+            n += 1
+            try:
+                self.add('testing-server')
+                if args.servers or args.test_all:
+                    self.server_list()
+            except:
+                error(locale['server failed'], False)
+
+            if args.test_all or args.connection:
+                pass
+            else:
+                self.remove('testing-server')
+
+        if args.connection or args.test_all:
+            n += 1
+            try:
+                import simpmods  # lint:ok
+            except Exception as e:
+                error(locale['simpmods error'] % repr(e))
+
+            for modname in envvars.modules.listdir():
+                if os.path.isfile(modname):
+                    try:
+                        modname = refile.match(modname).group('name')
+                    except:
+                        continue
+                elif os.path.islink(modname):
+                    continue
+
+                load_res = simpbot.modules.load_module(modname, trace=True)
+                if isinstance(load_res, Exception):
+                    exit(1)
+
+            done = []
+            @simpbot.handlers.handler(simpbot.handlers.\
+            rpl(4, '!{servername} !{version} !{aum} !{acm}'))
+            def quiter(irc, ev):
+                irc.disconnect()
+                time.sleep(2.5)
+                done.append(1)
+
+            simpbot.admins.load_admins()
+            servercfg = envvars.servers.join('testing-server.ini')
+            try:
+                connections.load_server(servercfg, envvars.networks, True, 1)
+            except Exception as e:
+                error('Invalid server config: ' + e)
+
+            if len(envvars.admins) == 0:
+                error(locale['empty admins'])
+            if len(envvars.networks) == 0:
+                error(locale['empty networks'])
+
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            host = simpbot.api.config.LISTEN_HOST
+            port = simpbot.api.config.LISTEN_PORT
+
+            if sock.connect_ex((host, port)) == 0:
+                sock.close()
+                error('Address already in use: %s:%s' % (host, port), False)
+
+            #def destroyer():
+            #    started = datetime.datetime.now()
+            #    msg = False
+            #    while 1:
+            #        time.sleep(1)
+            #        if envvars.api_started:
+            #            if not msg:
+            #                echo(locale['api started'])
+            #                msg = True
+            #       else:
+            #            print(locale['api stopped'])
+            #        t = (started - datetime.datetime.now()).total_seconds()
+            #        if len(done) > 0 or t > 30:
+            #            if envvars.api_started:
+            #                simpbot.api.server.stop()
+            #            break
+            #_thread.start_new(destroyer, (), {})
+            #simpbot.api.server.start()
+
+            t = time.time()
+            while 1:
+                if len(done) == 0:
+                    if (time.time() - t) > 60:
+                        break
+                    time.sleep(1)
+
+                else:
+                    echo(time.strftime(locale['connection successful']))
+                    break
+
+            self.remove('testing-server')
+
+        if args.config or args.test_all:
+            if temp_conf:
+                os.remove(envvars.simpbotcfg)
+
+        if args.admins or args.test_all:
+            if temp_admin:
+                os.remove(envvars.adminspath)
+        if n == 0:
+            self.print_help()
 
 #envvars.parsers['base'] = SimpParser
 envvars.parsers['conf'] = ConfigParser
 envvars.parsers['server'] = ServerParser
 envvars.parsers['status'] = StatusParser
-#envvars.parsers['module'] = ModuleParser
-
-
+envvars.parsers['test'] = TestParser
 setattr(argparse, '_', lambda txt: locale[txt] if txt in locale else txt)
+
+
+def main():
+    args = sys.argv
+    if len(args) > 1:
+        del args[0]
+
+    if len(args) == 0 or args[0] not in envvars.parsers:
+        print(locale['available commands'])
+        print('=' * len(locale['available commands']))
+        print(', '.join(envvars.parsers.keys()))
+        exit(1)
+
+    parser = envvars.parsers[args[0]]()
+    try:
+        parser.process()
+    except (SystemExit, KeyboardInterrupt):
+        pass
+    except Exception as error:
+        errmsg = locale['unexpected error'] % repr(error) + '\n'
+        sys.stderr.write(errmsg)
+        sys.stderr.flush()
+        exit(1)
+
+
+if __name__ == '__main__':
+    main()

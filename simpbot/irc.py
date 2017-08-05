@@ -2,6 +2,7 @@
 # Simple Bot (SimpBot)
 # Copyright 2016-2017, Ismael Lugo (kwargs)
 
+import re
 import sys
 import ssl
 import time
@@ -20,13 +21,17 @@ from . import __version__
 from .bottools import text
 from . import localedata
 from . import envvars
+from .schedule import basic_scheduler as scheduler
+
 
 i18n = localedata.get()
-Logger = logging.getLogger('irc-client')
+Logger = logging.getLogger('simpbot')
 
-regexmsg = __import__('re').compile(
+regexmsg = re.compile(
     ':(?P<mask>(?P<nick>.+)!(?P<user>.+)@(?P<host>[^ ]+)) '
     '(?P<type>PRIVMSG|NOTICE) (?P<target>[^ ]+) :(?P<message>.+)', 2)
+sche_name = lambda nw, nm: '{network}-{name}'.format(network=nw, name=nm)
+lg_format = []
 
 
 class client:
@@ -52,9 +57,11 @@ class client:
             fs = '%(levelname)s: irc-client(%(name)s): %(message)s'
             handler = logging.StreamHandler(sys.stdout)
 
-        handler.setFormatter(logging.Formatter(fs, None))
-        self.logger.addHandler(handler)
-        self.logger.propagate = 0
+        if not netw in lg_format:
+            handler.setFormatter(logging.Formatter(fs, None))
+            self.logger.addHandler(handler)
+            self.logger.propagate = 0
+            lg_format.append(netw)
 
         self.connection_status = 'n'
         self.input_alive = False
@@ -99,6 +106,16 @@ class client:
         self.msgps = msgps
         self.wtime = wtime
         self.prefix = prefix
+
+        std = sche_name(netw, 'std')
+        self.scheduler_std = scheduler(std, self, envvars.jobs.join(std))
+        self.scheduler_std.load()
+        self.scheduler_std.start()
+
+        ban = sche_name(netw, 'ban')
+        self.scheduler_ban = scheduler(ban, self, envvars.jobs.join(ban))
+        self.scheduler_ban.load()
+        self.scheduler_ban.start()
 
         if nick == "" or nick[0].isdigit():
             nick = text.randphras(l=7, upper=False, nofd=True)

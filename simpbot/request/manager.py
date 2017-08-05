@@ -97,7 +97,7 @@ class manager:
                 else:
                     continue
         else:
-            raise ValueError
+            raise ValueError('request timeout %ss: %s' % (timeout, nick))
 
     @text.lower
     def del_user(self, nick):
@@ -178,7 +178,7 @@ class manager:
                         continue
 
     def who(self, target):
-        self.irc._who('{} %chtsunfra,152'.format(target))
+        self.irc._who('{0} %chtsunfra,152'.format(target))
 
     def whois(self, target):
         self.irc._whois(target)

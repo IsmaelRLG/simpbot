@@ -12,7 +12,7 @@ SimpBot
 
 Simpbot is a very simple bot, cross platform, multi network support, multilingual, extensible and configurable, powered by Python.
 
-`simpbot` is currently tested on Python 2.7, 3.4, 3.5 and 3.6.
+`simpbot` is currently tested on Python 2.6, 2.7, 3.4, 3.5 and 3.6.
 
 Download and installation
 =========================

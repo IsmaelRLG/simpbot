@@ -4,10 +4,11 @@
 
 import re
 import sys
+import logging
 from os import path
 from . import workarea
 
-logging = __import__('logging').getLogger('localedata')
+logging = logging.getLogger('simpbot')
 
 
 langsep = '-'

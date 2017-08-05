@@ -65,7 +65,7 @@ class ReadConf:
     def getboolean(self, opt, default=None):
         val = self.get(opt, default).strip().lower()
         if not val in ('yes', 'not', 'no', 'True', 'False', True, False):
-            raise ValueError
+            raise ValueError('Value is not voolean: ' + val)
         return val in ('yes', 'True', True)
 
     def getint(self, opt, default=None):

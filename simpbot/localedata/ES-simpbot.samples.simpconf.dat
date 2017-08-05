@@ -24,6 +24,13 @@ CONNECT_HOST = 127.0.0.1
 CONNECT_PORT = 51397
 CONNECT_USER = 
 
+# Configuración del scheduler
+####################################
+CHECK_JOBS = 1
+MAX_DATE = 62942400
+DELAY_ON_FAIL = 900
+MAX_ATTEMPTS = 4
+
 # Lenguaje general de simpbot
 ####################################
 DEFAULT_LANG = ES

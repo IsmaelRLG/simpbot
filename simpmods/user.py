@@ -67,7 +67,7 @@ def register(irc, ev, result, target, channel, _, locale):
 def drop(irc, ev, result, target, channel, _, locale):
     user = _['user']
     if irc.dbstore.has_drop('user', user.account):
-        _['hash'] = irc.dbstore.get_hashdrop(user.account)
+        _['hash'] = irc.dbstore.get_hash(user.account)
     else:
         _['hash'] = irc.dbstore.drop('user', user.account)
     irc.notice(user.nick, _(locale['confirm drop']))
@@ -88,7 +88,7 @@ def confirm(irc, ev, result, target, channel, _, locale):
     user = _['user']
     code = _['code']
     if len(code) != 32 or not irc.dbstore.has_drop('user', user.account) or \
-    irc.dbstore.get_hashdrop(user.account) != code:
+    irc.dbstore.get_hash(user.account) != code:
         irc.error(user.nick, locale['invalid code'])
         return
     irc.dbstore.del_drop('user', user.account)

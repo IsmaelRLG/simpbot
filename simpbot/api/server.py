@@ -18,9 +18,9 @@ from six.moves import _thread
 #from types import NoneType
 from . import config
 
-import time, threading
+import time, threading, logging
 NoneType = type(None)
-logging = __import__('logging').getLogger('api')
+logging = logging.getLogger('simpbot')
 i18n = get_locale(package='simpbot.commands.commands')
 locale = get_locale()
 

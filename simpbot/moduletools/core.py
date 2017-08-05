@@ -2,7 +2,6 @@
 # Simple Bot (SimpBot)
 # Copyright 2016-2017, Ismael Lugo (kwargs)
 
-import re
 import imp
 import sys as sys_
 import logging
@@ -11,11 +10,11 @@ from . import module
 from simpbot import control
 from simpbot.envvars import mods_path
 from simpbot.envvars import coremodules
-refile = re.compile('(?P<name>.+)\.(?P<ext>py[co]?$)', re.IGNORECASE)
-logging = logging.getLogger('coremod')
+
+logging = logging.getLogger('simpbot')
 from simpbot import localedata
 
-i18n = localedata.get()
+i18n = localedata.get(package='simpbot.moduletools.core')
 
 
 class coremod(control.control):

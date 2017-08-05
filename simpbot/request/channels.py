@@ -9,11 +9,12 @@ class channel:
         self.channel_name = channel_name
         self.maxstatus = False
         self.users = []
+        self.list = {}
 
     def __iter__(self):
         return iter(self.users)
 
-    def __len(self):
+    def __len__(self):
         return len(self.users)
 
     def append(self, user):
@@ -55,3 +56,6 @@ class channel:
         for user in self.users:
             if user.nick.lower() == nickname.lower():
                 return user
+
+    def get_list(self, name):
+        return self.list[name]

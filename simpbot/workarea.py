@@ -7,7 +7,7 @@ import sys
 import mimetypes
 import shutil
 
-if sys.version_info.major == 3:
+if sys.version_info[0] == 3:
     from six.moves import builtins
     builtins.file = open
 

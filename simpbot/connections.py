@@ -14,11 +14,11 @@ from .commands import ProccessCommands
 from .bottools import text
 from .bottools import dummy
 from . import localedata
-
+import logging
 
 i18n = localedata.get()
 regex = compile('^(recv|send)\((.+)\)')
-logging = __import__('logging').getLogger('connections')
+logging = logging.getLogger('simpbot')
 
 
 def add(core, path, network, rchan, ruser, maxu, maxc, *args, **kwargs):
@@ -52,7 +52,7 @@ def remove(network):
     del envvars.networks[network]
 
 
-def load_server(abspath, core=envvars.networks, connect=True):
+def load_server(abspath, core=envvars.networks, connect=True, attempts=0):
     if not path.isfile(abspath):
         return
 
@@ -147,16 +147,16 @@ def load_server(abspath, core=envvars.networks, connect=True):
         if not connect:
             core[network].autoconnect = True
             return
-        _thread.start_new(core[network].try_connect, (), {})
+        _thread.start_new(core[network].try_connect, (attempts,), {})
 
 
-def load_servers(core=envvars.networks, connect=True):
+def load_servers(core=envvars.networks, connect=True, attempts=0):
     for servercfg in envvars.servers.listdir():
         servercfg = envvars.servers.join(servercfg)
         if not envvars.servers.isfile(servercfg):
             continue
         try:
-            load_server(servercfg, core, connect)
+            load_server(servercfg, core, connect, attempts=attempts)
         except Exception as e:
             msg = 'Configuracion "%s" inválida (ERROR: %s).'
             logging.error(msg, servercfg, repr(e))

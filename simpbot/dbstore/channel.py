@@ -102,20 +102,18 @@ class channel:
                         flags += l
                         continue
         elif '+' in flags or '-' in flags:
-            new_flags = []
-            if initflags:
-                new_flags = [l for l in initflags]
+            new_flags = [] if initflags else list(initflags)
+
             for sign, l, n in mode._parse_modes(flags, only='BFOVbfiklmorstv'):
-                if sign == '+' and l not in new_flags:
+                if sign == '+' and not l in new_flags:
                     if l in dadd:
                         continue
                     elif not simpaccount and l in 'Ffs':
                         continue
                     new_flags.append(l)
                     continue
-                elif sign == '-' and l in new_flags or l in ddel:
-                    continue
-                new_flags.remove(l)
+                elif sign == '-' and l in new_flags and not l in ddel:
+                    new_flags.remove(l)
 
             new_flags.sort()
             flags = ''.join(new_flags)
@@ -129,7 +127,7 @@ class channel:
                     account.del_chan(self)
             flags = None
         else:
-            flags = [l for l in flags]
+            flags = list(flags)
             flags.sort()
             flags = ''.join(flags)
             if flags != initflags:

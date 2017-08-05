@@ -8,16 +8,18 @@ import sys
 import zlib
 import base64
 import hashlib
+import logging
 
+from datetime import datetime
 from time import time
 from .user import user
 from .channel import channel
 from simpbot import envvars
 from simpbot.bottools import text
 from six.moves import cPickle
-logging = __import__('logging').getLogger('db-store')
+logging = logging.getLogger('simpbot')
 
-if sys.version_info.major == 3:
+if sys.version_info[0] == 3:
     modes = 'rb'
 else:
     modes = 'r'
@@ -29,14 +31,14 @@ def _trigger(function):
         _func = function
         fname = function.__name__
 
-        if self.has_triggers('pre', fname):
-            for trigger in self.get_triggers('pre', fname):
+        if self.has_triggers('before', fname):
+            for trigger in self.get_triggers('before', fname):
                 _func, args, kwargs = trigger(_func, args, kwargs)
 
         result = _func(*args, **kwargs)
 
-        if self.has_triggers('post', fname):
-            for trigger in self.get_triggers('post', fname):
+        if self.has_triggers('after', fname):
+            for trigger in self.get_triggers('after', fname):
                 result = trigger(result, args, kwargs)
 
         return result
@@ -44,7 +46,7 @@ def _trigger(function):
 
 
 class dbstore:
-    triggers = {'pre': {}, 'post': {}}
+    triggers = {'before': {}, 'after': {}}
 
     def __init__(self, network_name, maxc, maxu, rchan, ruser):
         self.name = network_name
@@ -58,7 +60,7 @@ class dbstore:
                     read = zlib.decompress(read)
                     self.__store = cPickle.loads(read)
                 except Exception as error:
-                    logging.error('No se pudo leer "%s": %s', self.name, error)
+                    logging.error("Can't not read '%s': %s", self.name, error)
                     return
             else:
                 self.__store = self.base_dict()
@@ -72,7 +74,7 @@ class dbstore:
     @classmethod
     def has_triggers(cls, met, attr):
         if not met in cls.triggers or not hasattr(cls, attr):
-            raise ValueError
+            raise ValueError('Invalid method or attribute: met=%s, attr=%s' % (met, attr))
         return attr in cls.triggers[met]
 
     @classmethod
@@ -135,12 +137,12 @@ class dbstore:
     def request(self, type, account):
         if type == 'user':
             self.store_request[type][account] =\
-            (hashlib.md5(account + text.randphras()).hexdigest(), int(time()))
+            (self.get_hash(account + text.randphras()), datetime.now())
         elif type == 'chan':
             chn = account[0].lower()
             usr = account[1].lower()
-            hash = hashlib.md5(usr + text.randphras()).hexdigest()  # lint:ok
-            self.store_request[type][chn] = (hash, usr, int(time()))
+            hash = self.get_hash(usr + text.randphras())  # lint:ok
+            self.store_request[type][chn] = (hash, usr, datetime.now())
         self.save()
 
     @text.lower
@@ -164,27 +166,27 @@ class dbstore:
     @text.lower
     @_trigger
     def drop(self, type, account):
-        hash = hashlib.md5(account).hexdigest()  # lint:ok
+        hash = self.get_hash(account)  # lint:ok
         self.store_drop[type][hash] = int(time())
         self.save()
         return hash
 
     @text.lower
     @_trigger
-    def get_hashdrop(self, account):
+    def get_hash(self, account):
         return hashlib.md5(account).hexdigest()
 
     @text.lower
     @_trigger
     def del_drop(self, type, account):
         if self.has_drop(type, account):
-            del self.store_drop[type][hashlib.md5(account).hexdigest()]
+            del self.store_drop[type][self.get_hash(account)]
             self.save()
 
     @text.lower
     @_trigger
     def has_drop(self, type, account):
-        hash = md5.new(account).hexdigest()  # lint:ok
+        hash = self.get_hash(account)  # lint:ok
         if hash in self.store_drop[type]:
             date = self.store_drop[type][hash]
             if (time() - date) >= (60 * 60 * 24):
@@ -285,6 +287,6 @@ class dbstore:
             text = cPickle.dumps(self.__store)
             text = zlib.compress(text)
             text = base64.b64encode(text)
-            if sys.version_info.major == 3:
+            if sys.version_info[0] == 3:
                 text = text.decode()
             store.write(text)

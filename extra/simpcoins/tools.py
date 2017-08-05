@@ -47,7 +47,7 @@ class bank:
         return self.__getitem__(account)
 
     def create(self, account, d=True):
-        user = User.create(id=self.genid(account), username=account, decrease=d)
+        user = User.create(id=self.genid(account), username=account, network=self.network, decrease=d)
         self.usermap[user.id] = user
         return user
 

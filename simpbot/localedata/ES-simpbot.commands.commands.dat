@@ -14,7 +14,7 @@ msgstr usted se encuentra bloqueado, por lo tanto no tiene habilitado el uso d
        Razón de bloqueo: %s, Fecha: %s, Administrador: %s.
 
 msgid  command info
-msgstr Módulo: {}, Comando: {} | %s
+msgstr Módulo: {0}, Comando: {1} | %s
 
 msgid  invalid requirements
 msgstr Solicitó un requerimiento inválido: "%s".
