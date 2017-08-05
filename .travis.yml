@@ -10,7 +10,7 @@ python:
 install: 
   - pip install .
   - pip install coveralls
-  - apt-get install inspircd
+  - sudo apt-get install inspircd
 script:
   - coverage run --source . -m simpbot.cli test --test-all
   - coverage report
