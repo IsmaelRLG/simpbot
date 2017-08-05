@@ -17,12 +17,12 @@ import simpbot
 
 requirements_file = 'requirements.txt'
 currentdir = dir(__file__)
-requires = file(join(currentdir, requirements_file), 'r').read().splitlines()
+requires = open(join(currentdir, requirements_file), 'r').read().splitlines()
 
 # searching plugins requirements...
 for path, dirnames, filenames in walk(join(currentdir, 'simpmods')):
     if requirements_file in filenames:
-        for req in file(join(path, requirements_file), 'r').read().splitlines():
+        for req in open(join(path, requirements_file), 'r').read().splitlines():
 
             if req in requires:
                 continue
