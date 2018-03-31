@@ -1,34 +1,28 @@
-# -*- coding: utf-8 -*-
-# Simple Bot (SimpBot)
-# Copyright 2016-2017, Ismael Lugo (kwargs)
+# coding=utf8
+"""
+logger.py - simple irc bot.
 
-__version__ = "17.7.30-24"
-__author__ = 'Ismael Lugo (kwargs)'
+Copyright © 2016-2018, Ismael Lugo, <ismaelrlgv@gmail.com>
+Licensed under the MIT License.
+"""
+
+from __future__ import absolute_import, unicode_literals
+
+__version__ = "18.3.21"
+__author__ = 'Ismael Lugo (kwargs) <ismaelrlgv@gmail.com>'
+
+import importlib
 
 try:
-    import six, flask, prettytable, httplib2  # lint:ok
+    requires = "six flask prettytable httplib2"
+    map(importlib.import_module(), requires.split())
 except ImportError as error:
     pass
 else:
-    #lint:disable
-    from . import simpleconf
+    from . import settings
     from . import workarea
     from . import envvars
-    from . import localedata
-    from . import bottools
-    from . import features
-    from . import parser
-    from . import schedule
-    from . import mode
-    from . import buffer
-    from . import irc
-    from . import handlers
-    from . import request
-    from . import admins
-    from . import dbstore
-    from . import control
-    from . import moduletools
-    #lint:enable
+
 
     modules = moduletools.core.coremod()
     get_module = modules.get_module

@@ -43,8 +43,9 @@ def parse_targets(mode, targets, p=4, nmode=False):
 #    Joel Rosdahl <joel@rosdahl.net>
 
 # Copyright © 1999-2002 Joel Rosdahl
-# Copyright © 2011-2015 Jason R. Coombs
 # Copyright © 2009 Ferry Boender
+# Copyright © 2011-2015 Jason R. Coombs
+# Copyright © 2018 Ismael Lugo
 
 
 def parse_nick_modes(mode_string):
@@ -117,24 +118,12 @@ def _parse_modes(mode_string, unary_modes="", only=""):
     """
 
     # mode_string must be non-empty and begin with a sign
-    if not mode_string or not mode_string[0] in '+-':
-        return []
-
-    modes = []
-
-    parts = mode_string.split()
-
-    mode_part, args = parts[0], parts[1:]
-
-    for ch in mode_part:
-        if ch in "+-":
-            sign = ch
-            continue
-        if only and not ch in only:
-            continue
-        arg = args.pop(0) if ch in unary_modes and args else None
-        modes.append([sign, ch, arg])
-    return modes
-
-
-
+    if mode_string or mode_string[0] in '+-':
+        parts = mode_string.split()
+        mode_part, args = parts[0], parts[1:]
+        for ch in mode_part:
+            if ch in "+-":
+                sign = ch
+                continue
+            arg = args.pop(0) if ch in unary_modes and args else None
+            yield (sign, ch, arg)

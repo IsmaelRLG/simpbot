@@ -1,20 +1,15 @@
 # -*- coding: utf-8 -*-
 # Simple Bot (SimpBot)
-# Copyright 2016-2017, Ismael Lugo (kwargs)
+# Copyright 2016-2018, Ismael Lugo (kwargs)
+from __future__ import unicode_literals
 
 import time
-import re
-import os
-import base64
 import logging
-logging = logging.getLogger('simpbot')
-
+from simpbot import settings as s
 from six.moves import _thread
-from six.moves import cPickle
 from six import string_types
-from six import PY3
 
-from simpbot.envvars import cfg
+logging = logging.getLogger(s.LOGGER_NAME)
 
 
 class BaseError(Exception):
@@ -23,7 +18,7 @@ class BaseError(Exception):
     def __init__(self, **kwargs):
         super(BaseError, self).__init__()
         self.kwargs = kwargs
-        if not 'msg' in kwargs:
+        if 'msg' not in kwargs:
             self.kwargs['msg'] = self.msg
 
     def __repr__(self):
@@ -31,13 +26,6 @@ class BaseError(Exception):
 
     def __str__(self):
         return self.string % self.kwargs
-
-
-class DataError(BaseError):
-    string = "File '%(name)s'; %(msg)s"
-
-    def __init__(self, **kwargs):
-        super(DataError, self).__init__(**kwargs)
 
 
 class LockError(BaseError):
@@ -53,17 +41,16 @@ class ReleaseError(BaseError):
     def __init__(self, **kwargs):
         super(LockError, self).__init__(**kwargs)
 
+
 PENDING = 0
 SUCCESS = 1
-FAILED  = 2
-ABORT   = 3
+FAILED = 2
+ABORT = 3
 schedulers = {}
 root_scheduler = '__root__'
 
 
 class SCheduler(object):
-    __header = re.compile('----- BEGIN (?P<content>.+) -----', re.IGNORECASE)
-    __footer = re.compile('----- END (?P<content>.+) -----', re.IGNORECASE)
     __stop_all = False
     __lock_all = False
 
@@ -99,20 +86,19 @@ class SCheduler(object):
     def release_all(cls):
         cls.__lock_all = False
 
-    @classmethod
-    def job_name(cls, job):
+    @staticmethod
+    def job_name(job):
         if isinstance(job.func, string_types):
             return job.func
         else:
             return job.func.__name__
 
-    def __init__(self, name, check, max_date, max_attempts, filename=None):
+    def __init__(self, name, check, max_date, max_attempts):
         self.jobs = []
         self.name = name
         self.check = check
         self.max_date = max_date
         self.max_attempts = max_attempts
-        self.filename = filename
         self.__stop = False
         self.__lock = False
         self.__loop = False
@@ -169,122 +155,50 @@ class SCheduler(object):
         else:
             self.jobs.append(job)
 
-    def new_job(self, func, exec_date, args, kwargs, thread=False, rerun=None, delay=None):
+    def new_job(self, func, exec_date, args=None, kwargs=None, thread=False,
+    rerun=None, delay=None, jobdb=None):
         if exec_date > self.max_date:
             exec_date = self.max_date
+        if args is None:
+            args = ()
+        if kwargs is None:
+            kwargs = {}
 
         epoch = time.time()
-        job = Job(
-            epoch,
+        args = (
+            #epoch,
             epoch + exec_date,
             self.max_attempts,
             delay or exec_date,
             rerun, func, args, kwargs)
 
+        if jobdb:
+            job = DBJob(*args)
+        else:
+            job = Job(*args)
+
         if thread:
             job.background()
         self.add_job(job, epoch)
+        return job
 
     @FLock
     def del_job(self, job):
-        self.jobs.remove(job)
+        self._del_job(job)
 
-    def write_file(self, fp):
-        header = self.__header.pattern
-        footer = self.__footer.pattern
-        l_content = 'JOB: DATE=%s, EXEC=%s, RERUN=%s'
-        for job in self.jobs:
-            try:
-                data = base64.b64encode(cPickle.dumps(job))
-                if PY3:
-                    data = data.decode()
-            except:
-                logging.warning('Cannot save job, skipping...')
-                continue
+    def _del_job(self, job):
+        if isinstance(job, list) and isinstance(job, tuple):
+            job = (job,)
 
-            content = l_content % (job.date, job.exec_date, job.rerun)
-            fp.write(header.replace('(?P<content>.+)', content) + '\n')
-            t = len(data)
-            I = 76
-            i = 0
-            n = 76
-
-            while i < t:
-                print((i, n, t))
-                fp.write(data[i:n] + '\n')
-                i += I
-                n += I
-
-            fp.write(footer.replace('(?P<content>.+)', content) + '\n')
-
-    @FLock
-    def write(self):
-        if not self.filename:
-            return
-
-        with open(self.filename, 'w') as fp:
-            self.write_file(fp)
-
-    def load_file(self, fp):
-        init = False
-        end = False
-        n_line = 0
-        a_jobs = 0
-        s_jobs = 0
-        data = []
-
-        for line in fp.read().splitlines():
-            n_line = 0
-            if self.__header.match(line):
-                if init:
-                    raise DataError(name=fp.name,
-                        msg='Line #%s; Missing closing line' % n_line)
-
-                init = True
-                if end:
-                    end = False
-                continue
-            elif self.__footer.match(line):
-                if end:
-                    raise DataError(name=fp.name,
-                        msg='Line #%s; Already closed' % n_line)
-
-                end = True
-                if init:
-                    init = False
-                try:
-                    self.jobs.append(cPickle.loads(base64.b64decode(''.join(data))))
-                except Exception as error:
-                    logging.warning('Cannot load job, skipping, error msg: %s', error)
-                    s_jobs += 1
-                    continue
-                else:
-                    a_jobs += 1
-                    del data[:]
-            elif init:
-                data.append(line)
-        if a_jobs > 0:
-            self.sort()
-        logging.debug('Total of added jobs %s, Skipped %s', a_jobs, s_jobs)
-
-    @FLock
-    def load(self):
-        if self.__loaded or not self.filename:
-            return
-
-        if not os.path.exists(self.filename):
-            return
-
-        with open(self.filename, 'rb' if PY3 else 'r') as fp:
-            self.load_file(fp)
+        for j in job:
+            logging.debug('Removing job "%s"...', self.job_name(job))
+            self.jobs.remove(job)
 
     def mainloop(self):
         if self.__status:
             return
         else:
             self.__status = True
-
-        obj = hasattr(self, 'obj')
 
         while not self.__stop and not self.__stop_all:
             try:
@@ -305,14 +219,9 @@ class SCheduler(object):
                     if job.run_status():
                         continue
                     logging.debug('Running job "%s"...', self.job_name(job))
-                    if obj:
-                        job(self.__to_delete, self.__to_sort, epoch, self.obj)
-                    else:
-                        job(self.__to_delete, self.__to_sort, epoch)
+                    job(self.__to_delete, self.__to_sort, epoch)
 
-                for job in self.__to_delete:
-                    logging.debug('Removing job "%s"...', self.job_name(job))
-                    self.jobs.remove(job)
+                self._del_job(self.__to_delete)
                 del self.__to_delete[:]
 
                 if len(self.__to_sort) > 0:
@@ -335,30 +244,64 @@ class SCheduler(object):
         self.__stop = True
 
 
+class DBSCheduler(SCheduler):
+
+    def __init__(self, table, *args, **kwargs):
+        super(DBSCheduler, self).__init__(*args, **kwargs)
+        self.table = table
+
+    def new_job(self, *args, **kwargs):
+        kwargs['jobdb'] = True
+        job = super(DBSCheduler, self).new_job(*args, **kwargs)
+        job.setdb(job.record(self.table))
+
+    def _del_job(self, job):
+        if isinstance(job, list) and isinstance(job, tuple):
+            job = (job,)
+
+        for j in job:
+            logging.debug('Removing job "%s"...', self.job_name(j))
+            self.jobs.remove(j)
+            j.delete()
+
+    def load(self):
+        if self.__loaded is True:
+            return
+
+        tload = 0
+        for db in self.table.select():
+            job = DBJob(
+                db.exec_in,
+                db.max_attempts,
+                db.delay,
+                db.p_rerun,
+                db.function,
+                db.args,
+                db.kwargs
+            )
+            job.success(db.p_done)
+            job.exec_status(db.p_exec)
+            job.attempts(db.p_attempts)
+            job.handlers.update(db.handlers)
+            if db.p_thread:
+                job.background()
+
+            self.jobs.append(job)
+        if tload > 0:
+            self.sort()
+        self.__loaded = True
+
+
 class Job(object):
 
-    def __init__(self, date, exec_date, ma, dof, ru, func, args, kwargs, id=None):
-        """
-        Job object
-
-        :param date: Fecha de creación de la tarea
-        :param exec_date: Fecha de ejecución de la tarea
-        :param ma: Máximo de reintentos
-        :param dof: Tiempo de retraso para la próxima ejecución
-        :param ru: Número de repeticiones
-        :param func: Función para ejecutar (carga la util de la tarea)
-        :param args: Argumentos posicionales para la función
-        :param kwargs: Argumentos clave-valor para la función
-        :param id: Identificador único para la tarea
-        """
-
-        self.last_epoch = None
+    def __init__(self, exec_date, ma, dof, ru, func, args, kwargs):
         self.handlers = {'before': [], 'after': []}
-        self.date = date
+        #self.date = date
         self.exec_date = exec_date
         self._func = func
-        self.args = tuple(args)
+        self.args = args
         self.kwargs = kwargs
+        #self.kwargs['__job__'] = self
         self.status = 0  # 0: pending, 1: success, 2: failed, 3:abort
         self.__done = False
         self.__exec = False
@@ -367,7 +310,6 @@ class Job(object):
         self.max_attempts = ma
         self.__rerun = ru
         self.delay = dof
-        self.id = id
 
     def __call__(self, delete_list, sort_list, epoch):
         return self.run(delete_list, sort_list, epoch)
@@ -389,9 +331,9 @@ class Job(object):
 
     @property
     def rerun(self):
-        if isinstance(self.__rerun, bool):
+        if self.__rerun is None:
             # 0: Infinite
-            return 0 if self.__rerun else -1
+            return 0
         if isinstance(self.__rerun, int):
             return -1 if self.__rerun < 0 else self.__rerun
         else:
@@ -400,64 +342,71 @@ class Job(object):
     def total_seconds(self, epoch):
         return (self.exec_date - epoch)
 
-    def _run_function(self, obj=None):
-        self.__exec = True
+    def attempts(self, n):
+        self.__attempts = n
+
+    def exec_status(self, s):
+        self.__exec = s
+
+    def run_function(self):
+        self.exec_status(True)
         self.__attempts += 1
         if len(self.handlers['before']) > 0:
             for handler in self.handlers['before']:
-                status = handler(self, obj)
+                status = handler(self)
                 if status == FAILED:
                     return FAILED
                 elif status == ABORT:
-                    self.__done = True
+                    self.success()
                     return SUCCESS
 
         try:
-            if obj is None:
-                status = self.func(*self.args, **self.kwargs)
-            else:
-                status = self.func(obj)(*self.args, **self.kwargs)
+            status = self.func(*self.args, **self.kwargs)
         except Exception as error:
             logging.error('Job "%s": %s', SCheduler.job_name(self), repr(error))
-            self.__exec = False
+            self.exec_status(False)
             return FAILED
         else:
             if status == FAILED:
-                self.__exec = False
+                self.exec_status(False)
                 return FAILED
             elif status == ABORT:
-                self.__done = True
-                self.__exec = False
+                self.success()
+                self.exec_status(False)
                 return SUCCESS
 
         if len(self.handlers['after']) > 0:
             for handler in self.handlers['after']:
-                status = handler(self, obj)
+                status = handler(self)
                 if status == FAILED:
-                    self.__exec = False
+                    self.exec_status(False)
                     return FAILED
 
-        self.__exec = False
-        self.__done = True
+        self.exec_status(False)
+        self.success()
         return SUCCESS
 
-    def run_function(self):
-        self._run_function()
+    def status(self):
+        return self.__done
+
+    def success(self, status=True):
+        self.__done = status
 
     def run_status(self):
         return self.__exec
 
-    def _run(self, delete_list, sort_list, epoch, obj=None):
+    def run(self, delete_list, sort_list, epoch):
         if self.__thread:
             _thread.start_new(self.run_function, (), {})
             status = SUCCESS
         else:
-            status = self.run_function(obj)
+            status = self.run_function()
 
         self.status = status
         if status == FAILED:
             if self.__attempts >= self.max_attempts:
                 delete_list.append(self)
+                self.save()
                 return ABORT
             else:
                 self.exec_date = epoch + self.delay
@@ -473,33 +422,78 @@ class Job(object):
         else:
             delete_list.append(self)
         # </success>
+        self.save()
         return status
 
-    def run(self, delete_list, sort_list, epoch):
-        self._run(delete_list, sort_list, epoch)
+    def background(self):
+        self.__thread = True
+
+    def foreground(self):
+        self.__thread = False
+
+    def add_handler(self, m, function):
+        self.handlers[m].append(function)
+
+    def del_handler(self, m, function):
+        self.handlers[m].remove(function)
 
 
-class OBJ_SCheduler(SCheduler):
+class DBJob(Job):
+    MAP_ATTR = {
+        'handlers': 'handlers', '_func': 'function',
+        'args': 'args',         'kwargs': 'kwargs',
+        'status': 'status',     'exec_date': 'exec_in',
+        'delay': 'delay',       'max_attempts': 'max_attempts',
+        '__done': 'p_done',     '__exec': 'p_exec',
+        '__thread': 'p_thread', '__attempts': 'p_attempts',
+        '__rerun': 'p_rerun'}
 
-    def __init__(self, name, check, max_date, max_attempts, obj, filename=None):
-        super(OBJ_SCheduler, self).\
-        __init__(name, check, max_date, max_attempts, filename)
-        self.obj = obj
+    def __setattr__(self, attr, value):
+        if attr in self.MAP_ATTR:
+            if '__job' in self.__dict__:
+                setattr(self._job, self.MAP_ATTR[attr], value)
+                #self._job.save()
+        self.__dict__[attr] = value
 
+    def record(self, table):
+        return table.create(
+            handlers=self.handlers,
+            function=self._func,
+            args=self.args,
+            kwargs=self.kwargs,
+            #status=0,  # default in model
+            #date=self.date,
+            exec_in=self.exec_date,
+            delay=self.delay,
+            max_attempts=self.max_attempts,
+            p_done=self.__done,
+            p_exec=self.__exec,
+            p_thread=self.__thread,
+            p_attempts=self.__attempts,
+            p_rerun=self.__rerun)
 
-class IRCJob(Job):
+    def setdb(self, jobdb):
+        self._job = jobdb
 
-    def __call__(self, delete_list, sort_list, epoch, irc):
-        return self.run(delete_list, sort_list, epoch, irc)
+    @property
+    def uuid(self):
+        return self._job.uuid
 
-    def run(self, delete_list, sort_list, epoch, irc):
-        self._run(delete_list, sort_list, epoch, irc)
+    def save(self):
+        if '_job' in self.__dict__:
+            self._job.save()
 
-    def func(self, irc):
-        return getattr(irc, self._func.split(' ', 1)[1])
+    def delete(self):
+        if '_job' in self.__dict__:
+            self._job.delete_instance()
 
-    def run_function(self, irc):
-        self._run_function(irc)
+    def add_handler(self, *args, **kwargs):
+        super(DBJob, self).add_handler(*args, **kwargs)
+        self.save()
+
+    def del_handler(self, *args, **kwargs):
+        super(DBJob, self).del_handler(*args, **kwargs)
+        self.save()
 
 
 def remove(name):
@@ -510,28 +504,16 @@ def insert(name, scheduler):
     schedulers[name] = scheduler
 
 
-def basic_scheduler(name, obj=None, filename=None):
+def basic(name, check=s.CHECK_JOBS, md=s.MAX_DATE, ma=s.MAX_ATTEMPTS):
     if name in schedulers:
         return schedulers[name]
 
-    if obj:
-        schedulers[name] = OBJ_SCheduler(
-            name,
-            cfg.getint('CHECK_JOBS', 1),
-            cfg.getint('MAX_DATE', 62942400),
-            #cfg.getint('DELAY', 900),
-            cfg.getint('MAX_ATTEMPTS', 4), obj, filename=filename)
-    else:
-        schedulers[name] = SCheduler(
-            name,
-            cfg.getint('CHECK_JOBS', 1),
-            cfg.getint('MAX_DATE', 62942400),
-            #cfg.getint('DELAY', 900),
-            cfg.getint('MAX_ATTEMPTS', 4), filename=filename)
-
+    schedulers[name] = SCheduler(name, check, md, ma)
     return schedulers[name]
 
 
 def getroot():
-    return basic_scheduler(root_scheduler)
+    return basic(root_scheduler)
+
+
 getroot()

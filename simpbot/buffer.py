@@ -12,10 +12,6 @@
 from __future__ import unicode_literals, absolute_import
 
 import re
-import logging
-
-
-log = logging.getLogger('simpbot')
 
 
 class LineBuffer(object):

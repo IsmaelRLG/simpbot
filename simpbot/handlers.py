@@ -10,9 +10,10 @@ from . import parser
 from . import localedata
 from .irc import client
 from .bottools import text
+from .settings import LOGGER_NAME
 
 i18n = localedata.get()
-logging = logging.getLogger('simpbot')
+logging = logging.getLogger(LOGGER_NAME)
 client.handlers = []
 
 
@@ -86,7 +87,6 @@ def registration_successful(irc, ev):
 
     locale = localedata.get(irc.default_lang)
     irc.verbose('connected', time.strftime(locale['connection successful']))
-    return True
 
 
 # Nick en uso

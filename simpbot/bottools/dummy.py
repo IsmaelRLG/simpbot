@@ -69,12 +69,3 @@ def thread(func):
     def start_thread(*args, **kwargs):
         _thread.start_new(func, args, kwargs)
     return start_thread
-
-
-_getattr = getattr
-def getattr(obj, attr):
-    if '.' in attr:
-        a, b = attr.split('.', 1)
-        obj = _getattr(obj, a)
-        return getattr(obj, b)
-    return _getattr(obj, attr)

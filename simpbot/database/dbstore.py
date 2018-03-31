@@ -46,7 +46,7 @@ def _trigger(function):
 
 
 class dbstore:
-    triggers = {'before': {}, 'after': {}}
+    triggers = {'pre': {}, 'post': {}}
 
     def __init__(self, network_name, maxc, maxu, rchan, ruser):
         self.name = network_name
@@ -74,7 +74,7 @@ class dbstore:
     @classmethod
     def has_triggers(cls, met, attr):
         if not met in cls.triggers or not hasattr(cls, attr):
-            raise ValueError('Invalid method or attribute: met=%s, attr=%s' % (met, attr))
+            raise ValueError
         return attr in cls.triggers[met]
 
     @classmethod

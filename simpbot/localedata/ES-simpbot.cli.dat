@@ -232,7 +232,7 @@ msgid  help no api
 msgstr La API no es ejecutada al iniciar SimpBot.
 
 msgid  api started
-msgstr Se inició la API
+msgstr [+] Se inició la API
 
 msgid  api stopped
 msgstr [-] La API no se ha iniciado
@@ -257,12 +257,6 @@ msgstr Muestra los idiomas soportados por SimpBot
 
 msgid  help test all
 msgstr Ejecuta todos los parametros de pruebas
-
-msgid  connection successful
-msgstr [%z][%d/%m/%Y](%X): Conexión exitosa.
-
-msgid  server tested
-msgstr Servidores configurados correctamente
 
 ###################################
 # Argparser options!

@@ -1,34 +1,41 @@
-# -*- coding: utf-8 -*-
-# Simple Bot (SimpBot)
-# Copyright 2016-2017, Ismael Lugo (kwargs)
+# coding=utf8
+"""
+envvars.py - --EDIT THIS--
 
-import platform
+Copyright © 2016-2018, Ismael Lugo, <ismaelrlgv@gmail.com>
+Licensed under the MIT License.
+"""
+
+from __future__ import absolute_import, unicode_literals
+
 import os
 import time
 import locale
-import sys
-from . import workarea as wa
+from simpbot import workarea as wa
+from simpbot import settings as se
 
+workarea = wa.workarea(
+    os.path.join(os.environ['HOME'], se.MAIN_DIR),
+    {
+        'files': [se.FILE_SETTINGS],
+        'dirs': [se.MAIN_LOG_DIR, se.MAIN_MODULES_DIR, se.MAIN_MODDATA_DIR]
+    }
+)
 
-mods_path = []
+os.chdir(workarea.abspath)
+moddata = workarea.new_wa(se.MAIN_MODDATA_DIR)
+modules = workarea.new_wa(se.MAIN_MODULES_DIR)
+log = workarea.new_wa(se.MAIN_LOG_DIR)
+log_bot = log.new_wa(se.SUB_LOG_DIR_BOT)
+log_irc = log.new_wa(se.SUB_LOG_DIR_IRC)
+
+log_abspath = log_bot.join(se.LOG_FILENAME)
+settings_file = workarea.join(se.FILE_SETTINGS)
+mods_path = [modules.abspath]
 uptime = time.time()
-admins = {}
-coremodules = {}
-networks = {}
-database = {}
-parsers = {}
-default_lang = 'es'
 api_started = False
 daemon = False
-
-cfg_kwargs = {}
-if sys.version_info[0:2] >= (3, 2):
-    cfg_kwargs['inline_comment_prefixes'] = (';',)
-
-if platform.system() == 'Linux':
-    HOME = os.environ['HOME']
-elif platform.system() == 'Windows':
-    HOME = os.environ['USERPROFILE']
+loggers = {}
 
 
 def getlang():
@@ -46,20 +53,7 @@ def getlang():
         return default_lang
 
 default_lang = getlang()
-workarea = wa.workarea(os.path.join(HOME, '.simpbot'),
-    {'files': ['admins.ini'], 'dirs': ['logs', 'modules', 'data']})
-#os.chdir(workarea.abspath)
-modules = workarea.new_wa('modules')
-mods_path.append(modules.abspath)
-servers = workarea.new_wa('servers')
-adminspath = workarea.join('admins.ini')
-simpbotcfg = workarea.join('simpbot.conf')
-logs = workarea.new_wa('logs')
-data = workarea.new_wa('data')
-jobs = data.new_wa('jobs')
-dbstore = data.new_wa('dbstore')
-records = data.new_wa('records')
-ctrl = data.new_wa('commands')
+
 
 if workarea.exists(simpbotcfg) and workarea.isfile(simpbotcfg):
     from simpbot.simpleconf import ReadConf

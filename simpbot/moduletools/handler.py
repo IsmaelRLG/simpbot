@@ -12,7 +12,7 @@ from six import string_types
 logging = logging.getLogger('CommandHandler')
 from simpbot import localedata
 
-_locale = localedata.get(package='simpbot.moduletools.handler')
+_locale = localedata.get()
 
 record_formats = {
     ':user-info:': '{user.mask} ({user.account})',

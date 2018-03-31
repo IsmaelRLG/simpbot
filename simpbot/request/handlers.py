@@ -7,7 +7,6 @@ from simpbot.bottools import irc as irctool
 from simpbot.handlers import rpl, usr
 from simpbot.handlers import handler
 import re
-import time
 
 ################################## WHOIS #####################################
 
@@ -140,9 +139,6 @@ def nosuch(irc, ev):
 
 
 ################################# mode ######################################
-triggers =  {'+': [], '-': []}
-NEXT = 1
-STOP = None
 
 
 # MODE
@@ -156,69 +152,29 @@ def channel_status_mode(irc, ev):
         if channel is None:  # wtf
             return True
 
-    for sign, cmode, target in mode.parse_channel_modes(ev('modes')):
-        for trigger in triggers[sign]:
-            if trigger(irc, ev, channel, sign, cmode, target) is NEXT:
-                continue
-            else:
-                break
-    return True
-
-
-def add_chan_trigger(sign, trigger):
-    triggers[sign[0]].append(trigger)
-
-
-def del_chan_trigger(sign, trigger):
-    triggers[sign[0]].remove(trigger)
-# Trigger syntax
-# ------------------
-#
-# def func_name(irc, event, channel, sign, cmode, target):
-#    * irc: IRC instance
-#    * event: match of the event
-#    * channel: Request Channel instance
-#    * sign: signe (+ or -)
-#    * cmode: channel mode
-#    * target: target to change de mode
-################################################################################
-
-
-def trigger_user_status(irc, event, channel, sign, cmode, target):
-    user = channel.get_user(target)
-    if user is None:
-        return NEXT
-
     if not hasattr(irc.features, 'modeprefix'):
         irc.features.modeprefix = {}
         for char, cmode in irc.features.prefix.items():
             irc.features.modeprefix[cmode] = char
 
-    if not cmode in irc.features.modeprefix:
-        return NEXT
+    status_mode = irc.features.modeprefix.keys()
+    for sign, cmode, target in mode.parse_channel_modes(ev('modes')):
+        if target is None or not cmode in status_mode:
+            continue
+        user = channel.get_user(target)
+        if user is None:  # wtf
+            continue
 
-    cmode = irc.features.modeprefix[cmode]
-    if sign == '+':
-        user.set_status(channel.channel_name, 'insert', cmode)
-    else:
-        user.set_status(channel.channel_name, 'remove', cmode)
-    user.update()
-add_chan_trigger('+', trigger_user_status)
-add_chan_trigger('-', trigger_user_status)
-
-
-def trigger_ban_list(irc, event, channel, sign, cmode, target):
-    if cmode != 'b':
-        return NEXT
-    target = target.lower()
-    if target in channel.list and sign == '-':
-        del channel.list[target]
-    elif target not in channel.list and sign == '+':
-        channel.list[target] = {'by': event('mask'), 'date': int(time.time())}
-add_chan_trigger('+', trigger_ban_list)
-add_chan_trigger('-', trigger_ban_list)
-
-
+        cmode = irc.features.modeprefix[cmode]
+        if sign == '+':
+            user.set_status(channel.channel_name, 'insert', cmode)
+        else:
+            user.set_status(channel.channel_name, 'remove', cmode)
+        user.update()
+    return True
+:cherryh.freenode.net 401 kwargs klkjlj :No such nick/channel
+:cherryh.freenode.net 367 kwargs ##canaima-social *!*@190.199.64.182 freya!~ircbot@unaffiliated/kwargs/bot/userbot 1498668305
+:cherryh.freenode.net 368 kwargs ##canaima-social :End of Channel Ban Li
 ################################# list ######################################
 
 # bans
@@ -227,7 +183,8 @@ pr = []
 @handler(rpl(367, '!{target} !{mask} !{by} !{date}'))
 def channel_bans(irc, ev):
     channel = ev('target')
-    pr_id = ('%s/%s' % (irc.servname, channel)).lower()
+    server = irc.servname
+    pr_id = ('%s/%s' % (server, channel)).lower()
 
     channel = irc.request.get_chan(channel)
     if channel is None:  # wtf
@@ -238,8 +195,3 @@ def channel_bans(irc, ev):
         channel.list.clear()
 
     channel.list[ev('mask').lower()] = {'by': ev('by'), 'date': int(ev('date'))}
-
-
-@handler(rpl(368, '!{target} :?.*'))
-def channel_bans_end(irc, ev):
-    pr.remove(('%s/%s' % (irc.servname, ev('target'))).lower())
