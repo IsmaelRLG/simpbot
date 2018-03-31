@@ -1,6 +1,12 @@
-# -*- coding: utf-8 -*-
-# Simple Bot (SimpBot)
-# Copyright 2016-2017, Ismael Lugo (kwargs)
+# coding=utf8
+"""
+workarea.py - File system utilities.
+
+Copyright © 2016-2018, Ismael Lugo, <ismaelrlgv@gmail.com>
+Licensed under the MIT License.
+"""
+
+from __future__ import absolute_import, unicode_literals
 
 import os
 import sys
@@ -64,8 +70,14 @@ class workarea:
     def listdir(self, path=None):
         return os.listdir(self.join(path) if path else self.abspath)
 
-    def mkdir(self, folder):
-        os.mkdir(self.join(folder))
+    def mkdir(self, folder, parents=False):
+        if parents is True:
+            try:
+                os.makedirs(self.join(folder))
+            except OSError:
+                pass
+        else:
+            os.mkdir(self.join(folder))
 
     def touch(self, filename):
         self.file(filename, 'w').close()
